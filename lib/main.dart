@@ -7,6 +7,7 @@ import 'api_key.dart';
 import 'package:tradule/home/home_screen.dart';
 import 'package:tradule/login/login_screen.dart';
 import 'package:tradule/provider/auth_provider.dart';
+import 'package:tradule/features/home/screen.dart' as h;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,9 +31,9 @@ class Tradule extends StatelessWidget {
         primarySwatch: Colors.orange,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const HomeScreen(),
+      home: h.HomePage(),
       routes: <String, WidgetBuilder>{
-        '/home': (context) => const HomeScreen(),
+        '/home': (context) => h.HomePage(),
         '/login': (context) => const LoginScreen(),
       },
     );
