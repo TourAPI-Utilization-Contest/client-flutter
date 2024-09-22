@@ -52,7 +52,7 @@ class ServerWrapper {
 
   //임시 함수
   static Future<List<String>> getEvents(int page) async {
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(milliseconds: 500));
     return List.generate(2, (index) => '일정 제목 ${index + 1 + (page * 2)}');
   }
 }

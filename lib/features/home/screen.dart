@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/features/login/screen.dart';
+import 'package:tradule/features/itinerary/screen.dart';
 import 'package:elevated_flex/elevated_flex.dart';
 
 class HomePage extends StatefulWidget {
@@ -36,7 +37,9 @@ class _HomePageState extends State<HomePage>
         physics: NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: [
-          Center(child: Text('Page 1')),
+          // Center(child: Text('Page 1')),
+          // MapWithBottomSheet(),
+          CustomBottomSheetMap(),
           MainPage(),
           LoginScreen(),
         ],
@@ -130,10 +133,10 @@ class _MainPageState extends State<MainPage> {
             ? Text('${ServerWrapper.getUser()!.name}님')
             : Text('로그인이 필요합니다.'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          controller: _scrollController,
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               Section(
@@ -172,6 +175,43 @@ class _MainPageState extends State<MainPage> {
                 title: '내 일정',
                 content: Column(
                   children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // 새 일정 만들기 로직 구현
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.all(16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          backgroundColor: Colors.white,
+                          elevation:
+                              0, // Material의 elevation을 활용하므로 버튼 자체에서는 그림자 제거
+                        ),
+                        icon: Icon(Icons.add_circle, color: Colors.black54),
+                        label: Text(
+                          "새 일정 만들기",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 8),
                     ..._events.map((event) => ScheduleItem(
                           title: event,
                           date: '10/3 (목)',

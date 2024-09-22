@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'api_key.dart';
+import 'theme.dart';
 import 'package:tradule/home/home_screen.dart';
 import 'package:tradule/login/login_screen.dart';
 import 'package:tradule/provider/auth_provider.dart';
@@ -28,8 +29,7 @@ class Tradule extends StatelessWidget {
     return MaterialApp(
       title: 'Tradule',
       theme: ThemeData(
-        primarySwatch: Colors.orange,
-        scaffoldBackgroundColor: Colors.white,
+        colorScheme: MaterialTheme.lightScheme(),
       ),
       home: h.HomePage(),
       routes: <String, WidgetBuilder>{
