@@ -29,11 +29,6 @@ jobs:
       - name: Build Web
         run: flutter build web --release
 
-      - name: Create key.js with Google Maps API Key
-        run: |
-          echo "const googleMapsApiKey = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > ./build/web/key.js
-          echo "document.write('<script src=\"https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}\"></script>');" >> ./build/web/key.js
-
       - name: Add .nojekyll
         run: echo > build/web/.nojekyll
 

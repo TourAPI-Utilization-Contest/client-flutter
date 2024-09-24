@@ -45,5 +45,4 @@ app.*.map.json
 /lib/api_key.dart
 
 # 직접 추가한 부분
-web/key.js
 GoogleService-Info.plist
