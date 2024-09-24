@@ -1,59 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/common/section.dart';
+import 'package:tradule/server_wrapper/server_wrapper.dart';
 
-// class LoginScreen extends StatefulWidget {
-//   const LoginScreen({super.key});
-//
-//   @override
-//   State<LoginScreen> createState() => _LoginScreenState();
-// }
-//
-// class _LoginScreenState extends State<LoginScreen> {
-//   final _formKey = GlobalKey<FormState>();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('로그인'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           children: [
-//             Section(
-//               title: '로그인',
-//               content: Column(
-//                 children: [
-//                   TextField(
-//                     decoration: InputDecoration(
-//                       labelText: '이메일',
-//                     ),
-//                   ),
-//                   TextField(
-//                     obscureText: true,
-//                     decoration: InputDecoration(
-//                       labelText: '비밀번호',
-//                     ),
-//                   ),
-//                   ElevatedButton(
-//                     onPressed: () {},
-//                     child: Text('로그인'),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+class LoginScreen extends StatefulWidget {
+  LoginScreen({super.key});
 
-class LoginScreen extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>(); // Form 상태를 추적하기 위한 키
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  // Form 상태를 추적하기 위한 키
   final TextEditingController _idController = TextEditingController();
+
   final TextEditingController _pwController = TextEditingController();
+
+  bool _failed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +74,30 @@ class LoginScreen extends StatelessWidget {
                       ),
                       SizedBox(height: 24),
                       ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
                             print(
                                 '로그인 시도: ID=${_idController.text}, PW=${_pwController.text}');
+                            final result = await ServerWrapper.loginIdPw(
+                                _idController.text, _pwController.text);
+                            if (result) {
+                              _failed = false;
+                            } else {
+                              _failed = true;
+                            }
+                            setState(() {});
                           }
                         },
                         child: Text('로그인'),
                       ),
+                      SizedBox(height: 10),
+                      if (_failed)
+                        Center(
+                          child: Text(
+                            '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
                       SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

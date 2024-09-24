@@ -82,7 +82,8 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPage>
+    with AutomaticKeepAliveClientMixin<MainPage> {
   final ScrollController _scrollController = ScrollController();
   List<String> _events = [];
   bool _isLoading = false;
@@ -127,6 +128,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: AppBar(
         title: ServerWrapper.isLogin()
@@ -155,7 +157,7 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Expanded(
                         child: TextField(
@@ -232,6 +234,9 @@ class _MainPageState extends State<MainPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ScheduleItem extends StatefulWidget {
