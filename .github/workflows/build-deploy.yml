@@ -21,6 +21,16 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Create key.js with Google Maps API Key
+        run: |
+          echo "const googleMapsApiKey = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > ./build/web/key.js
+          echo "document.write('<script src=\"https://maps.googleapis.com/maps/api/js?key=${googleMapsApiKey}\"></script>');" >> ./build/web/key.js
+
+      - name: Create lib/api_key.dart with Kakao API Keys
+        run: |
+          echo "String kakaoNativeAppKey = '${{ secrets.KAKAO_NATIVE_APP_KEY }}';" > lib/api_key.dart
+          echo "String kakaoJavascriptKey = '${{ secrets.KAKAO_JAVASCRIPT_KEY }}';" >> lib/api_key.dart
+
       - name: Build Web
         run: flutter build web --release
 
