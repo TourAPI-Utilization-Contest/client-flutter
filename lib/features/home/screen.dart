@@ -1,8 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/features/login/screen.dart';
+import 'package:tradule/features/user/screen.dart';
 import 'package:tradule/features/itinerary/screen.dart';
+import 'package:tradule/features/itinerary_info/screen.dart';
 import 'package:elevated_flex/elevated_flex.dart';
 
 class HomePage extends StatefulWidget {
@@ -41,7 +44,8 @@ class _HomePageState extends State<HomePage>
           // MapWithBottomSheet(),
           CustomBottomSheetMap(),
           MainPage(),
-          LoginScreen(),
+          // LoginScreen(),
+          ServerWrapper.isLogin() ? UserScreen() : LoginScreen(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -55,21 +59,21 @@ class _HomePageState extends State<HomePage>
         iconSize: 30.0,
         unselectedItemColor: Colors.black26,
         selectedItemColor: Colors.black,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(
             icon: Icon(Icons.location_on_outlined),
             activeIcon: Icon(Icons.location_on),
             label: '내 장소',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
             label: '메인',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: '로그인',
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
+            label: ServerWrapper.isLogin() ? '내 정보' : '로그인',
           ),
         ],
       ),
@@ -130,10 +134,22 @@ class _MainPageState extends State<MainPage>
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      // extendBodyBehindAppBar: true,
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: ServerWrapper.isLogin()
             ? Text('${ServerWrapper.getUser()!.name}님')
             : Text('로그인이 필요합니다.'),
+        // flexibleSpace: ClipRect(
+        //   child: BackdropFilter(
+        //     // AppBar에 투명도 효과를 주기 위한 위젯
+        //     filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+        //     child: Container(
+        //       color: Colors.white.withOpacity(0.3),
+        //     ),
+        //   ),
+        // ),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -192,7 +208,12 @@ class _MainPageState extends State<MainPage>
                       ),
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          // 새 일정 만들기 로직 구현
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ItineraryInfoScreen(),
+                            ),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           padding: EdgeInsets.all(16),

@@ -1,139 +1,107 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Flutter code sample for [DraggableScrollableSheet].
+void main() {
+  runApp(const MyApp());
+}
 
-void main() => runApp(const DraggableScrollableSheetExampleApp());
-
-class DraggableScrollableSheetExampleApp extends StatelessWidget {
-  const DraggableScrollableSheetExampleApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue.shade100),
+        useMaterial3: true,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('DraggableScrollableSheet Sample'),
-        ),
-        body: const DraggableScrollableSheetExample(),
-      ),
+      home: const LoginScreen(),
     );
   }
 }
 
-class DraggableScrollableSheetExample extends StatefulWidget {
-  const DraggableScrollableSheetExample({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  State<DraggableScrollableSheetExample> createState() =>
-      _DraggableScrollableSheetExampleState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _DraggableScrollableSheetExampleState
-    extends State<DraggableScrollableSheetExample> {
-  double _sheetPosition = 0.5;
-  final double _dragSensitivity = 600;
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void _tryLogin() {
+    if (_formKey.currentState!.validate()) {
+      // 여기에 로그인 로직 추가
+      print(
+          '로그인 시도: 이메일: ${emailController.text}, 비밀번호: ${passwordController.text}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    return DraggableScrollableSheet(
-      initialChildSize: _sheetPosition,
-      builder: (BuildContext context, ScrollController scrollController) {
-        return ColoredBox(
-          color: colorScheme.primary,
-          child: Column(
-            children: <Widget>[
-              Grabber(
-                onVerticalDragUpdate: (DragUpdateDetails details) {
-                  setState(() {
-                    _sheetPosition -= details.delta.dy / _dragSensitivity;
-                    if (_sheetPosition < 0.25) {
-                      _sheetPosition = 0.25;
-                    }
-                    if (_sheetPosition > 1.0) {
-                      _sheetPosition = 1.0;
-                    }
-                  });
-                },
-                isOnDesktopAndWeb: _isOnDesktopAndWeb,
-              ),
-              Flexible(
-                child: ListView.builder(
-                  controller: _isOnDesktopAndWeb ? null : scrollController,
-                  itemCount: 25,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      title: Text(
-                        'Item $index',
-                        style: TextStyle(color: colorScheme.surface),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Login Screen'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListenableBuilder(
+            listenable: Listenable.merge([
+              emailController,
+              passwordController,
+            ]),
+            builder: (context, child) {
+              return AutofillGroup(
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: emailController,
+                      autofillHints: const [
+                        AutofillHints.username,
+                        AutofillHints.email,
+                      ],
+                      decoration: InputDecoration(
+                        hintText: 'Email',
+                        suffixIcon: Visibility(
+                          visible: emailController.text.isNotEmpty,
+                          child: GestureDetector(
+                            onTap: () {
+                              emailController.clear();
+                            },
+                            child: const Icon(Icons.close),
+                          ),
+                        ),
+                        prefixIcon: const Icon(Icons.email),
                       ),
-                    );
-                  },
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    TextFormField(
+                      controller: passwordController,
+                      autofillHints: const [
+                        AutofillHints.password,
+                      ],
+                      decoration: const InputDecoration(
+                        hintText: 'Password',
+                        prefixIcon: Icon(Icons.lock),
+                      ),
+                    ),
+                    // ElevatedButton(
+                    //   onPressed: invalidForm()
+                    //       ? null
+                    //       : () {
+                    //     controller.submit();
+                    //   },
+                    //   child: const Text('Submit'),
+                    // ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  bool get _isOnDesktopAndWeb {
-    if (kIsWeb) {
-      return true;
-    }
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.macOS:
-      case TargetPlatform.linux:
-      case TargetPlatform.windows:
-        return true;
-      case TargetPlatform.android:
-      case TargetPlatform.iOS:
-      case TargetPlatform.fuchsia:
-        return false;
-    }
-  }
-}
-
-/// A draggable widget that accepts vertical drag gestures
-/// and this is only visible on desktop and web platforms.
-class Grabber extends StatelessWidget {
-  const Grabber({
-    super.key,
-    required this.onVerticalDragUpdate,
-    required this.isOnDesktopAndWeb,
-  });
-
-  final ValueChanged<DragUpdateDetails> onVerticalDragUpdate;
-  final bool isOnDesktopAndWeb;
-
-  @override
-  Widget build(BuildContext context) {
-    if (!isOnDesktopAndWeb) {
-      return const SizedBox.shrink();
-    }
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    return GestureDetector(
-      onVerticalDragUpdate: onVerticalDragUpdate,
-      child: Container(
-        width: double.infinity,
-        color: colorScheme.onSurface,
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            width: 32.0,
-            height: 4.0,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+              );
+            },
           ),
         ),
       ),

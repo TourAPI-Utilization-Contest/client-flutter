@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Section extends StatelessWidget {
-  String title = '';
-  Widget content = Container();
-  Section({
+  final String title;
+  final Widget content;
+  const Section({
     required String this.title,
     required Widget this.content,
     super.key,

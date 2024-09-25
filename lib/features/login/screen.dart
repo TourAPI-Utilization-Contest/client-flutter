@@ -22,131 +22,128 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('로그인'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+        child: ClipPath(
+          clipper: InvertedCornerClipper(arcRadius: 10),
+          child: AppBar(
+            title: Text('로그인'),
+          ),
+        ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Section(
-                title: '이메일 로그인',
-                content: Form(
-                  key: _formKey, // Form 키 연결
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        autofocus: true, // 자동 포커스
-                        controller: _idController,
-                        decoration: const InputDecoration(
-                          labelText: '아이디',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '아이디를 입력하세요';
-                          }
-                          if (!value.contains('@')) {
-                            return '이메일 형식으로 입력하세요';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 16),
-                      // PW 입력 필드
-                      TextFormField(
-                        controller: _pwController,
-                        obscureText: true, // 비밀번호 숨기기
-                        decoration: const InputDecoration(
-                          labelText: '비밀번호',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.lock),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '비밀번호를 입력하세요';
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            print(
-                                '로그인 시도: ID=${_idController.text}, PW=${_pwController.text}');
-                            final result = await ServerWrapper.loginIdPw(
-                                _idController.text, _pwController.text);
-                            if (result) {
-                              _failed = false;
-                            } else {
-                              _failed = true;
-                            }
-                            setState(() {});
-                          }
-                        },
-                        child: Text('로그인'),
-                      ),
-                      SizedBox(height: 10),
-                      if (_failed)
-                        Center(
-                          child: Text(
-                            '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      SizedBox(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('아직 회원이 아니신가요?'),
-                          TextButton(
-                            onPressed: () {
-                              print('회원가입 버튼 클릭');
-                            },
-                            child: Text('회원가입'),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('비밀번호를 잊으셨나요?'),
-                          TextButton(
-                            onPressed: () {
-                              print('비밀번호 찾기 버튼 클릭');
-                            },
-                            child: Text('비밀번호 찾기'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Section(
-                title: '간편 로그인',
-                content: Column(
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Column(
                   children: [
-                    IconButton(
-                      icon: SvgPicture.asset(
-                          'assets/images/kakao_login_medium_narrow.svg'),
-                      // onPressed: () => _login(context, ref),
-                      onPressed: () => print('카카오 로그인'),
-                      hoverColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      focusColor: Colors.transparent,
+                    Text(
+                      "ABCD",
+                      style: TextStyle(
+                        // fontFamily: 'NotoSansKR',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    Text(
+                      "ABCD",
+                      style: TextStyle(
+                        // fontFamily: 'NotoSansKR',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      "ABCD",
+                      style: TextStyle(
+                        // fontFamily: 'NotoSansKR',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        fontVariations: [
+                          FontVariation('wght', 900.0),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      "트레쥴과 함께\n여행을 계획해 보세요!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        // fontFamily: 'NotoSansKR',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        // fontVariations: [
+                        //   FontVariation('wght', 100.0),
+                        // ],
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: FontWeight.values
+                          .map(
+                            (weight) => Text(
+                              '트레쥴과 함께 $weight',
+                              style: TextStyle(
+                                fontFamily: 'NotoSansKR',
+                                fontSize: 20,
+                                // fontWeight: weight,
+                                fontVariations: [
+                                  FontVariation('wght',
+                                      ((weight.index + 1) * 100).toDouble())
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
-                ),
-              ),
-            ],
+                )
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+}
+
+class InvertedCornerClipper extends CustomClipper<Path> {
+  final double arcRadius;
+
+  const InvertedCornerClipper({this.arcRadius = 10});
+
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    // 좌상단에서 시작
+    path.lineTo(0, size.height);
+
+    // 왼쪽 아래에 호 그리기
+    path.arcToPoint(
+      Offset(arcRadius, size.height - arcRadius),
+      radius: Radius.circular(arcRadius),
+      clockwise: true, // 시계 방향
+    );
+
+    // 오른쪽 아래에 호 그리기
+    path.lineTo(size.width - arcRadius, size.height - arcRadius);
+    path.arcToPoint(
+      Offset(size.width, size.height),
+      radius: Radius.circular(arcRadius),
+      clockwise: true,
+    );
+
+    // 우상단으로 이동
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) {
+    return false;
   }
 }

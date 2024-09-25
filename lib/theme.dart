@@ -25,7 +25,7 @@ class MaterialTheme {
       onError: Color(4294967295),
       errorContainer: Color(4294957782),
       onErrorContainer: Color(4282449922),
-      surface: Color(4294310652),
+      surface: Color(0xFFFFFFFF), //배경 색
       onSurface: Color(4279704606),
       onSurfaceVariant: Color(4282337355),
       outline: Color(4285560956),
