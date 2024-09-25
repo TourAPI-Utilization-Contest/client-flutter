@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: [
                       SvgPicture.asset(
-                        'logo/tradule_text.svg',
+                        'assets/logo/tradule_text.svg',
                         width: 110,
                       ),
                       const SizedBox(height: 16),
@@ -265,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Padding(
                       padding: const EdgeInsets.only(right: 30),
                       child: SvgPicture.asset(
-                        'social/kakao_login.svg',
+                        'assets/social/kakao_login.svg',
                         // width: 20,
                       ),
                     ),
