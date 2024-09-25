@@ -61,10 +61,6 @@ class Tradule extends StatelessWidget {
         ),
         fontFamily: 'NotoSansKR',
         textTheme: addWghtTextTheme(Theme.of(context).textTheme),
-        // textTheme: GoogleFonts.notoSansKrTextTheme(
-        //     Theme.of(context).textTheme), // Noto Sans KR 적용
-        // textTheme: GoogleFonts.robotoTextTheme(
-        //     Theme.of(context).textTheme),
       ),
       home: HomePage(),
       routes: <String, WidgetBuilder>{
