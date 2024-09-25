@@ -90677,7 +90677,7 @@ A.Bx.prototype={
 ae(){var s=$.av()
 return new A.W4(new A.bI(null,t.am),new A.jI(B.cX,s),new A.jI(B.cX,s))}}
 A.W4.prototype={
-N(a){var s,r,q,p=this,o=null,n="NotoSansKR",m=A.L2(A.K3(o,o,A.bQ("\ub85c\uadf8\uc778",o,o,o,o,o,o)),B.cv,new A.Nm(10)),l=t.p,k=A.ek(A.a([A.E8("logo/tradule_text.svg",o,o,110),B.Ia,B.afD],l),B.H,B.L,B.Q),j=A.a([p.Vk(p.e,"Email",!1),B.jN,p.Vk(p.f,"Password",!0),B.jN,A.d6(A.a6J(!1,B.afB,o,o,B.e_,o,o,o,o,new A.asg(p),o,A.aAv(o,o,A.af(a).ax.b,o,o,o,o,o,o,o,o,o,B.pH,o,new A.dj(A.l9(50),B.r),o,o,o,o)),50,1/0)],l)
+N(a){var s,r,q,p=this,o=null,n="NotoSansKR",m=A.L2(A.K3(o,o,A.bQ("\ub85c\uadf8\uc778",o,o,o,o,o,o)),B.cv,new A.Nm(10)),l=t.p,k=A.ek(A.a([A.E8("assets/logo/tradule_text.svg",o,o,110),B.Ia,B.afD],l),B.H,B.L,B.Q),j=A.a([p.Vk(p.e,"Email",!1),B.jN,p.Vk(p.f,"Password",!0),B.jN,A.d6(A.a6J(!1,B.afB,o,o,B.e_,o,o,o,o,new A.asg(p),o,A.aAv(o,o,A.af(a).ax.b,o,o,o,o,o,o,o,o,o,B.pH,o,new A.dj(A.l9(50),B.r),o,o,o,o)),50,1/0)],l)
 if(p.r)j.push(new A.ct(B.Rf,A.bQ("\ub85c\uadf8\uc778\uc5d0 \uc2e4\ud328\ud558\uc600\uc2b5\ub2c8\ub2e4. \uc544\uc774\ub514\uc640 \ube44\ubc00\ubc88\ud638\ub97c \ud655\uc778\ud558\uc138\uc694.",o,o,o,A.dC(o,o,A.af(a).ax.fy,o,o,o,o,o,n,o,o,12,o,B.tc,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),o))
 j.push(B.n0)
 j.push(A.oy(A.bQ("forgot your password?",o,o,o,A.dC(o,o,A.af(a).ax.b,o,o,o,o,o,n,o,o,12,o,B.fd,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),new A.ash(),o))
@@ -90685,7 +90685,7 @@ j=A.is(A.aFu(A.ek(j,B.H,B.fu,B.Q),p.d),o,o)
 s=A.d6(A.fG(o,o,B.z,B.OL,o,o,o,o,o,o,o,o,o),1,o)
 r=A.bQ("or",o,o,o,A.dC(o,o,B.kI,o,o,o,o,o,n,o,o,16,o,B.fd,o,o,o,!0,o,o,o,o,o,o,o,o),o,o)
 q=A.aAv(o,o,B.Ph,o,o,o,o,o,o,o,o,o,B.pH,o,new A.dj(A.l9(50),B.r),o,o,o,o)
-return A.vY(new A.Pc(m,B.aaQ,o),A.is(A.QS(new A.ct(B.Ro,A.ek(A.a([new A.ct(B.Rd,k,o),B.jN,j,B.n0,s,B.n0,r,B.jN,A.d6(A.a6J(!1,new A.ct(B.Rc,A.E8("social/kakao_login.svg",o,o,o),o),o,o,B.e_,o,o,o,o,new A.asi(),o,q),50,1/0),B.aaT,A.eL(A.a([A.bQ("Don't have an account?",o,o,o,A.dC(o,o,B.kI,o,o,o,o,o,n,o,o,12,o,B.fd,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),B.aaR,A.oy(A.bQ("sign up",o,o,o,A.dC(o,o,A.af(a).ax.b,o,o,o,o,o,n,o,o,12,o,B.fd,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),new A.asj(),o)],l),B.H,B.fu,B.Q)],l),B.H,B.L,B.Q),o),o),o,o),o)},
+return A.vY(new A.Pc(m,B.aaQ,o),A.is(A.QS(new A.ct(B.Ro,A.ek(A.a([new A.ct(B.Rd,k,o),B.jN,j,B.n0,s,B.n0,r,B.jN,A.d6(A.a6J(!1,new A.ct(B.Rc,A.E8("assets/social/kakao_login.svg",o,o,o),o),o,o,B.e_,o,o,o,o,new A.asi(),o,q),50,1/0),B.aaT,A.eL(A.a([A.bQ("Don't have an account?",o,o,o,A.dC(o,o,B.kI,o,o,o,o,o,n,o,o,12,o,B.fd,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),B.aaR,A.oy(A.bQ("sign up",o,o,o,A.dC(o,o,A.af(a).ax.b,o,o,o,o,o,n,o,o,12,o,B.fd,o,o,o,!0,o,o,o,o,o,o,o,o),o,o),new A.asj(),o)],l),B.H,B.fu,B.Q)],l),B.H,B.L,B.Q),o),o),o,o),o)},
 Vk(a,b,c){var s=null,r=A.dC(s,s,B.kI,s,s,s,s,s,"NotoSansKR",s,s,s,s,B.fd,s,s,s,!0,s,s,s,s,s,s,s,s)
 return A.RI(!1,a,A.aAX(s,new A.iL(4,A.l9(30),B.r),s,B.Rn,s,s,s,s,!0,s,s,s,s,s,s,new A.l(4294506744),!0,s,s,s,s,s,s,s,s,s,s,s,s,r,b,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s,s),c,s,!1,new A.as7(c))}}
 A.asg.prototype={
