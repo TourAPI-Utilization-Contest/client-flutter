@@ -214,7 +214,6 @@ class _IconAndColorPickerState extends State<IconAndColorPicker> {
             buildColorPicker(Colors.green),
             buildColorPicker(Colors.blue),
             buildColorPicker(Colors.orange),
-            // 원하는 색상을 추가
           ],
         ),
         const SizedBox(height: 20),

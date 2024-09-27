@@ -12,10 +12,17 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  // Form 상태를 추적하기 위한 키
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
+  // final _focusNode = FocusNode();
+  final FocusNode _focusNodeEmail = FocusNode();
+  final FocusNode _focusNodePassword = FocusNode();
   bool _failed = false;
+  bool _isFormValidateFailFlag = false;
+  bool _emailValidateFlag = false;
+  bool _passwordValidateFlag = false;
+  final _emailKey = GlobalKey<FormFieldState>();
+  final _passwordKey = GlobalKey<FormFieldState>();
 
   final cGray = const Color(0xFFD1D3D9);
 
@@ -27,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ClipPath(
           clipper: const InvertedCornerClipper(arcRadius: 10),
           child: AppBar(
-            title: Text('로그인'),
+            title: const Text('로그인'),
           ),
         ),
       ),
@@ -88,23 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              // print('로그인 버튼 클릭');
-                              if (_formKey.currentState!.validate()) {
-                                // 여기에 로그인 로직 추가
-                                print(
-                                    '로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
-                                final result = await ServerWrapper.loginIdPw(
-                                    _idController.text, _pwController.text);
-                                if (!mounted) return;
-                                if (result) {
-                                  _failed = false;
-                                } else {
-                                  _failed = true;
-                                }
-                                setState(() {});
-                                Navigator.pop(context);
-                              }
+                            onPressed: () {
+                              _submitted(context: context);
                             },
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
@@ -249,15 +241,35 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  TextFormField buildLoginTextFormField({
+  Widget buildLoginTextFormField({
     required String hintText,
     required isPassword,
     TextEditingController? controller,
   }) {
     return TextFormField(
+      key: isPassword ? _passwordKey : _emailKey,
       controller: controller,
       obscureText: isPassword,
-      // autofocus: !isPassword,
+      autofocus: !isPassword,
+      focusNode: isPassword ? _focusNodePassword : _focusNodeEmail,
+      onFieldSubmitted: (_) {
+        _submitted(context: context);
+      },
+      onChanged: (_) {
+        if (isPassword) {
+          if (!_passwordValidateFlag) return;
+          _passwordValidateFlag = false;
+          _failed = false;
+          _passwordKey.currentState!.validate();
+          setState(() {});
+        } else {
+          if (!_emailValidateFlag) return;
+          _emailValidateFlag = false;
+          _failed = false;
+          _emailKey.currentState!.validate();
+          setState(() {});
+        }
+      },
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: TextStyle(
@@ -268,7 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
         filled: true,
-        fillColor: Color(0xFFF8F8F8),
+        fillColor: const Color(0xFFF8F8F8),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: BorderSide.none,
@@ -280,20 +292,64 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       validator: (value) {
         if (isPassword) {
+          if (!_passwordValidateFlag) return null;
           if (value == null || value.isEmpty) {
+            if (!_isFormValidateFailFlag) {
+              _isFormValidateFailFlag = true;
+              _focusNodePassword.requestFocus();
+            }
             return '비밀번호를 입력하세요';
           }
           return null;
         }
+        if (!_emailValidateFlag) return null;
         if (value == null || value.isEmpty) {
+          if (!_isFormValidateFailFlag) {
+            _isFormValidateFailFlag = true;
+            _focusNodeEmail.requestFocus();
+          }
           return '아이디를 입력하세요';
         }
         if (!value.contains('@')) {
+          if (!_isFormValidateFailFlag) {
+            _isFormValidateFailFlag = true;
+            _focusNodeEmail.requestFocus();
+          }
           return '이메일 형식으로 입력하세요';
         }
         return null;
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    _pwController.dispose();
+    _focusNodeEmail.dispose();
+    _focusNodePassword.dispose();
+    super.dispose();
+  }
+
+  void _submitted({required BuildContext context}) async {
+    _isFormValidateFailFlag = false;
+    _emailValidateFlag = true;
+    _passwordValidateFlag = true;
+    if (_formKey.currentState!.validate()) {
+      print('로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
+      final result =
+          await ServerWrapper.loginIdPw(_idController.text, _pwController.text);
+      if (!mounted) return;
+      if (result) {
+        _failed = false;
+        Navigator.pop(context);
+        setState(() {});
+      } else {
+        _failed = true;
+        _focusNodePassword.requestFocus();
+        setState(() {});
+      }
+    }
   }
 }
 

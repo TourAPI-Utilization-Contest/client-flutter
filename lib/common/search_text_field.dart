@@ -1,0 +1,109 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tradule/features/search/screen.dart';
+
+import 'color.dart';
+
+Widget searchTextField(BuildContext context, {required bool readOnly}) {
+  FocusNode _focusNode = FocusNode();
+
+  return MouseRegion(
+    cursor: readOnly ? SystemMouseCursors.click : SystemMouseCursors.basic,
+    child: GestureDetector(
+      behavior: HitTestBehavior.deferToChild,
+      onTap: readOnly
+          ? () {
+              _go(context);
+            }
+          : null,
+      child: Container(
+        height: 50,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF8F8F8),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            // color: Theme.of(context).colorScheme.primary,
+            color: const Color(0xFF9CEFFF),
+            width: 2,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color.fromRGBO(0, 0, 0, 0.25),
+              blurRadius: 2,
+              offset: Offset(1, 1),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: IgnorePointer(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: KeyboardListener(
+                    focusNode: _focusNode,
+                    onKeyEvent: (event) {
+                      if (!readOnly) return;
+                      if (event is KeyDownEvent &&
+                          event.logicalKey == LogicalKeyboardKey.enter) {
+                        _go(context); // 엔터 키 눌렀을 때 실행할 동작
+                      }
+                    },
+                    child: TextField(
+                      autofocus: !readOnly,
+                      readOnly: readOnly,
+                      decoration: const InputDecoration(
+                        hintText: '어디로 떠나볼까요?',
+                        hintStyle: TextStyle(
+                          color: cGray,
+                          fontSize: 16,
+                          fontFamily: 'NotoSansKR',
+                          fontVariations: [FontVariation('wght', 200)],
+                        ),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SvgPicture.asset(
+              'assets/icon/search.svg',
+              colorFilter: const ColorFilter.mode(cGray, BlendMode.srcIn),
+              height: 19.9,
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+void _go(BuildContext context) {
+  Navigator.push(
+    context,
+    PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          const SearchScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(0.0, 0.03);
+        const end = Offset(0.0, 0.0);
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+        );
+      },
+    ),
+  );
+}

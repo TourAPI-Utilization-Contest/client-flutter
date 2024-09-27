@@ -7,7 +7,11 @@ import 'package:tradule/features/login/screen.dart';
 import 'package:tradule/features/user/screen.dart';
 import 'package:tradule/features/itinerary/screen.dart';
 import 'package:tradule/features/itinerary_info/screen.dart';
+import 'package:tradule/features/search/screen.dart';
 import 'package:elevated_flex/elevated_flex.dart';
+
+import 'package:tradule/common/search_text_field.dart';
+// import 'package:tradule/common/color.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -66,30 +70,45 @@ class _HomePageState extends State<HomePage>
           _tabController?.animateTo(index);
           setState(() {});
         },
-        type: BottomNavigationBarType.shifting,
+        type: BottomNavigationBarType.fixed,
         enableFeedback: false,
         iconSize: 30.0,
-        unselectedItemColor: Colors.black26,
-        selectedItemColor: Colors.black,
+        unselectedItemColor: const Color(0xFFABB0BC),
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         items: <BottomNavigationBarItem>[
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.location_on_outlined),
-            activeIcon: Icon(Icons.location_on),
+          BottomNavigationBarItem(
+            // icon: Icon(Icons.location_on_outlined),
+            // activeIcon: Icon(Icons.location_on),
+            icon: BottomNavigationBarItemIcon('assets/icon/jam_heart.svg'),
             label: '내 장소',
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: '메인',
+          BottomNavigationBarItem(
+            // icon: Icon(Icons.home_outlined),
+            // activeIcon: Icon(Icons.home),
+            icon: BottomNavigationBarItemIcon('assets/icon/jam_home.svg'),
+            label: '홈 화면',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person_outline),
-            activeIcon: const Icon(Icons.person),
+            // icon: const Icon(Icons.person_outline),
+            // activeIcon: const Icon(Icons.person),
+            icon: BottomNavigationBarItemIcon('assets/icon/jam_user.svg'),
             label: ServerWrapper.isLogin() ? '내 정보' : '로그인',
           ),
         ],
       ),
     );
+  }
+
+  Widget BottomNavigationBarItemIcon(String assetName) {
+    return Builder(builder: (context) {
+      return SvgPicture.asset(
+        assetName,
+        colorFilter: ColorFilter.mode(
+          IconTheme.of(context).color ?? Colors.black,
+          BlendMode.srcIn,
+        ),
+      );
+    });
   }
 }
 
@@ -105,8 +124,6 @@ class _MainPageState extends State<MainPage>
   bool _isLoading = false;
   int _currentPage = 0;
   double searchY = 108;
-
-  final cGray = const Color(0xFFD1D3D9);
 
   @override
   void initState() {
@@ -260,49 +277,9 @@ class _MainPageState extends State<MainPage>
                 right: 17,
                 left: 17,
               ),
-              child: Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8F8F8),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(
-                    // color: Theme.of(context).colorScheme.primary,
-                    color: const Color(0xFF9CEFFF),
-                    width: 2,
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color.fromRGBO(0, 0, 0, 0.25),
-                      blurRadius: 2,
-                      offset: Offset(1, 1),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hintText: '어디로 떠나볼까요?',
-                          hintStyle: TextStyle(
-                            color: cGray,
-                            fontSize: 16,
-                            fontFamily: 'NotoSansKR',
-                            fontVariations: const [FontVariation('wght', 200)],
-                          ),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                    SvgPicture.asset(
-                      'assets/icon/search.svg',
-                      color: cGray,
-                      height: 19.9,
-                    ),
-                  ],
-                ),
+              child: searchTextField(
+                context,
+                readOnly: true,
               ),
             ),
             Padding(
