@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight + 10),
         child: ClipPath(
-          clipper: InvertedCornerClipper(arcRadius: 10),
+          clipper: const InvertedCornerClipper(arcRadius: 10),
           child: AppBar(
             title: Text('로그인'),
           ),
@@ -65,71 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                // 로그인
-                // Form(
-                //   key: _formKey, // Form 키 연결
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.stretch,
-                //     children: [
-                //       TextFormField(
-                //         autofocus: true, // 자동 포커스
-                //         controller: _idController,
-                //         decoration: const InputDecoration(
-                //           labelText: '아이디',
-                //           border: OutlineInputBorder(),
-                //           prefixIcon: Icon(Icons.person),
-                //         ),
-                //         validator: (value) {
-                //           if (value == null || value.isEmpty) {
-                //             return '아이디를 입력하세요';
-                //           }
-                //           if (!value.contains('@')) {
-                //             return '이메일 형식으로 입력하세요';
-                //           }
-                //           return null;
-                //         },
-                //       ),
-                //       SizedBox(height: 16),
-                //       // PW 입력 필드
-                //       TextFormField(
-                //         controller: _pwController,
-                //         obscureText: true, // 비밀번호 숨기기
-                //         decoration: const InputDecoration(
-                //           labelText: '비밀번호',
-                //           border: OutlineInputBorder(),
-                //           prefixIcon: Icon(Icons.lock),
-                //         ),
-                //         validator: (value) {
-                //           if (value == null || value.isEmpty) {
-                //             return '비밀번호를 입력하세요';
-                //           }
-                //           return null;
-                //         },
-                //       ),
-                //       SizedBox(height: 16),
-                //       // 로그인 버튼
-                //       ElevatedButton(
-                //         onPressed: () {
-                //           if (_formKey.currentState!.validate()) {
-                //             // 여기에 로그인 로직 추가
-                //             print(
-                //                 '로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
-                //           }
-                //         },
-                //         child: const Text('로그인'),
-                //       ),
-                //       // 로그인 실패 시 메시지
-                //       if (_failed)
-                //         const Padding(
-                //           padding: EdgeInsets.only(top: 8),
-                //           child: Text(
-                //             '로그인에 실패했습니다. 다시 시도해 주세요.',
-                //             style: TextStyle(color: Colors.red),
-                //           ),
-                //         ),
-                //     ],
-                //   ),
-                // ),
                 const SizedBox(height: 15),
                 Center(
                   child: Form(
@@ -168,6 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   _failed = true;
                                 }
                                 setState(() {});
+                                Navigator.pop(context);
                               }
                             },
                             style: ElevatedButton.styleFrom(

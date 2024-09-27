@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/features/login/screen.dart';
@@ -51,6 +52,17 @@ class _HomePageState extends State<HomePage>
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _tabController?.index ?? 0,
         onTap: (index) {
+          if (index == 2 && !ServerWrapper.isLogin()) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LoginScreen(),
+              ),
+            ).then((value) {
+              setState(() {});
+            });
+            return;
+          }
           _tabController?.animateTo(index);
           setState(() {});
         },
@@ -92,6 +104,9 @@ class _MainPageState extends State<MainPage>
   List<String> _events = [];
   bool _isLoading = false;
   int _currentPage = 0;
+  double searchY = 108;
+
+  final cGray = const Color(0xFFD1D3D9);
 
   @override
   void initState() {
@@ -138,9 +153,17 @@ class _MainPageState extends State<MainPage>
       appBar: AppBar(
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: ServerWrapper.isLogin()
-            ? Text('${ServerWrapper.getUser()!.name}님')
-            : Text('로그인이 필요합니다.'),
+        // title: ServerWrapper.isLogin()
+        //     ? Text('${ServerWrapper.getUser()!.name}님')
+        //     : Text('로그인이 필요합니다.'),
+        // title: const Text("Tradule"),
+        centerTitle: false,
+        titleSpacing: 17,
+        title: SvgPicture.asset(
+          'assets/logo/tradule_text.svg',
+          color: Colors.white,
+          width: 80,
+        ),
         // flexibleSpace: ClipRect(
         //   child: BackdropFilter(
         //     // AppBar에 투명도 효과를 주기 위한 위젯
@@ -153,104 +176,204 @@ class _MainPageState extends State<MainPage>
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Section(
-                title: '장소 검색',
-                content: Container(
-                  height: 50,
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.black26),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: const Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: '어디든지 검색!',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                      Icon(Icons.search, color: Colors.grey),
-                    ],
-                  ),
+        child: Stack(
+          children: [
+            Container(
+              // color: Theme.of(context).colorScheme.primary,
+              height: searchY,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(10),
+                  bottomRight: Radius.circular(10),
                 ),
               ),
-              Section(
-                title: '내 일정',
-                content: Column(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: 10,
+                  left: 17,
+                  right: 17,
+                  bottom: 50,
+                ),
+                child: Row(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                            offset: Offset(0, 4),
+                    ServerWrapper.isLogin()
+                        ? Row(
+                            children: [
+                              Text('${ServerWrapper.getUser()!.name}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontFamily: 'NotoSansKR',
+                                    fontVariations: [
+                                      FontVariation('wght', 500)
+                                    ],
+                                  )),
+                              Text('님 안녕하세요!',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontFamily: 'NotoSansKR',
+                                    fontVariations: const [
+                                      FontVariation('wght', 400)
+                                    ],
+                                  )),
+                            ],
+                          )
+                        : Text('로그인이 필요합니다.',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontFamily: 'NotoSansKR',
+                              fontVariations: [FontVariation('wght', 400)],
+                            )),
+                    const Spacer(),
+                    ServerWrapper.isLogin()
+                        ? ElevatedButton(
+                            onPressed: () {
+                              ServerWrapper.logout();
+                              setState(() {});
+                            },
+                            child: const Text('로그아웃'),
+                          )
+                        : ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => LoginScreen(),
+                                ),
+                              ).then((value) {
+                                setState(() {});
+                              });
+                            },
+                            child: const Text('로그인'),
                           ),
-                        ],
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ItineraryInfoScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.all(16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          backgroundColor: Colors.white,
-                          elevation:
-                              0, // Material의 elevation을 활용하므로 버튼 자체에서는 그림자 제거
-                        ),
-                        icon: Icon(Icons.add_circle, color: Colors.black54),
-                        label: Text(
-                          "새 일정 만들기",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    ..._events.map((event) => ScheduleItem(
-                          title: event,
-                          date: '10/3 (목)',
-                          location: '장소명 1',
-                          status: '완료',
-                        )),
-                    if (_isLoading)
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(),
-                      ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(
+                top: searchY - 25,
+                right: 17,
+                left: 17,
+              ),
+              child: Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F8F8),
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    // color: Theme.of(context).colorScheme.primary,
+                    color: const Color(0xFF9CEFFF),
+                    width: 2,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color.fromRGBO(0, 0, 0, 0.25),
+                      blurRadius: 2,
+                      offset: Offset(1, 1),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          hintText: '어디로 떠나볼까요?',
+                          hintStyle: TextStyle(
+                            color: cGray,
+                            fontSize: 16,
+                            fontFamily: 'NotoSansKR',
+                            fontVariations: const [FontVariation('wght', 200)],
+                          ),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    ),
+                    SvgPicture.asset(
+                      'assets/icon/search.svg',
+                      color: cGray,
+                      height: 19.9,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: searchY + 25),
+              child: Column(
+                children: [
+                  Section(
+                    title: '내 일정',
+                    content: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const ItineraryInfoScreen(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              backgroundColor: Colors.white,
+                              elevation:
+                                  0, // Material의 elevation을 활용하므로 버튼 자체에서는 그림자 제거
+                            ),
+                            icon: Icon(Icons.add_circle, color: Colors.black54),
+                            label: Text(
+                              "새 일정 만들기",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        ..._events.map((event) => ScheduleItem(
+                              title: event,
+                              date: '10/3 (목)',
+                              location: '장소명 1',
+                              status: '완료',
+                            )),
+                        if (_isLoading)
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
