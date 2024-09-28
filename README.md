@@ -2,4 +2,5 @@
 
 ## 메모
 
-flutter_date_range_picker: ^0.1.1
+`flutter pub run build_runner watch`
+

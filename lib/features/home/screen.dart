@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
@@ -10,6 +11,8 @@ import 'package:tradule/features/itinerary_info/screen.dart';
 import 'package:tradule/features/search/screen.dart';
 import 'package:elevated_flex/elevated_flex.dart';
 
+import 'package:tradule/server_wrapper/data/user_data.dart';
+import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/common/search_text_field.dart';
 // import 'package:tradule/common/color.dart';
 
@@ -40,66 +43,71 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: TabBarView(
-        physics: NeverScrollableScrollPhysics(),
-        controller: _tabController,
-        children: [
-          // Center(child: Text('Page 1')),
-          // MapWithBottomSheet(),
-          CustomBottomSheetMap(),
-          MainPage(),
-          // LoginScreen(),
-          ServerWrapper.isLogin() ? UserScreen() : LoginScreen(),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _tabController?.index ?? 0,
-        onTap: (index) {
-          if (index == 2 && !ServerWrapper.isLogin()) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => LoginScreen(),
-              ),
-            ).then((value) {
+    return BlocProvider<UserCubit>.value(
+      value: ServerWrapper.userCubit,
+      child: BlocBuilder<UserCubit, UserData?>(
+        builder: (context, userData) => Scaffold(
+          body: TabBarView(
+            physics: const NeverScrollableScrollPhysics(),
+            controller: _tabController,
+            children: [
+              // Center(child: Text('Page 1')),
+              // MapWithBottomSheet(),
+              CustomBottomSheetMap(),
+              MainPage(),
+              UserScreen(),
+              // LoginScreen(),
+              // ServerWrapper.isLogin() ? UserScreen() : LoginScreen(),
+            ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _tabController?.index ?? 0,
+            onTap: (index) {
+              if ((index == 2 || index == 0) && !ServerWrapper.isLogin()) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                );
+                return;
+              }
+              _tabController?.animateTo(index);
               setState(() {});
-            });
-            return;
-          }
-          _tabController?.animateTo(index);
-          setState(() {});
-        },
-        type: BottomNavigationBarType.fixed,
-        enableFeedback: false,
-        iconSize: 30.0,
-        unselectedItemColor: const Color(0xFFABB0BC),
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            // icon: Icon(Icons.location_on_outlined),
-            // activeIcon: Icon(Icons.location_on),
-            icon: BottomNavigationBarItemIcon('assets/icon/jam_heart.svg'),
-            label: '내 장소',
+            },
+            type: BottomNavigationBarType.fixed,
+            enableFeedback: false,
+            iconSize: 30.0,
+            unselectedItemColor: const Color(0xFFABB0BC),
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                // icon: Icon(Icons.location_on_outlined),
+                // activeIcon: Icon(Icons.location_on),
+                icon: bottomNavigationBarItemIcon('assets/icon/jam_heart.svg'),
+                label: '내 장소',
+              ),
+              BottomNavigationBarItem(
+                // icon: Icon(Icons.home_outlined),
+                // activeIcon: Icon(Icons.home),
+                icon: bottomNavigationBarItemIcon('assets/icon/jam_home.svg'),
+                label: '홈 화면',
+              ),
+              BottomNavigationBarItem(
+                // icon: const Icon(Icons.person_outline),
+                // activeIcon: const Icon(Icons.person),
+                icon: bottomNavigationBarItemIcon('assets/icon/jam_user.svg'),
+                // label: ServerWrapper.isLogin() ? '내 정보' : '로그인',
+                label: '내 정보',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            // icon: Icon(Icons.home_outlined),
-            // activeIcon: Icon(Icons.home),
-            icon: BottomNavigationBarItemIcon('assets/icon/jam_home.svg'),
-            label: '홈 화면',
-          ),
-          BottomNavigationBarItem(
-            // icon: const Icon(Icons.person_outline),
-            // activeIcon: const Icon(Icons.person),
-            icon: BottomNavigationBarItemIcon('assets/icon/jam_user.svg'),
-            label: ServerWrapper.isLogin() ? '내 정보' : '로그인',
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget BottomNavigationBarItemIcon(String assetName) {
+  Widget bottomNavigationBarItemIcon(String assetName) {
     return Builder(builder: (context) {
       return SvgPicture.asset(
         assetName,
@@ -120,7 +128,8 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage>
     with AutomaticKeepAliveClientMixin<MainPage> {
   final ScrollController _scrollController = ScrollController();
-  List<String> _events = [];
+  // List<String> _events = [];
+  List<ItineraryCubit> _itineraryCubitList = [];
   bool _isLoading = false;
   int _currentPage = 0;
   double searchY = 108;
@@ -128,30 +137,43 @@ class _MainPageState extends State<MainPage>
   @override
   void initState() {
     super.initState();
-    _loadMoreEvents();
+    _loadAllItineraries();
 
-    // 스크롤 컨트롤러를 사용하여 스크롤이 최하단에 도달했을 때 추가 일정 로딩
-    _scrollController.addListener(() {
-      // print('ScrollController: ${_scrollController.position.pixels}');
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
-        _loadMoreEvents();
-      }
-    });
+    // // 스크롤 컨트롤러를 사용하여 스크롤이 최하단에 도달했을 때 추가 일정 로딩
+    // _scrollController.addListener(() {
+    //   // print('ScrollController: ${_scrollController.position.pixels}');
+    //   if (_scrollController.position.pixels ==
+    //       _scrollController.position.maxScrollExtent) {
+    //     _loadMoreEvents();
+    //   }
+    // });
   }
 
-  Future<void> _loadMoreEvents() async {
+  // Future<void> _loadMoreEvents() async {
+  //   if (_isLoading) return; // 이미 로딩 중이면 중복 호출 방지
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+  //
+  //   // // 서버에서 데이터를 가져오는 임의의 함수 (임시 구현)
+  //   // final newEvents = await ServerWrapper.getEvents(_currentPage);
+  //   // if (!mounted) return;
+  //   // setState(() {
+  //   //   _currentPage++;
+  //   //   // _itineraryCubitList.addAll(newEvents); // 새로운 일정 추가
+  //   //   _isLoading = false;
+  //   // });
+  // }
+
+  Future<void> _loadAllItineraries() async {
     if (_isLoading) return; // 이미 로딩 중이면 중복 호출 방지
     setState(() {
       _isLoading = true;
     });
 
-    // 서버에서 데이터를 가져오는 임의의 함수 (임시 구현)
-    final newEvents = await ServerWrapper.getEvents(_currentPage);
+    _itineraryCubitList = await ServerWrapper.getAllItineraries();
     if (!mounted) return;
     setState(() {
-      _currentPage++;
-      _events.addAll(newEvents); // 새로운 일정 추가
       _isLoading = false;
     });
   }
@@ -288,63 +310,76 @@ class _MainPageState extends State<MainPage>
                 children: [
                   Section(
                     title: '내 일정',
-                    content: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ItineraryInfoScreen(),
+                    content: BlocProvider.value(
+                      value: ServerWrapper.itineraryCubitMapCubit,
+                      child: BlocBuilder<ItineraryCubitMapCubit,
+                          Map<String, ItineraryCubit>>(
+                        builder: (context, itineraryCubitMap) {
+                          return Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(32),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.all(16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ItineraryInfoScreen(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.all(16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    elevation:
+                                        0, // Material의 elevation을 활용하므로 버튼 자체에서는 그림자 제거
+                                  ),
+                                  icon: Icon(Icons.add_circle,
+                                      color: Colors.black54),
+                                  label: Text(
+                                    "새 일정 만들기",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              backgroundColor: Colors.white,
-                              elevation:
-                                  0, // Material의 elevation을 활용하므로 버튼 자체에서는 그림자 제거
-                            ),
-                            icon: Icon(Icons.add_circle, color: Colors.black54),
-                            label: Text(
-                              "새 일정 만들기",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        ..._events.map((event) => ScheduleItem(
-                              title: event,
-                              date: '10/3 (목)',
-                              location: '장소명 1',
-                              status: '완료',
-                            )),
-                        if (_isLoading)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(),
-                          ),
-                      ],
+                              const SizedBox(height: 8),
+                              ...itineraryCubitMap.map(
+                                (itineraryId, itineraryCubit) {
+                                  return MapEntry(
+                                    itineraryId,
+                                    ScheduleItem(
+                                      itineraryCubit: itineraryCubit,
+                                    ),
+                                  );
+                                },
+                              ).values,
+                              if (_isLoading)
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -361,16 +396,10 @@ class _MainPageState extends State<MainPage>
 }
 
 class ScheduleItem extends StatefulWidget {
-  final String title;
-  final String date;
-  final String location;
-  final String status;
+  final ItineraryCubit itineraryCubit;
 
   const ScheduleItem({
-    required this.title,
-    required this.date,
-    required this.location,
-    required this.status,
+    required this.itineraryCubit,
   });
 
   @override
@@ -382,114 +411,121 @@ class _ScheduleItemState extends State<ScheduleItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 8,
-      ),
-      child: Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isExpanded = !_isExpanded;
-              });
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    spreadRadius: 1,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.event, color: Colors.black54),
-                      SizedBox(width: 10),
-                      Text(widget.title, style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                  Icon(
-                    _isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down,
-                    color: Colors.black54,
-                  ),
-                ],
-              ),
+    return BlocProvider<ItineraryCubit>.value(
+      value: widget.itineraryCubit,
+      child: BlocBuilder<ItineraryCubit, ItineraryData?>(
+        builder: (context, itineraryData) {
+          return Padding(
+            padding: const EdgeInsets.only(
+              bottom: 8,
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20) +
-                const EdgeInsets.only(top: 55),
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              height: _isExpanded ? 150 : 0,
-              curve: Curves.easeInOut,
-              child: Container(
-                clipBehavior: Clip.hardEdge,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(16),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                      offset: Offset(0, 4),
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isExpanded = !_isExpanded;
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.event, color: Colors.black54),
+                            SizedBox(width: 10),
+                            Text(widget.itineraryCubit.state!.title,
+                                style: TextStyle(fontSize: 16)),
+                          ],
+                        ),
+                        Icon(
+                          _isExpanded
+                              ? Icons.arrow_drop_up
+                              : Icons.arrow_drop_down,
+                          color: Colors.black54,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.all(16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text('날짜: ${widget.date}',
-                              style: TextStyle(fontSize: 16)),
-                          SizedBox(width: 16),
-                          Text('상태: ${widget.status}',
-                              style: TextStyle(fontSize: 16)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20) +
+                      const EdgeInsets.only(top: 55),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    height: _isExpanded ? 150 : 0,
+                    curve: Curves.easeInOut,
+                    child: Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(16),
+                          bottomRight: Radius.circular(16),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                            offset: Offset(0, 4),
+                          ),
                         ],
                       ),
-                      SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, size: 20),
-                          SizedBox(width: 8),
-                          Text('장소: ${widget.location}',
-                              style: TextStyle(fontSize: 16)),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () {
-                            // 일정 수정 로직 구현
-                          },
+                      padding: const EdgeInsets.all(16),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text('날짜: ???', style: TextStyle(fontSize: 16)),
+                                SizedBox(width: 16),
+                                Text('상태: ???', style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Icon(Icons.location_on, size: 20),
+                                SizedBox(width: 8),
+                                Text('장소: ???', style: TextStyle(fontSize: 16)),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  // 일정 수정 로직 구현
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ].reversed.toList(),
             ),
-          ),
-        ].reversed.toList(),
+          );
+        },
       ),
     );
   }

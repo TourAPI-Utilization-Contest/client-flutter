@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/features/search/screen.dart';
+import 'package:http/http.dart' as http;
 
 import 'color.dart';
 
 Widget searchTextField(BuildContext context, {required bool readOnly}) {
   FocusNode _focusNode = FocusNode();
+  TextEditingController _searchController = TextEditingController();
 
   return MouseRegion(
     cursor: readOnly ? SystemMouseCursors.click : SystemMouseCursors.basic,
@@ -19,7 +21,8 @@ Widget searchTextField(BuildContext context, {required bool readOnly}) {
           : null,
       child: Container(
         height: 50,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        // padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.only(left: 16, right: 6),
         decoration: BoxDecoration(
           color: const Color(0xFFF8F8F8),
           borderRadius: BorderRadius.circular(30),
@@ -28,18 +31,21 @@ Widget searchTextField(BuildContext context, {required bool readOnly}) {
             color: const Color(0xFF9CEFFF),
             width: 2,
           ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(0, 0, 0, 0.25),
-              blurRadius: 2,
-              offset: Offset(1, 1),
-            ),
-          ],
+          boxShadow: readOnly
+              ? const [
+                  BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.25),
+                    blurRadius: 2,
+                    offset: Offset(1, 1),
+                  ),
+                ]
+              : null,
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: IgnorePointer(
+        child: IgnorePointer(
+          ignoring: readOnly,
+          child: Row(
+            children: [
+              Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: KeyboardListener(
@@ -54,6 +60,12 @@ Widget searchTextField(BuildContext context, {required bool readOnly}) {
                     child: TextField(
                       autofocus: !readOnly,
                       readOnly: readOnly,
+                      controller: _searchController,
+                      onSubmitted: !readOnly
+                          ? (value) {
+                              enterSearch(value);
+                            }
+                          : null,
                       decoration: const InputDecoration(
                         hintText: '어디로 떠나볼까요?',
                         hintStyle: TextStyle(
@@ -68,13 +80,16 @@ Widget searchTextField(BuildContext context, {required bool readOnly}) {
                   ),
                 ),
               ),
-            ),
-            SvgPicture.asset(
-              'assets/icon/search.svg',
-              colorFilter: const ColorFilter.mode(cGray, BlendMode.srcIn),
-              height: 19.9,
-            ),
-          ],
+              IconButton(
+                onPressed: () => enterSearch,
+                icon: SvgPicture.asset(
+                  'assets/icon/search.svg',
+                  colorFilter: const ColorFilter.mode(cGray, BlendMode.srcIn),
+                  height: 19.9,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),
@@ -106,4 +121,8 @@ void _go(BuildContext context) {
       },
     ),
   );
+}
+
+void enterSearch(String value) {
+  print('검색어: $value');
 }
