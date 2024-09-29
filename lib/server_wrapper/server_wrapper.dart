@@ -115,4 +115,11 @@ class ItineraryCubitMapCubit extends Cubit<Map<String, ItineraryCubit>> {
   void setItineraryCubitMap(Map<String, ItineraryCubit> itineraryCubitMap) {
     emit(itineraryCubitMap);
   }
+
+  void addItineraryCubit(ItineraryCubit itineraryCubit) {
+    var itineraryId = itineraryCubit.state!.id;
+    emit(state..addAll({itineraryId: itineraryCubit}));
+    // print('addItineraryCubit: $itineraryId');
+    // TODO: 서버로 전송
+  }
 }

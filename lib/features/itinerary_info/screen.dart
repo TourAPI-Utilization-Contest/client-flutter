@@ -6,14 +6,16 @@ import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:tradule/common/section.dart';
+import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 
 class ItineraryInfoScreen extends StatefulWidget {
   // final bool isEditing;
-  final ItineraryData? itineraryData;
+  // final ItineraryData? itineraryData;
+  final ItineraryCubit? itineraryCubit;
   const ItineraryInfoScreen({
     super.key,
-    this.itineraryData,
+    this.itineraryCubit,
   });
 
   @override
@@ -22,17 +24,20 @@ class ItineraryInfoScreen extends StatefulWidget {
 
 class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
-  final TextEditingController _textEditingController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   DateTime? _startDate;
   DateTime? _endDate;
 
   @override
   Widget build(BuildContext context) {
-    bool isEditing = widget.itineraryData != null;
+    bool isEditing = widget.itineraryCubit != null;
 
     if (isEditing) {
       setDateRange(DateRange(
-          widget.itineraryData!.startDate, widget.itineraryData!.endDate));
+        widget.itineraryCubit!.state!.startDate,
+        widget.itineraryCubit!.state!.endDate,
+      ));
     }
 
     return Scaffold(
@@ -47,11 +52,13 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
               Section(
                 title: '일정 이름',
                 content: TextFormField(
+                  controller: _titleController,
                   decoration: InputDecoration(
                     labelText: isEditing
-                        ? widget.itineraryData!.title
+                        ? widget.itineraryCubit!.state!.title
                         : '새 일정 이름을 입력하세요',
-                    hintText: isEditing ? widget.itineraryData!.title : null,
+                    hintText:
+                        isEditing ? widget.itineraryCubit!.state!.title : null,
                   ),
                 ),
               ),
@@ -62,7 +69,7 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                     hintText: '여기를 눌러 여행 기간을 선택하세요',
                   ),
                   readOnly: true,
-                  controller: _textEditingController,
+                  controller: _dateController,
                   onTap: () => showDateRangePickerDialog2(
                     context: context,
                     builder: (context, onDateRangeChanged) {
@@ -85,6 +92,27 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
+                  if (isEditing) {
+                    widget.itineraryCubit!
+                        .setItinerary(widget.itineraryCubit!.state!.copyWith(
+                      title: _titleController.text,
+                      startDate: _startDate!,
+                      endDate: _endDate!,
+                    ));
+                  } else {
+                    ServerWrapper.itineraryCubitMapCubit.addItineraryCubit(
+                      ItineraryCubit(
+                        ItineraryData(
+                          id: 'new_id',
+                          users: ['user_id'],
+                          title: _titleController.text,
+                          startDate: _startDate!,
+                          endDate: _endDate!,
+                          iconColor: Colors.blue,
+                        ),
+                      ),
+                    );
+                  }
                   Navigator.pop(context);
                 },
                 child: isEditing ? const Text('수정 완료') : const Text('일정 만들기'),
@@ -107,7 +135,7 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
 
   void setDateRange(DateRange? dateRange) {
     if (dateRange != null) {
-      _textEditingController.text =
+      _dateController.text =
           '${_dateFormat.format(dateRange.start)} ~ ${_dateFormat.format(dateRange.end)}';
       _startDate = dateRange.start;
       _endDate = dateRange.end;
