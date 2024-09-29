@@ -6,9 +6,13 @@ import 'package:http/http.dart' as http;
 
 import 'color.dart';
 
-Widget searchTextField(BuildContext context, {required bool readOnly}) {
+Widget searchTextField(BuildContext context,
+    {required bool readOnly,
+    void Function(String value)? onEnter,
+    void Function(String value)? onChange}) {
   FocusNode _focusNode = FocusNode();
   TextEditingController _searchController = TextEditingController();
+  String previousText = '';
 
   return MouseRegion(
     cursor: readOnly ? SystemMouseCursors.click : SystemMouseCursors.basic,
@@ -61,11 +65,18 @@ Widget searchTextField(BuildContext context, {required bool readOnly}) {
                       autofocus: !readOnly,
                       readOnly: readOnly,
                       controller: _searchController,
-                      onSubmitted: !readOnly
-                          ? (value) {
-                              enterSearch(value);
-                            }
-                          : null,
+                      onChanged: (value) {
+                        var text = _searchController.value;
+                        if (text.composing.isCollapsed) {
+                          onChange?.call(text.text);
+                        } else {
+                          if (text.text.length > previousText.length) {
+                            onChange?.call(text.text);
+                          }
+                        }
+                        previousText = text.text;
+                      },
+                      onSubmitted: !readOnly ? onEnter : null,
                       decoration: const InputDecoration(
                         hintText: '어디로 떠나볼까요?',
                         hintStyle: TextStyle(
@@ -81,7 +92,7 @@ Widget searchTextField(BuildContext context, {required bool readOnly}) {
                 ),
               ),
               IconButton(
-                onPressed: () => enterSearch,
+                onPressed: () => onEnter?.call(_searchController.text),
                 icon: SvgPicture.asset(
                   'assets/icon/search.svg',
                   colorFilter: const ColorFilter.mode(cGray, BlendMode.srcIn),
@@ -123,6 +134,10 @@ void _go(BuildContext context) {
   );
 }
 
-void enterSearch(String value) {
-  print('검색어: $value');
-}
+// void previwSearch(String value) {
+//   print('미리보기 검색어: $value');
+// }
+//
+// void enterSearch(String value) {
+//   print('검색어: $value');
+// }
