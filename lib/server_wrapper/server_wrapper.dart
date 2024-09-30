@@ -91,6 +91,7 @@ class ServerWrapper {
     _testAccount = false;
     _loginKind = 0;
     userCubit.setUser(null);
+    itineraryCubitMapCubit.setItineraryCubitMap({});
   }
 
   static UserData? getUser() {

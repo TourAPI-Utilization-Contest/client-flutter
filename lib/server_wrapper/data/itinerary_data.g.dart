@@ -14,7 +14,7 @@ _$ItineraryDataImpl _$$ItineraryDataImplFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       startDate: _dateTimeFromJson(json['startDate'] as String),
       endDate: _dateTimeFromJson(json['endDate'] as String),
-      iconBase64: json['iconBase64'] as String?,
+      iconPath: json['iconPath'] as String?,
       iconColor: _colorFromJson((json['iconColor'] as num).toInt()),
       dailyItineraries: (json['dailyItineraries'] as List<dynamic>?)
               ?.map((e) => DailyItinerary.fromJson(e as Map<String, dynamic>))
@@ -30,7 +30,7 @@ Map<String, dynamic> _$$ItineraryDataImplToJson(_$ItineraryDataImpl instance) =>
       'description': instance.description,
       'startDate': _dateTimeToJson(instance.startDate),
       'endDate': _dateTimeToJson(instance.endDate),
-      'iconBase64': instance.iconBase64,
+      'iconPath': instance.iconPath,
       'iconColor': _colorToJson(instance.iconColor),
       'dailyItineraries': instance.dailyItineraries,
     };

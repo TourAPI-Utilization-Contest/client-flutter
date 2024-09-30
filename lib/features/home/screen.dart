@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/features/login/screen.dart';
@@ -14,7 +15,9 @@ import 'package:elevated_flex/elevated_flex.dart';
 import 'package:tradule/server_wrapper/data/user_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/common/search_text_field.dart';
-// import 'package:tradule/common/color.dart';
+import 'package:tradule/common/color.dart';
+import 'package:tradule/common/my_text_style.dart';
+import 'package:tradule/common/shadow_box.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -78,7 +81,7 @@ class _HomePageState extends State<HomePage>
             type: BottomNavigationBarType.fixed,
             enableFeedback: false,
             iconSize: 30.0,
-            unselectedItemColor: const Color(0xFFABB0BC),
+            unselectedItemColor: cGray3,
             selectedItemColor: Theme.of(context).colorScheme.primary,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
@@ -229,66 +232,72 @@ class _MainPageState extends State<MainPage>
                 ),
               ),
               child: Padding(
-                padding: EdgeInsets.only(
-                  top: 10,
+                padding: const EdgeInsets.only(
+                  top: 0,
                   left: 17,
                   right: 17,
-                  bottom: 50,
+                  bottom: 54,
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    ServerWrapper.isLogin()
-                        ? Row(
-                            children: [
-                              Text('${ServerWrapper.getUser()!.name}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontFamily: 'NotoSansKR',
-                                    fontVariations: [
-                                      FontVariation('wght', 500)
-                                    ],
-                                  )),
-                              Text('님 안녕하세요!',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontFamily: 'NotoSansKR',
-                                    fontVariations: const [
-                                      FontVariation('wght', 400)
-                                    ],
-                                  )),
-                            ],
-                          )
-                        : Text('로그인이 필요합니다.',
-                            style: const TextStyle(
+                    Row(
+                      children: <Widget>[
+                        Text(
+                            ServerWrapper.isLogin()
+                                ? '${ServerWrapper.getUser()!.name}'
+                                : '로그인',
+                            style: myTextStyle(
                               color: Colors.white,
                               fontSize: 24,
-                              fontFamily: 'NotoSansKR',
-                              fontVariations: [FontVariation('wght', 400)],
+                              fontWeight: FontWeight.w500,
                             )),
-                    const Spacer(),
-                    ServerWrapper.isLogin()
-                        ? ElevatedButton(
-                            onPressed: () {
-                              ServerWrapper.logout();
-                              setState(() {});
-                            },
-                            child: const Text('로그아웃'),
-                          )
-                        : ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoginScreen(),
-                                ),
-                              ).then((value) {
-                                setState(() {});
-                              });
-                            },
-                            child: const Text('로그인'),
-                          ),
+                        const SizedBox(width: 6),
+                        Text(ServerWrapper.isLogin() ? '님 안녕하세요!' : '이 필요합니다!',
+                            style: myTextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w400,
+                            )),
+                      ],
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromRGBO(255, 255, 255, 0.8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 12,
+                        ),
+                        // fixedSize: const Size(46, 21),
+                        // maximumSize: const Size(46, 21),
+                        minimumSize: const Size(46, 21),
+                        textStyle: myTextStyle(
+                          height: 1.2,
+                          color: Theme.of(context).colorScheme.primary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        shadowColor: Colors.transparent,
+                      ),
+                      onPressed: () {
+                        if (ServerWrapper.isLogin()) {
+                          ServerWrapper.logout();
+                          setState(() {});
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginScreen(),
+                            ),
+                          );
+                        }
+                      },
+                      child: ServerWrapper.isLogin()
+                          ? const Text('로그아웃')
+                          : const Text('로그인'),
+                    ),
                   ],
                 ),
               ),
@@ -305,11 +314,52 @@ class _MainPageState extends State<MainPage>
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: searchY + 25),
+              padding: EdgeInsets.only(top: searchY + 50),
               child: Column(
                 children: [
                   Section(
-                    title: '내 일정',
+                    title: Row(
+                      children: <Widget>[
+                        Text(
+                            ServerWrapper.isLogin()
+                                ? '${ServerWrapper.getUser()!.name}'
+                                : '로그인',
+                            style: const TextStyle(
+                              // color: Colors.white,
+                              fontSize: 20,
+                              fontFamily: 'NotoSansKR',
+                              fontVariations: [FontVariation('wght', 500)],
+                            )),
+                        const SizedBox(width: 6),
+                        Text(
+                            ServerWrapper.isLogin()
+                                ? '님의 일정'
+                                : '해서 나만의 일정을 만들어보세요!',
+                            style: const TextStyle(
+                              // color: Colors.white,
+                              fontSize: 20,
+                              fontFamily: 'NotoSansKR',
+                              fontVariations: [FontVariation('wght', 400)],
+                            )),
+                      ],
+                    ),
+                    trailing: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icon/jam_arrows_v.svg',
+                        ),
+                        Text(
+                          '날짜순',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 11,
+                            fontFamily: 'NotoSansKR',
+                            fontVariations: const [FontVariation('wght', 400)],
+                          ),
+                        ),
+                      ],
+                    ),
                     content: BlocProvider.value(
                       value: ServerWrapper.itineraryCubitMapCubit,
                       child: BlocBuilder<ItineraryCubitMapCubit,
@@ -317,56 +367,15 @@ class _MainPageState extends State<MainPage>
                         builder: (context, itineraryCubitMap) {
                           return Column(
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(32),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ItineraryInfoScreen(),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: EdgeInsets.all(16),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    backgroundColor: Colors.white,
-                                    elevation:
-                                        0, // Material의 elevation을 활용하므로 버튼 자체에서는 그림자 제거
-                                  ),
-                                  icon: Icon(Icons.add_circle,
-                                      color: Colors.black54),
-                                  label: Text(
-                                    "새 일정 만들기",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
                               ...itineraryCubitMap.map(
                                 (itineraryId, itineraryCubit) {
                                   return MapEntry(
                                     itineraryId,
-                                    ScheduleItem(
-                                      itineraryCubit: itineraryCubit,
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 26),
+                                      child: ScheduleItem(
+                                        itineraryCubit: itineraryCubit,
+                                      ),
                                     ),
                                   );
                                 },
@@ -386,6 +395,28 @@ class _MainPageState extends State<MainPage>
               ),
             ),
           ],
+        ),
+      ),
+      floatingActionButton: Tooltip(
+        message: '새 일정 만들기',
+        child: FloatingActionButton(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          shape: const CircleBorder(),
+          elevation: 0,
+          hoverElevation: 0,
+          focusElevation: 0,
+          highlightElevation: 0,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ItineraryInfoScreen(),
+              ),
+            );
+          },
+          child: SvgPicture.asset(
+            'assets/icon/jam_plus.svg',
+          ),
         ),
       ),
     );
@@ -415,115 +446,73 @@ class _ScheduleItemState extends State<ScheduleItem> {
       value: widget.itineraryCubit,
       child: BlocBuilder<ItineraryCubit, ItineraryData?>(
         builder: (context, itineraryData) {
-          return Padding(
-            padding: const EdgeInsets.only(
-              bottom: 8,
-            ),
-            child: Stack(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isExpanded = !_isExpanded;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.event, color: Colors.black54),
-                            SizedBox(width: 10),
-                            Text(widget.itineraryCubit.state!.title,
-                                style: TextStyle(fontSize: 16)),
-                          ],
-                        ),
-                        Icon(
-                          _isExpanded
-                              ? Icons.arrow_drop_up
-                              : Icons.arrow_drop_down,
-                          color: Colors.black54,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20) +
-                      const EdgeInsets.only(top: 55),
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
-                    height: _isExpanded ? 150 : 0,
-                    curve: Curves.easeInOut,
-                    child: Container(
-                      clipBehavior: Clip.hardEdge,
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(16),
-                          bottomRight: Radius.circular(16),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            spreadRadius: 1,
-                            offset: Offset(0, 4),
+          String startDate =
+              DateFormat('yyyy.MM.dd').format(itineraryData!.startDate);
+          String endDate =
+              DateFormat('yyyy.MM.dd').format(itineraryData.endDate);
+          String dateRange = '$startDate   -   $endDate';
+          return Stack(
+            children: [
+              ShadowBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(17),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          SvgPicture.asset(
+                            itineraryData.iconPath ?? 'assets/icon/기본.svg',
+                            // color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 32),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                itineraryData.title,
+                                style: myTextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                dateRange,
+                                style: myTextStyle(
+                                  color: cGray3,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w200,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                      padding: const EdgeInsets.all(16),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text('날짜: ???', style: TextStyle(fontSize: 16)),
-                                SizedBox(width: 16),
-                                Text('상태: ???', style: TextStyle(fontSize: 16)),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(Icons.location_on, size: 20),
-                                SizedBox(width: 8),
-                                Text('장소: ???', style: TextStyle(fontSize: 16)),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () {
-                                  // 일정 수정 로직 구현
-                                },
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ItineraryInfoScreen(
+                                    itineraryCubit: widget.itineraryCubit),
                               ),
-                            ),
-                          ],
+                            );
+                          });
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/icon/jam_write.svg',
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              ].reversed.toList(),
-            ),
+              ),
+            ],
           );
         },
       ),

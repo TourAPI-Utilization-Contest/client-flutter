@@ -36,9 +36,8 @@ mixin _$ItineraryData {
   DateTime get endDate => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   set endDate(DateTime value) => throw _privateConstructorUsedError;
-  String? get iconBase64 => throw _privateConstructorUsedError;
-  set iconBase64(String? value) =>
-      throw _privateConstructorUsedError; // svg icon
+  String? get iconPath => throw _privateConstructorUsedError;
+  set iconPath(String? value) => throw _privateConstructorUsedError; // svg icon
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   Color get iconColor => throw _privateConstructorUsedError; // svg icon
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
@@ -73,7 +72,7 @@ abstract class $ItineraryDataCopyWith<$Res> {
       DateTime startDate,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime endDate,
-      String? iconBase64,
+      String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color iconColor,
       List<DailyItinerary> dailyItineraries});
 }
@@ -99,7 +98,7 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
     Object? description = freezed,
     Object? startDate = null,
     Object? endDate = null,
-    Object? iconBase64 = freezed,
+    Object? iconPath = freezed,
     Object? iconColor = null,
     Object? dailyItineraries = null,
   }) {
@@ -128,9 +127,9 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
           ? _value.endDate
           : endDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      iconBase64: freezed == iconBase64
-          ? _value.iconBase64
-          : iconBase64 // ignore: cast_nullable_to_non_nullable
+      iconPath: freezed == iconPath
+          ? _value.iconPath
+          : iconPath // ignore: cast_nullable_to_non_nullable
               as String?,
       iconColor: null == iconColor
           ? _value.iconColor
@@ -161,7 +160,7 @@ abstract class _$$ItineraryDataImplCopyWith<$Res>
       DateTime startDate,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime endDate,
-      String? iconBase64,
+      String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color iconColor,
       List<DailyItinerary> dailyItineraries});
 }
@@ -185,7 +184,7 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
     Object? description = freezed,
     Object? startDate = null,
     Object? endDate = null,
-    Object? iconBase64 = freezed,
+    Object? iconPath = freezed,
     Object? iconColor = null,
     Object? dailyItineraries = null,
   }) {
@@ -214,9 +213,9 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
           ? _value.endDate
           : endDate // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      iconBase64: freezed == iconBase64
-          ? _value.iconBase64
-          : iconBase64 // ignore: cast_nullable_to_non_nullable
+      iconPath: freezed == iconPath
+          ? _value.iconPath
+          : iconPath // ignore: cast_nullable_to_non_nullable
               as String?,
       iconColor: null == iconColor
           ? _value.iconColor
@@ -242,7 +241,7 @@ class _$ItineraryDataImpl extends _ItineraryData {
       required this.startDate,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required this.endDate,
-      this.iconBase64,
+      this.iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
       required this.iconColor,
       this.dailyItineraries = const []})
@@ -266,7 +265,7 @@ class _$ItineraryDataImpl extends _ItineraryData {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime endDate;
   @override
-  String? iconBase64;
+  String? iconPath;
 // svg icon
   @override
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
@@ -277,7 +276,7 @@ class _$ItineraryDataImpl extends _ItineraryData {
 
   @override
   String toString() {
-    return 'ItineraryData(id: $id, users: $users, title: $title, description: $description, startDate: $startDate, endDate: $endDate, iconBase64: $iconBase64, iconColor: $iconColor, dailyItineraries: $dailyItineraries)';
+    return 'ItineraryData(id: $id, users: $users, title: $title, description: $description, startDate: $startDate, endDate: $endDate, iconPath: $iconPath, iconColor: $iconColor, dailyItineraries: $dailyItineraries)';
   }
 
   /// Create a copy of ItineraryData
@@ -306,7 +305,7 @@ abstract class _ItineraryData extends ItineraryData {
       required DateTime startDate,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required DateTime endDate,
-      String? iconBase64,
+      String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
       required Color iconColor,
       List<DailyItinerary> dailyItineraries}) = _$ItineraryDataImpl;
@@ -338,8 +337,8 @@ abstract class _ItineraryData extends ItineraryData {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   set endDate(DateTime value);
   @override
-  String? get iconBase64;
-  set iconBase64(String? value); // svg icon
+  String? get iconPath;
+  set iconPath(String? value); // svg icon
   @override
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   Color get iconColor; // svg icon

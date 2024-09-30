@@ -49,7 +49,7 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Section(
+              SectionLegacy(
                 title: '일정 이름',
                 content: TextFormField(
                   controller: _titleController,
@@ -62,7 +62,7 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                   ),
                 ),
               ),
-              Section(
+              SectionLegacy(
                 title: '여행 기간',
                 content: TextFormField(
                   decoration: const InputDecoration(
@@ -85,7 +85,7 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                   ),
                 ),
               ),
-              Section(
+              SectionLegacy(
                 title: '아이콘 및 색상',
                 content: IconAndColorPicker(),
               ),

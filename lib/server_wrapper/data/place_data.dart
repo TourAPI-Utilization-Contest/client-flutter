@@ -4,29 +4,29 @@ part 'place_data.g.dart';
 
 @JsonSerializable()
 class PlaceData {
-  final String id;
-  final String name;
+  final String id; //contentid
+  final String title;
   final String address;
   final double latitude;
   final double longitude;
   final String? description;
   final String? phoneNumber;
   final String? homepage;
-  final String? category;
-  final String? iconBase64; // svg icon
+  final String? tag;
+  final String? imageUrl; // svg icon
   final int iconColor;
 
   PlaceData({
     required this.id,
-    required this.name,
+    required this.title,
     required this.address,
     required this.latitude,
     required this.longitude,
     this.description,
     this.phoneNumber,
     this.homepage,
-    this.category,
-    this.iconBase64,
+    this.tag,
+    this.imageUrl,
     required this.iconColor,
   });
 

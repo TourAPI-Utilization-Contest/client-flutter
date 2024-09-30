@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
+import 'package:tradule/common/color.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -159,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 1,
                   child: Container(
-                    color: const Color(0xFFECECEC),
+                    color: cGray4,
                   ),
                 ),
                 const SizedBox(height: 10),

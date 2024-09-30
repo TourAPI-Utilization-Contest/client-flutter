@@ -7,7 +7,7 @@ class BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: SvgPicture.asset('icon/jam_chevron_left.svg'),
+      icon: SvgPicture.asset('assets/icon/jam_chevron_left.svg'),
       hoverColor: Color.fromRGBO(0, 0, 0, 0.05),
       onPressed: () {
         Navigator.pop(context);

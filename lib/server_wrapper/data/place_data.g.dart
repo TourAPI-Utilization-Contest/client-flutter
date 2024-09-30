@@ -8,28 +8,28 @@ part of 'place_data.dart';
 
 PlaceData _$PlaceDataFromJson(Map<String, dynamic> json) => PlaceData(
       id: json['id'] as String,
-      name: json['name'] as String,
+      title: json['title'] as String,
       address: json['address'] as String,
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       description: json['description'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       homepage: json['homepage'] as String?,
-      category: json['category'] as String?,
-      iconBase64: json['iconBase64'] as String?,
+      tag: json['tag'] as String?,
+      imageUrl: json['imageUrl'] as String?,
       iconColor: (json['iconColor'] as num).toInt(),
     );
 
 Map<String, dynamic> _$PlaceDataToJson(PlaceData instance) => <String, dynamic>{
       'id': instance.id,
-      'name': instance.name,
+      'title': instance.title,
       'address': instance.address,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'description': instance.description,
       'phoneNumber': instance.phoneNumber,
       'homepage': instance.homepage,
-      'category': instance.category,
-      'iconBase64': instance.iconBase64,
+      'tag': instance.tag,
+      'imageUrl': instance.imageUrl,
       'iconColor': instance.iconColor,
     };

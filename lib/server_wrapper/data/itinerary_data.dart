@@ -107,7 +107,7 @@ class ItineraryData with _$ItineraryData {
     required DateTime startDate,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
     required DateTime endDate,
-    String? iconBase64, // svg icon
+    String? iconPath, // svg icon
     @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
     required Color iconColor,
     @Default([]) List<DailyItinerary> dailyItineraries,

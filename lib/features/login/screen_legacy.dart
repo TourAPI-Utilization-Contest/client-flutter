@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Section(
+              SectionLegacy(
                 title: '이메일 로그인',
                 content: Form(
                   key: _formKey, // Form 키 연결
@@ -127,7 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              Section(
+              SectionLegacy(
                 title: '간편 로그인',
                 content: Column(
                   children: [

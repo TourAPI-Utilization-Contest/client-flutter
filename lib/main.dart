@@ -7,6 +7,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tradule/server_wrapper/server_wrapper.dart';
 
 import 'api_key.dart';
 import 'theme.dart';
@@ -36,6 +37,8 @@ void main() async {
     nativeAppKey: kakaoNativeAppKey,
     javaScriptAppKey: kakaoJavascriptKey,
   );
+
+  ServerWrapper.loginIdPw('test@test', '1234');
 
   runApp(const ProviderScope(child: Tradule()));
 }

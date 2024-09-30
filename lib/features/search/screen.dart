@@ -1,9 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:tradule/common/search_text_field.dart';
 import 'package:tradule/common/back_button.dart' as common;
 import 'package:tradule/common/color.dart';
+import 'package:tradule/common/section.dart';
+import 'package:tradule/common/place_card.dart';
+import 'package:tradule/tourapi_wrapper/GW.dart';
+import 'package:tradule/server_wrapper/data/place_data.dart';
 
 // class SearchScreen extends StatefulWidget {
 //   const SearchScreen({super.key});
@@ -176,12 +182,30 @@ class _SearchScreenState extends State<SearchScreen> {
   final SearchController _searchController = SearchController();
   final FocusNode _focusNode = FocusNode();
   // bool suggestionsVisible = false;
+  List<Widget> suggestions = [];
+  List<Widget> searchResults = [];
 
   @override
   void initState() {
     super.initState();
     _focusNode.addListener(() {
       setState(() {});
+    });
+    var p = PlaceData(
+      id: "1234",
+      title: "경복궁",
+      address: "주소",
+      latitude: 1234,
+      longitude: 1234,
+      imageUrl: "",
+      iconColor: 0xFF9CEFFF,
+    );
+    setState(() {
+      searchResults.add(
+        PlaceCard(
+          placeData: p,
+        ),
+      );
     });
   }
 
@@ -212,10 +236,19 @@ class _SearchScreenState extends State<SearchScreen> {
                 // padding: const MaterialStatePropertyAll<EdgeInsets>(
                 //     EdgeInsets.symmetric(horizontal: 16.0)),
                 focusNode: _focusNode,
+                autoFocus: true,
                 onTap: () {
                   setState(() {});
                 },
-                onSubmitted: (value) {
+                onSubmitted: (value) async {
+                  // var r = await searchKeyword1Request(SearchKeyword1RequestData(
+                  //   numOfRows: 3,
+                  //   pageNo: 1,
+                  //   type: 'json',
+                  //   keyword: value,
+                  // ));
+                  // print(r);
+                  onEnter(value);
                   setState(() {});
                 },
                 onChanged: (_) {
@@ -287,38 +320,77 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-            Expanded(
-              child: Stack(
-                children: [
-                  // searchTextField(context, readOnly: false),
-                  if (_focusNode.hasFocus)
-                    Positioned(
-                      top: 50,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        color: Colors.white,
-                        child: ListView.builder(
-                          itemCount: 5,
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              title: Text('item $index'),
-                              onTap: () {
-                                _textController.text = 'item $index';
-                                setState(() {});
-                              },
-                            );
-                          },
+            Column(
+              children: [
+                // searchTextField(context, readOnly: false),
+                // if (_focusNode.hasFocus)
+                //   Container(
+                //     color: Colors.white,
+                //     child: Column(
+                //       children: [
+                //         for (var item in suggestions)
+                //           Padding(
+                //             padding: const EdgeInsets.all(8.0),
+                //             child: item,
+                //           ),
+                //       ],
+                //     ),
+                //   ),
+                Section(
+                  title: const Text('검색 결과'),
+                  //searchResults
+                  content: Column(
+                    children: [
+                      for (var item in searchResults)
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: item,
                         ),
-                      ),
-                    ),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  onEnter(String text) async {
+    searchResults.clear();
+    var jsonString = await searchKeyword1Request(SearchKeyword1RequestData(
+      numOfRows: 3,
+      pageNo: 1,
+      type: 'json',
+      keyword: text,
+    ));
+    Map<String, dynamic> jsonData = json.decode(jsonString);
+    print(jsonString);
+    if (jsonData["response"]["body"]["items"].isEmpty) {
+      return;
+    }
+
+    for (var item in jsonData["response"]["body"]["items"]["item"]) {
+      print(item);
+      searchResults.add(
+        PlaceCard(
+          placeData: PlaceData(
+            id: item["contentid"],
+            title: item["title"],
+            address: item["addr1"],
+            latitude: double.parse(item["mapy"]),
+            longitude: double.parse(item["mapx"]),
+            imageUrl: item["firstimage"],
+            iconColor: 0xFF9CEFFF,
+          ),
+        ),
+      );
+    }
+    setState(() {});
+  }
+
+  onChanged(String text) {
+    print(text);
   }
 }

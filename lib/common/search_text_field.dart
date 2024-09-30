@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/features/search/screen.dart';
-import 'package:http/http.dart' as http;
 
 import 'color.dart';
 
@@ -28,7 +27,8 @@ Widget searchTextField(BuildContext context,
         // padding: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.only(left: 16, right: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F8F8),
+          // color: const Color(0xFFF8F8F8),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(
             // color: Theme.of(context).colorScheme.primary,
