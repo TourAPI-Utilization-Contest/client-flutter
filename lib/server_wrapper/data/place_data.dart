@@ -13,7 +13,8 @@ class PlaceData {
   final String? phoneNumber;
   final String? homepage;
   final String? tag;
-  final String? imageUrl; // svg icon
+  final String? imageUrl;
+  final String? thumbnailUrl;
   final int iconColor;
 
   PlaceData({
@@ -27,6 +28,7 @@ class PlaceData {
     this.homepage,
     this.tag,
     this.imageUrl,
+    this.thumbnailUrl,
     required this.iconColor,
   });
 

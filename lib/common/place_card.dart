@@ -44,21 +44,24 @@ class PlaceCard extends StatelessWidget {
                 child: Center(
                   child: Stack(
                     children: [
-                      placeData.imageUrl!.isEmpty
-                          ? SvgPicture.asset(
-                              'assets/logo/tradule_text.svg',
-                              height: 7,
-                              colorFilter: const ColorFilter.mode(
-                                Color(0xFFADB0BB),
-                                BlendMode.srcIn,
-                              ),
-                            )
-                          : Image.network(
-                              placeData.imageUrl!,
-                              width: 54,
-                              height: 54,
-                              fit: BoxFit.cover,
-                            ),
+                      Center(
+                        child: SvgPicture.asset(
+                          'assets/logo/tradule_text.svg',
+                          height: 7,
+                          colorFilter: const ColorFilter.mode(
+                            Color(0xFFADB0BB),
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      if (placeData.thumbnailUrl != null &&
+                          placeData.thumbnailUrl!.isNotEmpty)
+                        Image.network(
+                          placeData.thumbnailUrl!,
+                          width: 54,
+                          height: 54,
+                          fit: BoxFit.cover,
+                        ),
                     ],
                   ),
                 ),

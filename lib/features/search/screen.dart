@@ -22,18 +22,21 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _textController = TextEditingController();
-  final TextEditingController _textController2 = TextEditingController();
+  // final TextEditingController _textController2 = TextEditingController();
   // final Color cGray = const Color(0xff9E9E9E);
-  final SearchController _searchController = SearchController();
+  // final SearchController _searchController = SearchController();
   final FocusNode _focusNode = FocusNode();
   // bool suggestionsVisible = false;
+  bool firstSearch = true;
   List<Widget> suggestions = [];
   List<Widget> searchResults = [];
   bool searchResultsLoading = false;
   bool suggestionsLoading = false;
   bool suggestionsStop = false;
+  bool suggestionsVisible = false;
   String? suggestionsReservedText;
   String? suggestionsPreviousText;
+  Map<String, Map<String, dynamic>> suggestionsCache = {};
 
   @override
   void initState() {
@@ -41,28 +44,27 @@ class _SearchScreenState extends State<SearchScreen> {
     _focusNode.addListener(() {
       setState(() {});
     });
-    var p = PlaceData(
-      id: "1234",
-      title: "경복궁",
-      address: "주소",
-      latitude: 1234,
-      longitude: 1234,
-      imageUrl: "",
-      iconColor: 0xFF9CEFFF,
-    );
-    setState(() {
-      searchResults.add(
-        PlaceCard(
-          placeData: p,
-        ),
-      );
-    });
+    // var p = PlaceData(
+    //   id: "1234",
+    //   title: "경복궁",
+    //   address: "주소",
+    //   latitude: 1234,
+    //   longitude: 1234,
+    //   imageUrl: "",
+    //   iconColor: 0xFF9CEFFF,
+    // );
+    // setState(() {
+    //   searchResults.add(
+    //     PlaceCard(
+    //       placeData: p,
+    //     ),
+    //   );
+    // });
   }
 
   @override
   void dispose() {
     _textController.dispose();
-    _textController2.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -106,6 +108,14 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: MyTextField(
                     controller: _textController,
                     focusNode: _focusNode,
+                    onTap: () {
+                      suggestionsVisible = true;
+                      setState(() {});
+                    },
+                    // onTapOutside: (event) {
+                    //   suggestionsVisible = false;
+                    //   _focusNode.unfocus();
+                    // },
                     onChanged: onChanged,
                     onSubmitted: onEnter,
                     hintText: _focusNode.hasFocus
@@ -115,54 +125,67 @@ class _SearchScreenState extends State<SearchScreen> {
               Column(
                 children: [
                   // searchTextField(context, readOnly: false),
-                  if (_focusNode.hasFocus)
-                    // Container(
-                    //   color: Colors.white,
-                    //   child: Column(
-                    //     children: [
-                    //       for (var item in suggestions)
-                    //         Padding(
-                    //           padding: const EdgeInsets.all(8.0),
-                    //           child: item,
-                    //         ),
-                    //     ],
-                    //   ),
-                    // ),
+                  // if (_focusNode.hasFocus)
+                  // Container(
+                  //   color: Colors.white,
+                  //   child: Column(
+                  //     children: [
+                  //       for (var item in suggestions)
+                  //         Padding(
+                  //           padding: const EdgeInsets.all(8.0),
+                  //           child: item,
+                  //         ),
+                  //     ],
+                  //   ),
+                  // ),
+                  if (suggestionsVisible && _textController.text.isNotEmpty)
                     buildSuggestions(),
-                  Section(
-                    title: Text('검색 결과',
+                  if (firstSearch && _textController.text.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text(
+                        '검색어를 입력해주세요.',
                         style: myTextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        )),
-                    content: Column(
-                      children: [
-                        for (var item in searchResults)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: item,
-                          ),
-                        if (searchResultsLoading)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: CircularProgressIndicator(
-                              color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  if (!firstSearch)
+                    Section(
+                      title: Text('검색 결과',
+                          style: myTextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          )),
+                      content: Column(
+                        children: [
+                          for (var item in searchResults)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: item,
                             ),
-                          ),
-                        if (!searchResultsLoading && searchResults.isEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: Text(
-                              '검색 결과가 없습니다.',
-                              style: myTextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
+                          if (searchResultsLoading)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: CircularProgressIndicator(
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                             ),
-                          ),
-                      ],
+                          if (!searchResultsLoading && searchResults.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 16),
+                              child: Text(
+                                '검색 결과가 없습니다.',
+                                style: myTextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
                 ],
               ),
             ],
@@ -186,31 +209,41 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   onChanged(String text) async {
+    suggestionsVisible = true;
+    setState(() {});
+
     if (text.trim().isEmpty) {
       suggestions.clear();
       suggestionsReservedText = null;
+      suggestionsPreviousText = null;
       suggestionsStop = true;
       setState(() {});
       return;
     }
 
     suggestionsStop = false;
-    text = text.trim().replaceAll(RegExp(r'\s+'), ' ');
-    if (text == suggestionsPreviousText) return;
-    suggestionsPreviousText = text;
     if (suggestionsLoading) {
       suggestionsReservedText = text;
       return;
     }
+    text = text.replaceAll(RegExp(r'\s+'), ' ');
+    if (text == suggestionsPreviousText) return;
+    suggestionsPreviousText = text;
 
     suggestionsLoading = true;
     setState(() {});
 
-    var jsonData = await tourApiRequest(
-      keyword: text,
-      pageNo: 1,
-      numOfRows: 5,
-    );
+    Map<String, dynamic> jsonData;
+    if (suggestionsCache.containsKey(text)) {
+      jsonData = suggestionsCache[text]!;
+    } else {
+      jsonData = await tourApiRequest(
+        keyword: text,
+        pageNo: 1,
+        numOfRows: 5,
+      );
+      suggestionsCache[text] = jsonData;
+    }
 
     suggestions.clear();
 
@@ -224,10 +257,12 @@ class _SearchScreenState extends State<SearchScreen> {
       if (jsonData["response"] != null &&
           jsonData["response"]["body"]["items"].isNotEmpty) {
         Set<String> titles = {};
+        var count = 0;
         for (var item in jsonData["response"]["body"]["items"]["item"]) {
           if (titles.contains(item["title"])) continue;
+          if (count++ >= 3) break;
           suggestions.add(
-            SuggestionsItem(
+            buildSuggestionsItem(
               text: item["title"],
               searchText: text,
             ),
@@ -258,8 +293,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
     if (searchResultsLoading) return; // 중복 요청 방지
     searchResultsLoading = true;
+    suggestionsVisible = false;
+    suggestionsStop = true;
     setState(() {});
 
+    firstSearch = false;
     text = text.trim().replaceAll(RegExp(r'\s+'), ' ');
     var jsonData = await tourApiRequest(
       keyword: text,
@@ -280,6 +318,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 latitude: double.parse(item["mapy"]),
                 longitude: double.parse(item["mapx"]),
                 imageUrl: item["firstimage"],
+                thumbnailUrl: item["firstimage2"],
                 iconColor: 0xFF9CEFFF,
               ),
             ),
@@ -296,39 +335,103 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget buildSuggestions() {
-    return Container(
-      color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 8,
+        horizontal: 16,
+      ),
       child: Column(
         children: [
-          for (var item in suggestions)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: item,
-            ),
+          Stack(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '추천 검색어',
+                    style: myTextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w200,
+                      color: const Color(0xFF50555C),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      suggestionsVisible = false;
+                      setState(() {});
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      minimumSize: Size.zero,
+                    ),
+                    child: Text(
+                      '닫기',
+                      style: myTextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w200,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (suggestionsLoading)
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              if (suggestions.isEmpty && !suggestionsLoading)
+                const SizedBox.shrink(),
+            ],
+          ),
+          for (var i = 0; i < suggestions.length; i++) ...[
+            suggestions[i],
+            if (i < suggestions.length - 1)
+              const Divider(
+                height: 1,
+                thickness: 1,
+                color: Color(0xFFD9D9D9),
+              ),
+          ],
         ],
       ),
     );
   }
-}
 
-class SuggestionsItem extends StatelessWidget {
-  final String text;
-  final String searchText;
-  const SuggestionsItem({
-    super.key,
-    required this.text,
-    required this.searchText,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: buildText(context),
+  Widget buildSuggestionsItem(
+      {required String text, required String searchText}) {
+    return ListTile(
+      onTap: () {
+        _textController.text = text;
+        _focusNode.unfocus();
+        setState(() {});
+        onEnter(text);
+      },
+      contentPadding: EdgeInsets.zero,
+      leading: SvgPicture.asset(
+        'assets/icon/jam_map_marker_f.svg',
+      ),
+      title: buildText(text, searchText),
+      trailing: Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: SvgPicture.asset(
+          'assets/icon/jam_arrow_right.svg',
+        ),
+      ),
     );
   }
 
-  Widget buildText(BuildContext context) {
+  Widget buildText(String text, String searchText) {
     List<TextSpan> spans = [];
     var defaultStyle = myTextStyle(
       fontSize: 16,
@@ -340,9 +443,11 @@ class SuggestionsItem extends StatelessWidget {
       fontWeight: FontWeight.w400,
       color: Theme.of(context).colorScheme.primary,
     );
+    var textLower = text.toLowerCase();
+    var searchTextLower = searchText.toLowerCase();
 
     // 검색어가 없을 경우 전체 텍스트를 그대로 보여줌
-    if (searchText.isEmpty || !text.contains(searchText)) {
+    if (searchText.isEmpty || !textLower.contains(searchTextLower)) {
       spans.add(TextSpan(
         text: text,
         style: defaultStyle,
@@ -352,7 +457,7 @@ class SuggestionsItem extends StatelessWidget {
       int index;
 
       // 검색어가 여러 번 등장할 수 있으므로 반복문을 사용
-      while ((index = text.indexOf(searchText, start)) != -1) {
+      while ((index = textLower.indexOf(searchTextLower, start)) != -1) {
         // 검색어 앞부분 추가
         if (index > start) {
           spans.add(TextSpan(
@@ -363,7 +468,7 @@ class SuggestionsItem extends StatelessWidget {
 
         // 검색어 부분 추가 (특정 색상 적용)
         spans.add(TextSpan(
-          text: searchText,
+          text: text.substring(index, index + searchText.length),
           style: searchStyle,
         ));
 

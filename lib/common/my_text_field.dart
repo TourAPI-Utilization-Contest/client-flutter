@@ -8,6 +8,7 @@ class MyTextField extends StatefulWidget {
   final FocusNode? focusNode;
   final bool autoFocus = true;
   final void Function()? onTap;
+  final void Function(PointerDownEvent event)? onTapOutside;
   final void Function(String value)? onSubmitted;
   final void Function(String value)? onChanged;
   final String? hintText;
@@ -17,6 +18,7 @@ class MyTextField extends StatefulWidget {
     required this.controller,
     this.focusNode,
     this.onTap,
+    this.onTapOutside,
     this.onSubmitted,
     this.onChanged,
     this.hintText,
@@ -42,19 +44,26 @@ class _MyTextFieldState extends State<MyTextField> {
         widget.onTap?.call();
         setState(() {});
       },
+      onTapOutside: widget.onTapOutside == null
+          ? null
+          : (PointerDownEvent event) {
+              widget.onTapOutside!(event);
+              setState(() {});
+            },
       onSubmitted: (value) async {
         widget.onSubmitted?.call(value);
         setState(() {});
       },
       onChanged: (_) {
-        var text = widget.controller.value;
-        if (text.composing.isCollapsed) {
-          widget.onChanged?.call(text.text);
-        } else {
-          if (text.text.length > _previousText.length &&
-              _previousText.isNotEmpty) widget.onChanged?.call(_previousText);
-        }
-        _previousText = text.text;
+        // var text = widget.controller.value;
+        // if (text.composing.isCollapsed) {
+        //   widget.onChanged?.call(text.text);
+        // } else {
+        //   if (text.text.length > _previousText.length &&
+        //       _previousText.isNotEmpty) widget.onChanged?.call(_previousText);
+        // }
+        // _previousText = text.text;
+        widget.onChanged?.call(widget.controller.text);
         setState(() {});
       },
       side: const WidgetStatePropertyAll<BorderSide>(
@@ -89,7 +98,7 @@ class _MyTextFieldState extends State<MyTextField> {
         Colors.transparent,
       ),
       trailing: <Widget>[
-        widget.controller!.text.isEmpty
+        widget.controller.text.isEmpty
             ? Tooltip(
                 message: '검색하기',
                 child: IconButton(
@@ -97,7 +106,7 @@ class _MyTextFieldState extends State<MyTextField> {
                   onPressed: () {},
                   icon: SvgPicture.asset(
                     'assets/icon/search.svg',
-                    colorFilter: ColorFilter.mode(cGray, BlendMode.srcIn),
+                    colorFilter: const ColorFilter.mode(cGray, BlendMode.srcIn),
                     height: 19.9,
                   ),
                 ),
@@ -107,7 +116,7 @@ class _MyTextFieldState extends State<MyTextField> {
                 child: IconButton(
                   icon: SvgPicture.asset(
                     'assets/icon/jam_close_circle_f.svg',
-                    colorFilter: ColorFilter.mode(cGray, BlendMode.srcIn),
+                    colorFilter: const ColorFilter.mode(cGray, BlendMode.srcIn),
                     height: 19.9,
                   ),
                   onPressed: () {
