@@ -8,165 +8,10 @@ import 'package:tradule/common/back_button.dart' as common;
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/common/place_card.dart';
+import 'package:tradule/common/my_text_field.dart';
+import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/tourapi_wrapper/GW.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
-
-// class SearchScreen extends StatefulWidget {
-//   const SearchScreen({super.key});
-//
-//   @override
-//   _SearchScreenState createState() => _SearchScreenState();
-// }
-//
-// class _SearchScreenState extends State<SearchScreen> {
-//   final TextEditingController _textController = TextEditingController();
-//   final TextEditingController _textController2 = TextEditingController();
-//   // final Color cGray = const Color(0xff9E9E9E);
-//   final SearchController _searchController = SearchController();
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         // title: const Text('Search'),
-//         backgroundColor: Colors.white,
-//         leading: common.BackButton(context: context),
-//       ),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             searchTextField(context, readOnly: false),
-//             const SizedBox(height: 16),
-//             Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: SearchAnchor(
-//                 searchController: _searchController,
-//                 builder: (BuildContext context, SearchController controller) {
-//                   return SearchBar(
-//                     controller: controller,
-//                     // padding: const MaterialStatePropertyAll<EdgeInsets>(
-//                     //     EdgeInsets.symmetric(horizontal: 16.0)),
-//                     onTap: () {
-//                       controller.openView();
-//                     },
-//                     onChanged: (_) {
-//                       controller.openView();
-//                     },
-//                     side: const WidgetStatePropertyAll<BorderSide>(
-//                       BorderSide(
-//                         color: cAqua, // 테두리 색상
-//                         width: 2.0, // 테두리 두께
-//                       ),
-//                     ),
-//                     constraints: const BoxConstraints(
-//                       maxHeight: 50.0,
-//                       minHeight: 50.0,
-//                     ),
-//                     backgroundColor: const WidgetStatePropertyAll<Color>(
-//                       cGray2,
-//                     ),
-//                     hintText: '어디로 떠나볼까요?',
-//                     hintStyle: const WidgetStatePropertyAll<TextStyle>(
-//                       TextStyle(
-//                         color: cGray,
-//                         fontSize: 16,
-//                         fontFamily: 'NotoSansKR',
-//                         fontVariations: [FontVariation('wght', 200)],
-//                       ),
-//                     ),
-//                     // leading: const Icon(Icons.search),
-//                     // surfaceTintColor: const WidgetStatePropertyAll<Color>(
-//                     //   Colors.white,
-//                     // ),
-//                     overlayColor: const WidgetStatePropertyAll<Color>(
-//                       Colors.transparent,
-//                     ),
-//                     trailing: <Widget>[
-//                       Tooltip(
-//                         message: '검색하기',
-//                         child: IconButton(
-//                           // isSelected: isDark,
-//                           onPressed: () {},
-//                           icon: SvgPicture.asset(
-//                             'assets/icon/search.svg',
-//                             colorFilter:
-//                                 ColorFilter.mode(cGray, BlendMode.srcIn),
-//                             height: 19.9,
-//                           ),
-//                         ),
-//                       )
-//                     ],
-//                   );
-//                 },
-//
-//                 dividerColor: Colors.transparent,
-//
-//                 // viewSide: BorderSide(
-//                 //   color: Colors.blue, // 테두리 색상
-//                 //   width: 2.0, // 테두리 두께
-//                 // ),
-//                 viewTrailing: <Widget>[
-//                   Tooltip(
-//                     message: '초기화',
-//                     child: IconButton(
-//                       icon: SvgPicture.asset(
-//                         'assets/icon/jam_close_circle_f.svg',
-//                         colorFilter: ColorFilter.mode(cGray, BlendMode.srcIn),
-//                         height: 19.9,
-//                       ),
-//                       onPressed: () {
-//                         // _controller.closeView(null);
-//                         _textController.clear();
-//                       },
-//                     ),
-//                   )
-//                 ],
-//                 viewSide: const BorderSide(
-//                   color: cAqua, // 테두리 색상
-//                   width: 2.0, // 테두리 두께
-//                 ),
-//                 suggestionsBuilder:
-//                     (BuildContext context, SearchController controller) {
-//                   return List<ListTile>.generate(5, (int index) {
-//                     final String item = 'item $index';
-//                     return ListTile(
-//                       title: Text(item),
-//                       onTap: () {
-//                         setState(() {
-//                           controller.closeView(item);
-//                         });
-//                       },
-//                     );
-//                   });
-//                 },
-//                 viewLeading: Container(),
-//                 viewHintText: '주소, 장소, 키워드를 입력하세요',
-//                 viewSurfaceTintColor: Colors.white,
-//                 viewConstraints: const BoxConstraints(
-//                   minHeight: 50.0,
-//                   maxHeight: 200.0,
-//                 ),
-//                 viewBackgroundColor: Colors.white,
-//                 textCapitalization: TextCapitalization.none,
-//                 viewBuilder: (viewBuilder) {
-//                   return Column(
-//                     children: <Widget>[
-//                       const Divider(
-//                         height: 1.0,
-//                         color: cGray2,
-//                       ),
-//                     ],
-//                   );
-//                 },
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -184,6 +29,11 @@ class _SearchScreenState extends State<SearchScreen> {
   // bool suggestionsVisible = false;
   List<Widget> suggestions = [];
   List<Widget> searchResults = [];
+  bool searchResultsLoading = false;
+  bool suggestionsLoading = false;
+  bool suggestionsStop = false;
+  String? suggestionsReservedText;
+  String? suggestionsPreviousText;
 
   @override
   void initState() {
@@ -224,173 +74,314 @@ class _SearchScreenState extends State<SearchScreen> {
         // title: const Text('Search'),
         backgroundColor: Colors.white,
         leading: common.BackButton(context: context),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+        title: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SearchBar(
-                controller: _textController,
-                // padding: const MaterialStatePropertyAll<EdgeInsets>(
-                //     EdgeInsets.symmetric(horizontal: 16.0)),
-                focusNode: _focusNode,
-                autoFocus: true,
-                onTap: () {
-                  setState(() {});
-                },
-                onSubmitted: (value) async {
-                  // var r = await searchKeyword1Request(SearchKeyword1RequestData(
-                  //   numOfRows: 3,
-                  //   pageNo: 1,
-                  //   type: 'json',
-                  //   keyword: value,
-                  // ));
-                  // print(r);
-                  onEnter(value);
-                  setState(() {});
-                },
-                onChanged: (_) {
-                  setState(() {});
-                },
-                side: const WidgetStatePropertyAll<BorderSide>(
-                  BorderSide(
-                    color: cAqua,
-                    width: 2.0,
-                  ),
-                ),
-                constraints: const BoxConstraints(
-                  maxHeight: 50.0,
-                  minHeight: 50.0,
-                ),
-                backgroundColor: const WidgetStatePropertyAll<Color>(
-                  cGray2,
-                ),
-                hintText:
-                    _focusNode.hasFocus ? '주소, 장소, 키워드를 입력하세요' : '어디로 떠나볼까요?',
-                hintStyle: const WidgetStatePropertyAll<TextStyle>(
-                  TextStyle(
-                    // color: _focusNode.hasFocus ? Colors.black38 : cGray,
-                    color: cGray,
-                    fontSize: 16,
-                    fontFamily: 'NotoSansKR',
-                    fontVariations: [FontVariation('wght', 200)],
-                  ),
-                ),
-
-                // leading: const Icon(Icons.search),
-                // surfaceTintColor: const WidgetStatePropertyAll<Color>(
-                //   Colors.white,
-                // ),
-                overlayColor: const WidgetStatePropertyAll<Color>(
-                  Colors.transparent,
-                ),
-                trailing: <Widget>[
-                  _textController.text.isEmpty
-                      ? Tooltip(
-                          message: '검색하기',
-                          child: IconButton(
-                            // isSelected: isDark,
-                            onPressed: () {},
-                            icon: SvgPicture.asset(
-                              'assets/icon/search.svg',
-                              colorFilter:
-                                  ColorFilter.mode(cGray, BlendMode.srcIn),
-                              height: 19.9,
-                            ),
-                          ),
-                        )
-                      : Tooltip(
-                          message: '초기화',
-                          child: IconButton(
-                            icon: SvgPicture.asset(
-                              'assets/icon/jam_close_circle_f.svg',
-                              colorFilter:
-                                  ColorFilter.mode(cGray, BlendMode.srcIn),
-                              height: 19.9,
-                            ),
-                            onPressed: () {
-                              // _controller.closeView(null);
-                              _textController.clear();
-                              setState(() {});
-                            },
-                          ),
-                        )
-                ],
+            SvgPicture.asset(
+              'assets/logo/tradule_text.svg',
+              height: 20,
+              colorFilter: const ColorFilter.mode(
+                cGray,
+                BlendMode.srcIn,
               ),
             ),
-            Column(
-              children: [
-                // searchTextField(context, readOnly: false),
-                // if (_focusNode.hasFocus)
-                //   Container(
-                //     color: Colors.white,
-                //     child: Column(
-                //       children: [
-                //         for (var item in suggestions)
-                //           Padding(
-                //             padding: const EdgeInsets.all(8.0),
-                //             child: item,
-                //           ),
-                //       ],
-                //     ),
-                //   ),
-                Section(
-                  title: const Text('검색 결과'),
-                  //searchResults
-                  content: Column(
-                    children: [
-                      for (var item in searchResults)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: item,
-                        ),
-                    ],
-                  ),
-                ),
-              ],
+            const SizedBox(width: 14),
+            Text(
+              '장소 검색',
+              style: myTextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w500,
+                color: cGray,
+              ),
             ),
           ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: MyTextField(
+                    controller: _textController,
+                    focusNode: _focusNode,
+                    onChanged: onChanged,
+                    onSubmitted: onEnter,
+                    hintText: _focusNode.hasFocus
+                        ? '주소, 장소, 키워드를 입력하세요'
+                        : '어디로 떠나볼까요?',
+                  )),
+              Column(
+                children: [
+                  // searchTextField(context, readOnly: false),
+                  if (_focusNode.hasFocus)
+                    // Container(
+                    //   color: Colors.white,
+                    //   child: Column(
+                    //     children: [
+                    //       for (var item in suggestions)
+                    //         Padding(
+                    //           padding: const EdgeInsets.all(8.0),
+                    //           child: item,
+                    //         ),
+                    //     ],
+                    //   ),
+                    // ),
+                    buildSuggestions(),
+                  Section(
+                    title: Text('검색 결과',
+                        style: myTextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        )),
+                    content: Column(
+                      children: [
+                        for (var item in searchResults)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: item,
+                          ),
+                        if (searchResultsLoading)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: CircularProgressIndicator(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        if (!searchResultsLoading && searchResults.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: Text(
+                              '검색 결과가 없습니다.',
+                              style: myTextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  onEnter(String text) async {
-    searchResults.clear();
+  Future<Map<String, dynamic>> tourApiRequest(
+      {required String keyword,
+      required int pageNo,
+      required int numOfRows}) async {
     var jsonString = await searchKeyword1Request(SearchKeyword1RequestData(
-      numOfRows: 3,
-      pageNo: 1,
+      numOfRows: numOfRows,
+      pageNo: pageNo,
       type: 'json',
-      keyword: text,
+      keyword: keyword,
     ));
-    Map<String, dynamic> jsonData = json.decode(jsonString);
-    print(jsonString);
-    if (jsonData["response"]["body"]["items"].isEmpty) {
+    return json.decode(jsonString);
+  }
+
+  onChanged(String text) async {
+    if (text.trim().isEmpty) {
+      suggestions.clear();
+      suggestionsReservedText = null;
+      suggestionsStop = true;
+      setState(() {});
       return;
     }
 
-    for (var item in jsonData["response"]["body"]["items"]["item"]) {
-      print(item);
-      searchResults.add(
-        PlaceCard(
-          placeData: PlaceData(
-            id: item["contentid"],
-            title: item["title"],
-            address: item["addr1"],
-            latitude: double.parse(item["mapy"]),
-            longitude: double.parse(item["mapx"]),
-            imageUrl: item["firstimage"],
-            iconColor: 0xFF9CEFFF,
-          ),
-        ),
-      );
+    suggestionsStop = false;
+    text = text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (text == suggestionsPreviousText) return;
+    suggestionsPreviousText = text;
+    if (suggestionsLoading) {
+      suggestionsReservedText = text;
+      return;
     }
+
+    suggestionsLoading = true;
+    setState(() {});
+
+    var jsonData = await tourApiRequest(
+      keyword: text,
+      pageNo: 1,
+      numOfRows: 5,
+    );
+
+    suggestions.clear();
+
+    if (suggestionsStop) {
+      suggestionsLoading = false;
+      setState(() {});
+      return;
+    }
+
+    try {
+      if (jsonData["response"] != null &&
+          jsonData["response"]["body"]["items"].isNotEmpty) {
+        Set<String> titles = {};
+        for (var item in jsonData["response"]["body"]["items"]["item"]) {
+          if (titles.contains(item["title"])) continue;
+          suggestions.add(
+            SuggestionsItem(
+              text: item["title"],
+              searchText: text,
+            ),
+          );
+          titles.add(item["title"]);
+        }
+      }
+    } catch (e) {
+      print(e);
+      print(jsonData);
+    }
+
+    suggestionsLoading = false;
+    setState(() {});
+
+    if (suggestionsReservedText != null) {
+      onChanged(suggestionsReservedText!);
+      suggestionsReservedText = null;
+    }
+  }
+
+  onEnter(String text) async {
+    searchResults.clear();
+    if (text.trim().isEmpty) {
+      setState(() {});
+      return;
+    }
+
+    if (searchResultsLoading) return; // 중복 요청 방지
+    searchResultsLoading = true;
+    setState(() {});
+
+    text = text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    var jsonData = await tourApiRequest(
+      keyword: text,
+      pageNo: 1,
+      numOfRows: 10,
+    );
+
+    try {
+      if (jsonData["response"] != null &&
+          jsonData["response"]["body"]["items"].isNotEmpty) {
+        for (var item in jsonData["response"]["body"]["items"]["item"]) {
+          searchResults.add(
+            PlaceCard(
+              placeData: PlaceData(
+                id: item["contentid"],
+                title: item["title"],
+                address: item["addr1"],
+                latitude: double.parse(item["mapy"]),
+                longitude: double.parse(item["mapx"]),
+                imageUrl: item["firstimage"],
+                iconColor: 0xFF9CEFFF,
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print(e);
+      print(jsonData);
+    }
+
+    searchResultsLoading = false;
     setState(() {});
   }
 
-  onChanged(String text) {
-    print(text);
+  Widget buildSuggestions() {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: [
+          for (var item in suggestions)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: item,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class SuggestionsItem extends StatelessWidget {
+  final String text;
+  final String searchText;
+  const SuggestionsItem({
+    super.key,
+    required this.text,
+    required this.searchText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: buildText(context),
+    );
+  }
+
+  Widget buildText(BuildContext context) {
+    List<TextSpan> spans = [];
+    var defaultStyle = myTextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: const Color(0xFF50555C),
+    );
+    var searchStyle = myTextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: Theme.of(context).colorScheme.primary,
+    );
+
+    // 검색어가 없을 경우 전체 텍스트를 그대로 보여줌
+    if (searchText.isEmpty || !text.contains(searchText)) {
+      spans.add(TextSpan(
+        text: text,
+        style: defaultStyle,
+      ));
+    } else {
+      int start = 0;
+      int index;
+
+      // 검색어가 여러 번 등장할 수 있으므로 반복문을 사용
+      while ((index = text.indexOf(searchText, start)) != -1) {
+        // 검색어 앞부분 추가
+        if (index > start) {
+          spans.add(TextSpan(
+            text: text.substring(start, index),
+            style: defaultStyle,
+          ));
+        }
+
+        // 검색어 부분 추가 (특정 색상 적용)
+        spans.add(TextSpan(
+          text: searchText,
+          style: searchStyle,
+        ));
+
+        // 다음 검색 시작 위치 갱신
+        start = index + searchText.length;
+      }
+
+      // 마지막으로 남은 부분 추가
+      if (start < text.length) {
+        spans.add(TextSpan(
+          text: text.substring(start),
+          style: defaultStyle,
+        ));
+      }
+    }
+
+    return Text.rich(
+      TextSpan(children: spans),
+    );
   }
 }

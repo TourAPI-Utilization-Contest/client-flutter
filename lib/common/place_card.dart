@@ -25,91 +25,107 @@ class PlaceCard extends StatelessWidget {
             //   itineraryData.iconPath ?? 'assets/icon/기본.svg',
             //   // color: Theme.of(context).colorScheme.primary,
             // ),
-            placeData.imageUrl!.isEmpty
-                ? Container(
-                    width: 54,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: cGray4,
-                      borderRadius: BorderRadius.circular(54),
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: Stack(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/logo/tradule_text.svg',
-                            height: 7,
-                            colorFilter: const ColorFilter.mode(
-                              Color(0xFFADB0BB),
-                              BlendMode.srcIn,
+            Container(
+              width: 54,
+              height: 54,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(54),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1,
+                ),
+              ),
+              child: Container(
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  color: cGray4,
+                  borderRadius: BorderRadius.circular(54),
+                ),
+                child: Center(
+                  child: Stack(
+                    children: [
+                      placeData.imageUrl!.isEmpty
+                          ? SvgPicture.asset(
+                              'assets/logo/tradule_text.svg',
+                              height: 7,
+                              colorFilter: const ColorFilter.mode(
+                                Color(0xFFADB0BB),
+                                BlendMode.srcIn,
+                              ),
+                            )
+                          : Image.network(
+                              placeData.imageUrl!,
+                              width: 54,
+                              height: 54,
+                              fit: BoxFit.cover,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : Image.network(
-                    placeData.imageUrl!,
-                    width: 54,
-                    height: 54,
-                  ),
-            const SizedBox(width: 32),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  placeData.title,
-                  style: myTextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    ],
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      placeData.address,
-                      style: myTextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w200,
-                      ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    placeData.title,
+                    style: myTextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
-                    SvgPicture.asset(
-                      'assets/icon/관심_장소_off.svg',
-                      // width: 16,
-                      // height: 16,
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        textStyle: myTextStyle(
-                          height: 1.2,
-                          fontSize: 8,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        minimumSize: Size(46, 17),
-                        shadowColor: Colors.transparent,
-                      ),
-                      onPressed: () {
-                        print('관심장소');
-                      },
-                      child: Text(
-                        '내 일정에 추가',
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        placeData.address,
                         style: myTextStyle(
-                          color: Colors.white,
-                          fontSize: 8,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w200,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const Spacer(),
+                      SvgPicture.asset(
+                        'assets/icon/관심_장소_off.svg',
+                        // width: 16,
+                        // height: 16,
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
+                          textStyle: myTextStyle(
+                            height: 1.2,
+                            fontSize: 8,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 11,
+                            vertical: 0,
+                          ),
+                          minimumSize: const Size(68, 17),
+                          shadowColor: Colors.transparent,
+                        ),
+                        onPressed: () {
+                          print('내 일정에 추가');
+                        },
+                        child: Text(
+                          '내 일정에 추가',
+                          style: myTextStyle(
+                            height: 17 / 8,
+                            color: Colors.white,
+                            fontSize: 8,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

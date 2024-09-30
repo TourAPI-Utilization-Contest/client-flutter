@@ -60,6 +60,12 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                     hintText:
                         isEditing ? widget.itineraryCubit!.state!.title : null,
                   ),
+                  validator: (value) {
+                    if (!isEditing && (value == null || value.isEmpty)) {
+                      return '일정 이름은 비워둘 수 없어요!';
+                    }
+                    return null;
+                  },
                 ),
               ),
               SectionLegacy(
@@ -105,7 +111,9 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                         ItineraryData(
                           id: 'new_id',
                           users: ['user_id'],
-                          title: _titleController.text,
+                          title: isEditing && _titleController.text.isEmpty
+                              ? widget.itineraryCubit!.state!.title
+                              : _titleController.text,
                           startDate: _startDate!,
                           endDate: _endDate!,
                           iconColor: Colors.blue,
