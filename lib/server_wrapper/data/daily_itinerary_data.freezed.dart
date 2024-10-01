@@ -22,8 +22,14 @@ DailyItineraryData _$DailyItineraryDataFromJson(Map<String, dynamic> json) {
 mixin _$DailyItineraryData {
   String get dailyItineraryId => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime get date => throw _privateConstructorUsedError;
-  List<PlaceData> get places => throw _privateConstructorUsedError;
+  DateTime get date =>
+      throw _privateConstructorUsedError; // @Default([]) List<PlaceData> places,
+  @JsonKey(
+      fromJson: _placeDataCubitListFromJson, toJson: _placeDataCubitListToJson)
+  List<PlaceCubit> get placeList =>
+      throw _privateConstructorUsedError; //MovementCubit
+  @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+  List<MovementCubit> get movementList => throw _privateConstructorUsedError;
 
   /// Serializes this DailyItineraryData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -45,7 +51,12 @@ abstract class $DailyItineraryDataCopyWith<$Res> {
       {String dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime date,
-      List<PlaceData> places});
+      @JsonKey(
+          fromJson: _placeDataCubitListFromJson,
+          toJson: _placeDataCubitListToJson)
+      List<PlaceCubit> placeList,
+      @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+      List<MovementCubit> movementList});
 }
 
 /// @nodoc
@@ -65,7 +76,8 @@ class _$DailyItineraryDataCopyWithImpl<$Res, $Val extends DailyItineraryData>
   $Res call({
     Object? dailyItineraryId = null,
     Object? date = null,
-    Object? places = null,
+    Object? placeList = null,
+    Object? movementList = null,
   }) {
     return _then(_value.copyWith(
       dailyItineraryId: null == dailyItineraryId
@@ -76,10 +88,14 @@ class _$DailyItineraryDataCopyWithImpl<$Res, $Val extends DailyItineraryData>
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      places: null == places
-          ? _value.places
-          : places // ignore: cast_nullable_to_non_nullable
-              as List<PlaceData>,
+      placeList: null == placeList
+          ? _value.placeList
+          : placeList // ignore: cast_nullable_to_non_nullable
+              as List<PlaceCubit>,
+      movementList: null == movementList
+          ? _value.movementList
+          : movementList // ignore: cast_nullable_to_non_nullable
+              as List<MovementCubit>,
     ) as $Val);
   }
 }
@@ -96,7 +112,12 @@ abstract class _$$DailyItineraryImplCopyWith<$Res>
       {String dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime date,
-      List<PlaceData> places});
+      @JsonKey(
+          fromJson: _placeDataCubitListFromJson,
+          toJson: _placeDataCubitListToJson)
+      List<PlaceCubit> placeList,
+      @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+      List<MovementCubit> movementList});
 }
 
 /// @nodoc
@@ -114,7 +135,8 @@ class __$$DailyItineraryImplCopyWithImpl<$Res>
   $Res call({
     Object? dailyItineraryId = null,
     Object? date = null,
-    Object? places = null,
+    Object? placeList = null,
+    Object? movementList = null,
   }) {
     return _then(_$DailyItineraryImpl(
       dailyItineraryId: null == dailyItineraryId
@@ -125,10 +147,14 @@ class __$$DailyItineraryImplCopyWithImpl<$Res>
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
               as DateTime,
-      places: null == places
-          ? _value._places
-          : places // ignore: cast_nullable_to_non_nullable
-              as List<PlaceData>,
+      placeList: null == placeList
+          ? _value._placeList
+          : placeList // ignore: cast_nullable_to_non_nullable
+              as List<PlaceCubit>,
+      movementList: null == movementList
+          ? _value._movementList
+          : movementList // ignore: cast_nullable_to_non_nullable
+              as List<MovementCubit>,
     ));
   }
 }
@@ -140,8 +166,14 @@ class _$DailyItineraryImpl extends _DailyItinerary {
       {required this.dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required this.date,
-      final List<PlaceData> places = const []})
-      : _places = places,
+      @JsonKey(
+          fromJson: _placeDataCubitListFromJson,
+          toJson: _placeDataCubitListToJson)
+      final List<PlaceCubit> placeList = const [],
+      @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+      final List<MovementCubit> movementList = const []})
+      : _placeList = placeList,
+        _movementList = movementList,
         super._();
 
   factory _$DailyItineraryImpl.fromJson(Map<String, dynamic> json) =>
@@ -152,18 +184,32 @@ class _$DailyItineraryImpl extends _DailyItinerary {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime date;
-  final List<PlaceData> _places;
+// @Default([]) List<PlaceData> places,
+  final List<PlaceCubit> _placeList;
+// @Default([]) List<PlaceData> places,
   @override
-  @JsonKey()
-  List<PlaceData> get places {
-    if (_places is EqualUnmodifiableListView) return _places;
+  @JsonKey(
+      fromJson: _placeDataCubitListFromJson, toJson: _placeDataCubitListToJson)
+  List<PlaceCubit> get placeList {
+    if (_placeList is EqualUnmodifiableListView) return _placeList;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_places);
+    return EqualUnmodifiableListView(_placeList);
+  }
+
+//MovementCubit
+  final List<MovementCubit> _movementList;
+//MovementCubit
+  @override
+  @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+  List<MovementCubit> get movementList {
+    if (_movementList is EqualUnmodifiableListView) return _movementList;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_movementList);
   }
 
   @override
   String toString() {
-    return 'DailyItineraryData(dailyItineraryId: $dailyItineraryId, date: $date, places: $places)';
+    return 'DailyItineraryData(dailyItineraryId: $dailyItineraryId, date: $date, placeList: $placeList, movementList: $movementList)';
   }
 
   @override
@@ -174,13 +220,20 @@ class _$DailyItineraryImpl extends _DailyItinerary {
             (identical(other.dailyItineraryId, dailyItineraryId) ||
                 other.dailyItineraryId == dailyItineraryId) &&
             (identical(other.date, date) || other.date == date) &&
-            const DeepCollectionEquality().equals(other._places, _places));
+            const DeepCollectionEquality()
+                .equals(other._placeList, _placeList) &&
+            const DeepCollectionEquality()
+                .equals(other._movementList, _movementList));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, dailyItineraryId, date,
-      const DeepCollectionEquality().hash(_places));
+  int get hashCode => Object.hash(
+      runtimeType,
+      dailyItineraryId,
+      date,
+      const DeepCollectionEquality().hash(_placeList),
+      const DeepCollectionEquality().hash(_movementList));
 
   /// Create a copy of DailyItineraryData
   /// with the given fields replaced by the non-null parameter values.
@@ -204,7 +257,12 @@ abstract class _DailyItinerary extends DailyItineraryData {
       {required final String dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required final DateTime date,
-      final List<PlaceData> places}) = _$DailyItineraryImpl;
+      @JsonKey(
+          fromJson: _placeDataCubitListFromJson,
+          toJson: _placeDataCubitListToJson)
+      final List<PlaceCubit> placeList,
+      @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+      final List<MovementCubit> movementList}) = _$DailyItineraryImpl;
   const _DailyItinerary._() : super._();
 
   factory _DailyItinerary.fromJson(Map<String, dynamic> json) =
@@ -214,9 +272,14 @@ abstract class _DailyItinerary extends DailyItineraryData {
   String get dailyItineraryId;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime get date;
+  DateTime get date; // @Default([]) List<PlaceData> places,
   @override
-  List<PlaceData> get places;
+  @JsonKey(
+      fromJson: _placeDataCubitListFromJson, toJson: _placeDataCubitListToJson)
+  List<PlaceCubit> get placeList; //MovementCubit
+  @override
+  @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
+  List<MovementCubit> get movementList;
 
   /// Create a copy of DailyItineraryData
   /// with the given fields replaced by the non-null parameter values.

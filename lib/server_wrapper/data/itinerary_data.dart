@@ -14,9 +14,10 @@ Color _colorFromJson(int color) => Color(color);
 int _colorToJson(Color color) => color.value;
 
 List<DailyItineraryCubit> _dailyItineraryCubitListFromJson(
-    List<DailyItineraryData> dailyItinerariesData) {
-  return dailyItinerariesData
-      .map((dailyItineraryData) => DailyItineraryCubit(dailyItineraryData))
+    List<dynamic> dailyItineraryDataList) {
+  return dailyItineraryDataList
+      .map((dailyItineraryData) =>
+          DailyItineraryCubit(DailyItineraryData.fromJson(dailyItineraryData)))
       .toList();
 }
 

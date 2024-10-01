@@ -19,7 +19,7 @@ _$ItineraryDataImpl _$$ItineraryDataImplFromJson(Map<String, dynamic> json) =>
       dailyItineraryCubitList: json['dailyItineraryCubitList'] == null
           ? const []
           : _dailyItineraryCubitListFromJson(
-              json['dailyItineraryCubitList'] as List<DailyItineraryData>),
+              json['dailyItineraryCubitList'] as List),
     );
 
 Map<String, dynamic> _$$ItineraryDataImplToJson(_$ItineraryDataImpl instance) =>

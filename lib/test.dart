@@ -1,65 +1,76 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  return runApp(MyApp());
-}
+/// Flutter code sample for [ReorderableListView.buildDefaultDragHandles].
 
-class MyApp extends StatelessWidget {
+void main() => runApp(const ReorderableApp());
+
+class ReorderableApp extends StatelessWidget {
+  const ReorderableApp({super.key});
+
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  @override
-  Widget build(final BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("My Home Page")),
-      drawer: MyDrawer(),
-      body: MyDrawer2(),
-    );
-  }
-}
-
-class MyDrawer extends StatelessWidget {
-  @override
-  Widget build(final BuildContext context) {
-    return Drawer(
-      child: Column(children: <Widget>[
-        ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Account'),
-          onTap: () {},
-        ),
-        ListTile(
-          leading: const Icon(Icons.settings),
-          title: const Text('Settings'),
-          onTap: () {},
-        ),
-      ]),
-    );
-  }
-}
-
-class MyDrawer2 extends StatelessWidget {
-  @override
-  Widget build(final BuildContext context) {
-    return Column(children: <Widget>[
-      ListTile(
-        leading: const Icon(Icons.person),
-        title: const Text('Account'),
-        onTap: () {},
+      home: Scaffold(
+        appBar: AppBar(title: const Text('ReorderableListView Sample')),
+        body: const ReorderableExample(),
       ),
-      ListTile(
-        leading: const Icon(Icons.settings),
-        title: const Text('Settings'),
-        onTap: () {},
-      ),
-    ]);
+    );
+  }
+}
+
+class ReorderableExample extends StatefulWidget {
+  const ReorderableExample({super.key});
+
+  @override
+  State<ReorderableExample> createState() => _ReorderableExampleState();
+}
+
+class _ReorderableExampleState extends State<ReorderableExample> {
+  final List<int> _items = List<int>.generate(50, (int index) => index);
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color oddItemColor = colorScheme.primary.withOpacity(0.05);
+    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
+
+    return ReorderableListView(
+      buildDefaultDragHandles: false,
+      children: <Widget>[
+        for (int index = 0; index < _items.length; index++)
+          ColoredBox(
+            key: Key('$index'),
+            color: _items[index].isOdd ? oddItemColor : evenItemColor,
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 64,
+                  height: 100,
+                  padding: const EdgeInsets.all(8),
+                  child: index.isEven
+                      ? const Icon(Icons.drag_handle)
+                      : ReorderableDragStartListener(
+                          index: index,
+                          child: Card(
+                            color: colorScheme.primary,
+                            elevation: 2,
+                          ),
+                        ),
+                ),
+                Text('Item ${_items[index]}'),
+              ],
+            ),
+          ),
+      ],
+      onReorder: (int oldIndex, int newIndex) {
+        setState(() {
+          if (oldIndex < newIndex) {
+            newIndex -= 1;
+          }
+          final int item = _items.removeAt(oldIndex);
+          _items.insert(newIndex, item);
+        });
+      },
+    );
   }
 }

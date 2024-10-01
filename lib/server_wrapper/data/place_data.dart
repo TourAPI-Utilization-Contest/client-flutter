@@ -1,45 +1,46 @@
-import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:json_annotation/json_annotation.dart';
-
+part 'place_data.freezed.dart';
 part 'place_data.g.dart';
 
 Color _colorFromJson(int? color) => Color(color ?? 0);
 int _colorToJson(Color? color) => color?.value ?? 0;
 
-@JsonSerializable()
-class PlaceData {
-  final String id; //contentid
-  final String title;
-  final String address;
-  final double latitude;
-  final double longitude;
-  final String? description;
-  final String? phoneNumber;
-  final String? homepage;
-  final String? tag;
-  final String? imageUrl;
-  final String? thumbnailUrl;
-  @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
-  final Color? iconColor;
+// DateTime _dateTimeFromJson(String date) => DateTime.parse(date);
+// String _dateTimeToJson(DateTime date) => date.toIso8601String();
 
-  PlaceData({
-    required this.id,
-    required this.title,
-    required this.address,
-    required this.latitude,
-    required this.longitude,
-    this.description,
-    this.phoneNumber,
-    this.homepage,
-    this.tag,
-    this.imageUrl,
-    this.thumbnailUrl,
-    this.iconColor,
-  });
+Duration _durationFromJson(int? duration) => Duration(minutes: duration ?? 0);
+int _durationToJson(Duration? duration) => duration?.inMinutes ?? 0;
+
+@freezed
+class PlaceData with _$PlaceData {
+  const factory PlaceData({
+    required String id, // contentid
+    required String title,
+    required String address,
+    required double latitude,
+    required double longitude,
+    @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
+    Duration? stayTime,
+    String? description,
+    String? phoneNumber,
+    String? homepage,
+    String? tag,
+    String? imageUrl,
+    String? thumbnailUrl,
+    @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) Color? iconColor,
+  }) = _PlaceData;
 
   factory PlaceData.fromJson(Map<String, dynamic> json) =>
       _$PlaceDataFromJson(json);
+}
 
-  Map<String, dynamic> toJson() => _$PlaceDataToJson(this);
+class PlaceCubit extends Cubit<PlaceData> {
+  PlaceCubit(PlaceData state) : super(state);
+
+  void update(PlaceData place) {
+    emit(place);
+  }
 }

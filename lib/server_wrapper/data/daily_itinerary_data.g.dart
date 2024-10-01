@@ -10,10 +10,12 @@ _$DailyItineraryImpl _$$DailyItineraryImplFromJson(Map<String, dynamic> json) =>
     _$DailyItineraryImpl(
       dailyItineraryId: json['dailyItineraryId'] as String,
       date: _dateTimeFromJson(json['date'] as String),
-      places: (json['places'] as List<dynamic>?)
-              ?.map((e) => PlaceData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      placeList: json['placeList'] == null
+          ? const []
+          : _placeDataCubitListFromJson(json['placeList'] as List),
+      movementList: json['movementList'] == null
+          ? const []
+          : _movementCubitFromJson(json['movementList'] as List),
     );
 
 Map<String, dynamic> _$$DailyItineraryImplToJson(
@@ -21,5 +23,6 @@ Map<String, dynamic> _$$DailyItineraryImplToJson(
     <String, dynamic>{
       'dailyItineraryId': instance.dailyItineraryId,
       'date': _dateTimeToJson(instance.date),
-      'places': instance.places,
+      'placeList': _placeDataCubitListToJson(instance.placeList),
+      'movementList': _movementCubitToJson(instance.movementList),
     };

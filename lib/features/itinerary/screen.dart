@@ -8,6 +8,7 @@ import 'package:tradule/common/color.dart';
 import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
+import 'package:tradule/server_wrapper/data/place_data.dart';
 
 import 'bloc.dart';
 import 'map_style.dart';
@@ -369,7 +370,9 @@ class _Header extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '내 일정1',
+                          tabController.index == 0
+                              ? itinerary.title
+                              : 'Day ${tabController.index}',
                           style: myTextStyle(
                             fontSize: 8,
                             color: cGray3,
@@ -533,30 +536,87 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Text(
-            'Daily Itinerary',
-            style: myTextStyle(
-              fontSize: 24,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
+    return ReorderableListView(
+      children: [
+        for (var i = 0;
+            i < widget.dailyItineraryCubit.state.placeList.length;
+            i++)
+          DailyItineraryPlaceItem(
+            key: Key('$i'),
+            placeCubit: widget.dailyItineraryCubit.state.placeList[i],
           ),
-          Text(
-            'Date: ${widget.dailyItineraryCubit.state.date}',
-            style: myTextStyle(
-              fontSize: 16,
-              color: Colors.black,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ],
-      ),
+      ],
+      onReorder: (int oldIndex, int newIndex) {
+        setState(
+          () {
+            if (oldIndex < newIndex) {
+              newIndex -= 1;
+            }
+            widget.dailyItineraryCubit.reorderPlaces(oldIndex, newIndex);
+          },
+        );
+      },
     );
   }
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class DailyItineraryPlaceItem extends StatelessWidget {
+  final PlaceCubit placeCubit;
+  const DailyItineraryPlaceItem({
+    required this.placeCubit,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: placeCubit,
+      child: BlocBuilder<PlaceCubit, PlaceData>(
+        builder: (context, placeData) {
+          return ListTile(
+            title: Text(placeData.title),
+            subtitle: Text(placeData.address),
+          );
+          // return Container(
+          //   padding: const EdgeInsets.all(16),
+          //   decoration: BoxDecoration(
+          //     color: Colors.white,
+          //     boxShadow: [
+          //       BoxShadow(
+          //         color: Colors.black.withOpacity(0.25),
+          //         offset: const Offset(0, 2),
+          //         blurRadius: 10,
+          //       ),
+          //     ],
+          //   ),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       Text(
+          //         placeData.title,
+          //         style: myTextStyle(
+          //           fontSize: 16,
+          //           color: Colors.black,
+          //           fontWeight: FontWeight.w500,
+          //         ),
+          //       ),
+          //       const SizedBox(height: 4),
+          //       Text(
+          //         placeData.address,
+          //         style: myTextStyle(
+          //           fontSize: 12,
+          //           color: cGray3,
+          //           fontWeight: FontWeight.w400,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // );
+        },
+      ),
+    );
+  }
 }

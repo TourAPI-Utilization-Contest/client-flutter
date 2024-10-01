@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
+import 'package:tradule/server_wrapper/server_wrapper.dart';
 
 import 'my_text_style.dart';
 import 'shadow_box.dart';
@@ -115,6 +116,11 @@ class PlaceCard extends StatelessWidget {
                         ),
                         onPressed: () {
                           print('내 일정에 추가');
+                          ServerWrapper.itineraryCubitMapCubit.state['1']!.state
+                              .dailyItineraryCubitList[0]
+                              .addPlace(
+                            PlaceCubit(placeData),
+                          );
                         },
                         child: Text(
                           '내 일정에 추가',
