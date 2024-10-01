@@ -41,10 +41,23 @@ mixin _$ItineraryData {
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   Color get iconColor => throw _privateConstructorUsedError; // svg icon
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
-  set iconColor(Color value) => throw _privateConstructorUsedError;
-  List<DailyItineraryData> get dailyItineraries =>
-      throw _privateConstructorUsedError;
-  set dailyItineraries(List<DailyItineraryData> value) =>
+  set iconColor(Color value) =>
+      throw _privateConstructorUsedError; // @Default([]) List<DailyItineraryData> dailyItinerariesData,
+// @Default([])
+// @JsonKey(includeToJson: false, includeFromJson: false)
+// List<DailyItineraryCubit> dailyItineraryCubitList,
+  @JsonKey(
+      fromJson: _dailyItineraryCubitListFromJson,
+      toJson: _dailyItineraryCubitListToJson)
+  List<DailyItineraryCubit> get dailyItineraryCubitList =>
+      throw _privateConstructorUsedError; // @Default([]) List<DailyItineraryData> dailyItinerariesData,
+// @Default([])
+// @JsonKey(includeToJson: false, includeFromJson: false)
+// List<DailyItineraryCubit> dailyItineraryCubitList,
+  @JsonKey(
+      fromJson: _dailyItineraryCubitListFromJson,
+      toJson: _dailyItineraryCubitListToJson)
+  set dailyItineraryCubitList(List<DailyItineraryCubit> value) =>
       throw _privateConstructorUsedError;
 
   /// Serializes this ItineraryData to a JSON map.
@@ -74,7 +87,10 @@ abstract class $ItineraryDataCopyWith<$Res> {
       DateTime endDate,
       String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color iconColor,
-      List<DailyItineraryData> dailyItineraries});
+      @JsonKey(
+          fromJson: _dailyItineraryCubitListFromJson,
+          toJson: _dailyItineraryCubitListToJson)
+      List<DailyItineraryCubit> dailyItineraryCubitList});
 }
 
 /// @nodoc
@@ -100,7 +116,7 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
     Object? endDate = null,
     Object? iconPath = freezed,
     Object? iconColor = null,
-    Object? dailyItineraries = null,
+    Object? dailyItineraryCubitList = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -135,10 +151,10 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
               as Color,
-      dailyItineraries: null == dailyItineraries
-          ? _value.dailyItineraries
-          : dailyItineraries // ignore: cast_nullable_to_non_nullable
-              as List<DailyItineraryData>,
+      dailyItineraryCubitList: null == dailyItineraryCubitList
+          ? _value.dailyItineraryCubitList
+          : dailyItineraryCubitList // ignore: cast_nullable_to_non_nullable
+              as List<DailyItineraryCubit>,
     ) as $Val);
   }
 }
@@ -162,7 +178,10 @@ abstract class _$$ItineraryDataImplCopyWith<$Res>
       DateTime endDate,
       String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color iconColor,
-      List<DailyItineraryData> dailyItineraries});
+      @JsonKey(
+          fromJson: _dailyItineraryCubitListFromJson,
+          toJson: _dailyItineraryCubitListToJson)
+      List<DailyItineraryCubit> dailyItineraryCubitList});
 }
 
 /// @nodoc
@@ -186,7 +205,7 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
     Object? endDate = null,
     Object? iconPath = freezed,
     Object? iconColor = null,
-    Object? dailyItineraries = null,
+    Object? dailyItineraryCubitList = null,
   }) {
     return _then(_$ItineraryDataImpl(
       id: null == id
@@ -221,10 +240,10 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
               as Color,
-      dailyItineraries: null == dailyItineraries
-          ? _value.dailyItineraries
-          : dailyItineraries // ignore: cast_nullable_to_non_nullable
-              as List<DailyItineraryData>,
+      dailyItineraryCubitList: null == dailyItineraryCubitList
+          ? _value.dailyItineraryCubitList
+          : dailyItineraryCubitList // ignore: cast_nullable_to_non_nullable
+              as List<DailyItineraryCubit>,
     ));
   }
 }
@@ -244,7 +263,10 @@ class _$ItineraryDataImpl extends _ItineraryData {
       this.iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
       required this.iconColor,
-      this.dailyItineraries = const []})
+      @JsonKey(
+          fromJson: _dailyItineraryCubitListFromJson,
+          toJson: _dailyItineraryCubitListToJson)
+      this.dailyItineraryCubitList = const []})
       : super._();
 
   factory _$ItineraryDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -270,13 +292,19 @@ class _$ItineraryDataImpl extends _ItineraryData {
   @override
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   Color iconColor;
+// @Default([]) List<DailyItineraryData> dailyItinerariesData,
+// @Default([])
+// @JsonKey(includeToJson: false, includeFromJson: false)
+// List<DailyItineraryCubit> dailyItineraryCubitList,
   @override
-  @JsonKey()
-  List<DailyItineraryData> dailyItineraries;
+  @JsonKey(
+      fromJson: _dailyItineraryCubitListFromJson,
+      toJson: _dailyItineraryCubitListToJson)
+  List<DailyItineraryCubit> dailyItineraryCubitList;
 
   @override
   String toString() {
-    return 'ItineraryData(id: $id, users: $users, title: $title, description: $description, startDate: $startDate, endDate: $endDate, iconPath: $iconPath, iconColor: $iconColor, dailyItineraries: $dailyItineraries)';
+    return 'ItineraryData(id: $id, users: $users, title: $title, description: $description, startDate: $startDate, endDate: $endDate, iconPath: $iconPath, iconColor: $iconColor, dailyItineraryCubitList: $dailyItineraryCubitList)';
   }
 
   /// Create a copy of ItineraryData
@@ -308,7 +336,10 @@ abstract class _ItineraryData extends ItineraryData {
       String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
       required Color iconColor,
-      List<DailyItineraryData> dailyItineraries}) = _$ItineraryDataImpl;
+      @JsonKey(
+          fromJson: _dailyItineraryCubitListFromJson,
+          toJson: _dailyItineraryCubitListToJson)
+      List<DailyItineraryCubit> dailyItineraryCubitList}) = _$ItineraryDataImpl;
   _ItineraryData._() : super._();
 
   factory _ItineraryData.fromJson(Map<String, dynamic> json) =
@@ -343,10 +374,25 @@ abstract class _ItineraryData extends ItineraryData {
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   Color get iconColor; // svg icon
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
-  set iconColor(Color value);
+  set iconColor(
+      Color
+          value); // @Default([]) List<DailyItineraryData> dailyItinerariesData,
+// @Default([])
+// @JsonKey(includeToJson: false, includeFromJson: false)
+// List<DailyItineraryCubit> dailyItineraryCubitList,
   @override
-  List<DailyItineraryData> get dailyItineraries;
-  set dailyItineraries(List<DailyItineraryData> value);
+  @JsonKey(
+      fromJson: _dailyItineraryCubitListFromJson,
+      toJson: _dailyItineraryCubitListToJson)
+  List<DailyItineraryCubit>
+      get dailyItineraryCubitList; // @Default([]) List<DailyItineraryData> dailyItinerariesData,
+// @Default([])
+// @JsonKey(includeToJson: false, includeFromJson: false)
+// List<DailyItineraryCubit> dailyItineraryCubitList,
+  @JsonKey(
+      fromJson: _dailyItineraryCubitListFromJson,
+      toJson: _dailyItineraryCubitListToJson)
+  set dailyItineraryCubitList(List<DailyItineraryCubit> value);
 
   /// Create a copy of ItineraryData
   /// with the given fields replaced by the non-null parameter values.

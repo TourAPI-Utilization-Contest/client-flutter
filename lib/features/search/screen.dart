@@ -319,7 +319,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 longitude: double.parse(item["mapx"]),
                 imageUrl: item["firstimage"],
                 thumbnailUrl: item["firstimage2"],
-                iconColor: 0xFF9CEFFF,
+                iconColor: const Color(0xFF9CEFFF),
               ),
             ),
           );

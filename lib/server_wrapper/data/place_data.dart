@@ -1,6 +1,11 @@
+import 'dart:ui';
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'place_data.g.dart';
+
+Color _colorFromJson(int? color) => Color(color ?? 0);
+int _colorToJson(Color? color) => color?.value ?? 0;
 
 @JsonSerializable()
 class PlaceData {
@@ -15,7 +20,8 @@ class PlaceData {
   final String? tag;
   final String? imageUrl;
   final String? thumbnailUrl;
-  final int iconColor;
+  @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
+  final Color? iconColor;
 
   PlaceData({
     required this.id,
@@ -29,7 +35,7 @@ class PlaceData {
     this.tag,
     this.imageUrl,
     this.thumbnailUrl,
-    required this.iconColor,
+    this.iconColor,
   });
 
   factory PlaceData.fromJson(Map<String, dynamic> json) =>

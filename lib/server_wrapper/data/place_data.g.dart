@@ -18,7 +18,7 @@ PlaceData _$PlaceDataFromJson(Map<String, dynamic> json) => PlaceData(
       tag: json['tag'] as String?,
       imageUrl: json['imageUrl'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
-      iconColor: (json['iconColor'] as num).toInt(),
+      iconColor: _colorFromJson((json['iconColor'] as num?)?.toInt()),
     );
 
 Map<String, dynamic> _$PlaceDataToJson(PlaceData instance) => <String, dynamic>{
@@ -33,5 +33,5 @@ Map<String, dynamic> _$PlaceDataToJson(PlaceData instance) => <String, dynamic>{
       'tag': instance.tag,
       'imageUrl': instance.imageUrl,
       'thumbnailUrl': instance.thumbnailUrl,
-      'iconColor': instance.iconColor,
+      'iconColor': _colorToJson(instance.iconColor),
     };

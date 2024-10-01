@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
+import 'data/daily_itinerary_data.dart';
+import 'data/place_data.dart';
 import 'server_info.dart';
 import 'data/user_data.dart';
 import 'data/itinerary_data.dart';
@@ -42,8 +47,74 @@ class ServerWrapper {
           users: [userId],
           title: '테스트 일정',
           startDate: DateTime(2024, 9, 29),
-          endDate: DateTime(2024, 10, 3),
+          endDate: DateTime(2024, 10, 2),
           iconColor: Colors.blue,
+          dailyItineraryCubitList: [
+            DailyItineraryCubit(DailyItineraryData(
+              dailyItineraryId: itineraryIds[0],
+              date: DateTime(2024, 9, 29),
+              places: [
+                PlaceData(
+                  id: Random().nextInt(100000).toString(),
+                  title: '테스트 장소1',
+                  address: '테스트 주소1',
+                  latitude: 37.123456,
+                  longitude: 127.123456,
+                  iconColor: Colors.blue,
+                ),
+                PlaceData(
+                  id: Random().nextInt(100000).toString(),
+                  title: '테스트 장소2',
+                  address: '테스트 주소2',
+                  latitude: 37.123456,
+                  longitude: 127.123456,
+                  iconColor: Colors.blue,
+                ),
+              ],
+            )),
+            DailyItineraryCubit(DailyItineraryData(
+              dailyItineraryId: itineraryIds[0],
+              date: DateTime(2024, 9, 30),
+              places: [
+                PlaceData(
+                  id: Random().nextInt(100000).toString(),
+                  title: '테스트 장소3',
+                  address: '테스트 주소3',
+                  latitude: 37.123456,
+                  longitude: 127.123456,
+                  iconColor: Colors.blue,
+                ),
+              ],
+            )),
+            DailyItineraryCubit(DailyItineraryData(
+              dailyItineraryId: itineraryIds[0],
+              date: DateTime(2024, 10, 1),
+              places: [
+                PlaceData(
+                  id: Random().nextInt(100000).toString(),
+                  title: '테스트 장소4',
+                  address: '테스트 주소4',
+                  latitude: 37.123456,
+                  longitude: 127.123456,
+                  iconColor: Colors.blue,
+                ),
+              ],
+            )),
+            DailyItineraryCubit(DailyItineraryData(
+              dailyItineraryId: itineraryIds[0],
+              date: DateTime(2024, 10, 2),
+              places: [
+                PlaceData(
+                  id: Random().nextInt(100000).toString(),
+                  title: '테스트 장소5',
+                  address: '테스트 주소5',
+                  latitude: 37.123456,
+                  longitude: 127.123456,
+                  iconColor: Colors.blue,
+                ),
+              ],
+            )),
+          ],
         ),
       ),
       itineraryIds[1]: ItineraryCubit(
@@ -68,6 +139,20 @@ class ServerWrapper {
         ),
       ),
     });
+    //string encoding
+
+    // // json으로 변환후 다시 객채화
+    // for (var itineraryId in itineraryIds) {
+    //   var s = json
+    //       .encode(itineraryCubitMapCubit.state[itineraryId]!.state!.toJson());
+    // }
+
+    var a1 = json
+        .encode(itineraryCubitMapCubit.state[itineraryIds[0]]!.state!.toJson());
+    var a2 = json.decode(a1);
+    var a3 = json.encode(a2);
+    print(a1);
+    print(a3);
   }
 
   static Future<bool> loginKakao() async {

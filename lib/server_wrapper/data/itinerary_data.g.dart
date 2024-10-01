@@ -16,11 +16,10 @@ _$ItineraryDataImpl _$$ItineraryDataImplFromJson(Map<String, dynamic> json) =>
       endDate: _dateTimeFromJson(json['endDate'] as String),
       iconPath: json['iconPath'] as String?,
       iconColor: _colorFromJson((json['iconColor'] as num).toInt()),
-      dailyItineraries: (json['dailyItineraries'] as List<dynamic>?)
-              ?.map(
-                  (e) => DailyItineraryData.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const [],
+      dailyItineraryCubitList: json['dailyItineraryCubitList'] == null
+          ? const []
+          : _dailyItineraryCubitListFromJson(
+              json['dailyItineraryCubitList'] as List<DailyItineraryData>),
     );
 
 Map<String, dynamic> _$$ItineraryDataImplToJson(_$ItineraryDataImpl instance) =>
@@ -33,5 +32,6 @@ Map<String, dynamic> _$$ItineraryDataImplToJson(_$ItineraryDataImpl instance) =>
       'endDate': _dateTimeToJson(instance.endDate),
       'iconPath': instance.iconPath,
       'iconColor': _colorToJson(instance.iconColor),
-      'dailyItineraries': instance.dailyItineraries,
+      'dailyItineraryCubitList':
+          _dailyItineraryCubitListToJson(instance.dailyItineraryCubitList),
     };
