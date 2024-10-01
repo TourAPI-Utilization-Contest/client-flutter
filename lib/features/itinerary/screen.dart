@@ -1,7 +1,9 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tradule/common/color.dart';
+import 'package:tradule/common/my_text_style.dart';
 
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 
@@ -29,6 +31,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   String _cloudMapId = lightMapId; // 기본 스타일
   String? _style = aubergine;
   BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
+  DateTime _mapTime = DateTime.now();
 
   @override
   void initState() {
@@ -166,18 +169,65 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                     ),
                     child: Column(
                       children: [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: FractionallySizedBox(
-                              widthFactor: 0.15,
-                              child: Container(
-                                height: 2.67,
-                                color: cGray4,
+                        // 헤더
+                        Column(
+                          children: [
+                            // 슬라이더
+                            Center(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: FractionallySizedBox(
+                                  widthFactor: 0.15,
+                                  child: Container(
+                                    height: 2.67,
+                                    color: cGray4,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                            // 날짜 보기
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '전체보기',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: const Color(0xFF4C5364),
+                                    letterSpacing: 0.25,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '2021년 10월 1일',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: const Color(0xFF4C5364),
+                                        letterSpacing: 0.25,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  '금요일',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: const Color(0xFF4C5364),
+                                    letterSpacing: 0.25,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
+
                         Expanded(
                           child: ListView(
                             padding: EdgeInsets.all(8),
@@ -203,6 +253,100 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       ],
                     ),
                   ),
+                ),
+              ),
+              // 뒤로가기 버튼
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.only(
+                    top: 1,
+                    right: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        offset: const Offset(0, 2),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    // color: Colors.white,
+                    icon: SvgPicture.asset(
+                      'assets/icon/jam_chevron_left.svg',
+                      // colorFilter:
+                      //     ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                top: 0,
+                child: Row(
+                  //상단 가운데
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 15),
+                      // child: Container(
+                      //   color: Colors.white,
+                      //   child: InfiniteTimeDial(
+                      //     initialMinutesOffset: 0,
+                      //     width: constraints.maxWidth,
+                      //     height: 20,
+                      //     onTimeChanged: (double minutes) {
+                      //       // print('Time changed: $minutes');
+                      //     },
+                      //   ),
+                      child: Container(
+                        width: 200,
+                        height: 40,
+                        // color: Colors.white,
+                        child: Builder(builder: (context) {
+                          var textStyle = myTextStyle(
+                            fontSize: 16,
+                            color: const Color(0xFF4C5364),
+                            letterSpacing: 0.25,
+                            fontWeight: FontWeight.w500,
+                          );
+                          return TextButton(
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(
+                                Colors.white,
+                              ),
+                            ),
+                            onPressed: () {},
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text(
+                                  '${_mapTime.hour % 12}',
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  '${_mapTime.minute}',
+                                  style: textStyle,
+                                ),
+                                Text(
+                                  _mapTime.hour < 12 ? 'AM' : 'PM',
+                                  style: textStyle,
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
