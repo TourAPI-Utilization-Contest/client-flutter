@@ -46,9 +46,9 @@ dependencies:
   kakao_flutter_sdk_common: ^1.9.5
   kakao_flutter_sdk_auth: ^1.9.5
   kakao_flutter_sdk_user: ^1.9.5
-  elevated_flex: ^0.0.7
+#  elevated_flex: ^0.0.7
   flutter_date_range_picker: ^0.1.1
-  flex_color_picker: ^3.6.0
+#  flex_color_picker: ^3.6.0
   flutter_iconpicker: ^4.0.1
   freezed_annotation: ^2.4.4
 
@@ -62,6 +62,7 @@ dev_dependencies:
   build_runner: ^2.4.12
   freezed: ^2.5.7
   flutter_launcher_icons: ^0.14.0
+  change_app_package_name: ^1.4.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

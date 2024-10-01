@@ -53,6 +53,7 @@ class ServerWrapper {
           title: '테스트 일정2',
           startDate: DateTime(2024, 10, 14),
           endDate: DateTime(2024, 10, 16),
+          iconPath: 'assets/icon/나침판.svg',
           iconColor: Colors.green,
         ),
       ),
@@ -119,8 +120,8 @@ class ItineraryCubitMapCubit extends Cubit<Map<String, ItineraryCubit>> {
 
   void addItineraryCubit(ItineraryCubit itineraryCubit) {
     var itineraryId = itineraryCubit.state!.id;
-    emit(state..addAll({itineraryId: itineraryCubit}));
-    // print('addItineraryCubit: $itineraryId');
+    emit({...state, itineraryId: itineraryCubit});
+    print('addItineraryCubit: $itineraryId');
     // TODO: 서버로 전송
   }
 }

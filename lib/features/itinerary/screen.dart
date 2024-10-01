@@ -1,21 +1,30 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'dart:ui' as ui;
+import 'package:tradule/common/color.dart';
+
+import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 
 import 'map_style.dart';
 import 'time_dial.dart';
 
-class CustomBottomSheetMap extends StatefulWidget {
+class ItineraryEditor extends StatefulWidget {
+  final ItineraryCubit? itineraryCubit;
+
+  const ItineraryEditor({
+    super.key,
+    this.itineraryCubit,
+  });
+
   @override
-  _CustomBottomSheetMapState createState() => _CustomBottomSheetMapState();
+  _ItineraryEditorState createState() => _ItineraryEditorState();
 }
 
-class _CustomBottomSheetMapState extends State<CustomBottomSheetMap>
-    with AutomaticKeepAliveClientMixin<CustomBottomSheetMap> {
+class _ItineraryEditorState extends State<ItineraryEditor>
+    with AutomaticKeepAliveClientMixin<ItineraryEditor> {
   GoogleMapController? _mapController;
   double _bottomSheetHeight = 100; // 바텀 시트 초기 높이
   double _bottomSheetMinHeight = 100; // 바텀 시트 최소 높이
-  double _timeDialHeight = 40; // 다이얼의 높이
   GlobalKey _mapKey = GlobalKey();
   String _cloudMapId = lightMapId; // 기본 스타일
   String? _style = aubergine;
@@ -74,8 +83,7 @@ class _CustomBottomSheetMapState extends State<CustomBottomSheetMap>
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
-          double mapHeight =
-              constraints.maxHeight - _bottomSheetHeight - _timeDialHeight;
+          double mapHeight = constraints.maxHeight - _bottomSheetHeight;
           return Stack(
             children: [
               Positioned(
@@ -128,30 +136,6 @@ class _CustomBottomSheetMapState extends State<CustomBottomSheetMap>
                   },
                 ),
               ),
-              // Positioned(//https://github.com/flutter/flutter/issues/73830 참고
-              //   left: 0,
-              //   right: 0, top: 0,
-              //   height: 100, // 하단 20px의 높이 설정
-              //   child: AbsorbPointer(
-              //     // 하단 20px에서 모든 입력을 차단
-              //     absorbing: true,
-              //     child: Container(
-              //       color: Colors.black26,
-              //     ),
-              //   ),
-              // ),
-              Positioned(
-                bottom: _bottomSheetHeight,
-                left: 0,
-                child: InfiniteTimeDial(
-                  initialMinutesOffset: 0,
-                  width: constraints.maxWidth,
-                  height: _timeDialHeight,
-                  onTimeChanged: (double minutes) {
-                    // print('Time changed: $minutes');
-                  },
-                ),
-              ),
               Positioned(
                 left: 0,
                 right: 0,
@@ -166,14 +150,32 @@ class _CustomBottomSheetMapState extends State<CustomBottomSheetMap>
                   },
                   child: Container(
                     height: _bottomSheetHeight,
-                    color: Colors.white,
+                    // color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(10),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          offset: const Offset(0, 2),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
                     child: Column(
                       children: [
-                        Container(
-                          height: 20,
-                          color: Colors.grey[300],
-                          child: Center(
-                            child: Icon(Icons.drag_handle),
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: FractionallySizedBox(
+                              widthFactor: 0.15,
+                              child: Container(
+                                height: 2.67,
+                                color: cGray4,
+                              ),
+                            ),
                           ),
                         ),
                         Expanded(

@@ -144,7 +144,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
                       child: Text(
-                        '검색어를 입력해주세요.',
+                        '어서 검색해 보세요!',
                         style: myTextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,

@@ -1,4 +1,4 @@
-package com.example.tradule
+package com.tradule.app
 
 import io.flutter.embedding.android.FlutterActivity
 
