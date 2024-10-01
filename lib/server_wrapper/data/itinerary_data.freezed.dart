@@ -42,9 +42,9 @@ mixin _$ItineraryData {
   Color get iconColor => throw _privateConstructorUsedError; // svg icon
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   set iconColor(Color value) => throw _privateConstructorUsedError;
-  List<DailyItinerary> get dailyItineraries =>
+  List<DailyItineraryData> get dailyItineraries =>
       throw _privateConstructorUsedError;
-  set dailyItineraries(List<DailyItinerary> value) =>
+  set dailyItineraries(List<DailyItineraryData> value) =>
       throw _privateConstructorUsedError;
 
   /// Serializes this ItineraryData to a JSON map.
@@ -74,7 +74,7 @@ abstract class $ItineraryDataCopyWith<$Res> {
       DateTime endDate,
       String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color iconColor,
-      List<DailyItinerary> dailyItineraries});
+      List<DailyItineraryData> dailyItineraries});
 }
 
 /// @nodoc
@@ -138,7 +138,7 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
       dailyItineraries: null == dailyItineraries
           ? _value.dailyItineraries
           : dailyItineraries // ignore: cast_nullable_to_non_nullable
-              as List<DailyItinerary>,
+              as List<DailyItineraryData>,
     ) as $Val);
   }
 }
@@ -162,7 +162,7 @@ abstract class _$$ItineraryDataImplCopyWith<$Res>
       DateTime endDate,
       String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson) Color iconColor,
-      List<DailyItinerary> dailyItineraries});
+      List<DailyItineraryData> dailyItineraries});
 }
 
 /// @nodoc
@@ -224,7 +224,7 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
       dailyItineraries: null == dailyItineraries
           ? _value.dailyItineraries
           : dailyItineraries // ignore: cast_nullable_to_non_nullable
-              as List<DailyItinerary>,
+              as List<DailyItineraryData>,
     ));
   }
 }
@@ -272,7 +272,7 @@ class _$ItineraryDataImpl extends _ItineraryData {
   Color iconColor;
   @override
   @JsonKey()
-  List<DailyItinerary> dailyItineraries;
+  List<DailyItineraryData> dailyItineraries;
 
   @override
   String toString() {
@@ -308,7 +308,7 @@ abstract class _ItineraryData extends ItineraryData {
       String? iconPath,
       @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
       required Color iconColor,
-      List<DailyItinerary> dailyItineraries}) = _$ItineraryDataImpl;
+      List<DailyItineraryData> dailyItineraries}) = _$ItineraryDataImpl;
   _ItineraryData._() : super._();
 
   factory _ItineraryData.fromJson(Map<String, dynamic> json) =
@@ -345,8 +345,8 @@ abstract class _ItineraryData extends ItineraryData {
   @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
   set iconColor(Color value);
   @override
-  List<DailyItinerary> get dailyItineraries;
-  set dailyItineraries(List<DailyItinerary> value);
+  List<DailyItineraryData> get dailyItineraries;
+  set dailyItineraries(List<DailyItineraryData> value);
 
   /// Create a copy of ItineraryData
   /// with the given fields replaced by the non-null parameter values.

@@ -29,7 +29,7 @@ class ItineraryData with _$ItineraryData {
     String? iconPath, // svg icon
     @JsonKey(fromJson: _colorFromJson, toJson: _colorToJson)
     required Color iconColor,
-    @Default([]) List<DailyItinerary> dailyItineraries,
+    @Default([]) List<DailyItineraryData> dailyItineraries,
   }) = _ItineraryData;
 
   void updateDates(DateTime newStartDate, DateTime newEndDate) {
@@ -52,7 +52,7 @@ class ItineraryData with _$ItineraryData {
     // 일정이 길어졌다면 새로운 일정을 추가
     if (newDays > oldDays) {
       for (int i = oldDays + 1; i <= newDays; i++) {
-        dailyItineraries.add(DailyItinerary(
+        dailyItineraries.add(DailyItineraryData(
           dailyItineraryId: id,
           date: newStartDate.add(Duration(days: i)),
         ));

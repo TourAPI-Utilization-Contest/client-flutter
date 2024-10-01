@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/my_text_style.dart';
-
+import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 
 import 'map_style.dart';
@@ -61,7 +61,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
     // 텍스트 그리기 (스케일에 맞춰서)
     textPainter.text = TextSpan(
       text: text,
-      style: TextStyle(
+      style: myTextStyle(
         fontSize: 20.0 * scaleFactor, // 스케일에 맞춘 폰트 크기
         color: Colors.white,
       ),
@@ -153,7 +153,6 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                   },
                   child: Container(
                     height: _bottomSheetHeight,
-                    // color: Colors.white,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: const BorderRadius.vertical(
@@ -167,125 +166,93 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                         ),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        // 헤더
-                        Column(
-                          children: [
-                            // 슬라이더
-                            Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4),
-                                child: FractionallySizedBox(
-                                  widthFactor: 0.15,
-                                  child: Container(
-                                    height: 2.67,
-                                    color: cGray4,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // 날짜 보기
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '전체보기',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: const Color(0xFF4C5364),
-                                    letterSpacing: 0.25,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '2021년 10월 1일',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: const Color(0xFF4C5364),
-                                        letterSpacing: 0.25,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Text(
-                                  '금요일',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: const Color(0xFF4C5364),
-                                    letterSpacing: 0.25,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        Expanded(
-                          child: ListView(
-                            padding: EdgeInsets.all(8),
+                    child: Material(
+                      child: Column(
+                        children: [
+                          _Header(),
+                          TabBarView(
                             children: [
-                              Center(
-                                child: Text(
-                                  '상세 정보',
-                                  style: TextStyle(fontSize: 24),
+                              // DailyItineraryEditor(
+                              //   dailyItineraryCubit: widget.itineraryCubit,
+                              // ),
+                              for (var dailyItinerary in widget.itineraryCubit!
+                                  .state.itinerary.dailyItineraries)
+                                DailyItineraryEditor(
+                                  dailyItineraryCubit: widget.itineraryCubit,
+                                  dailyItinerary: dailyItinerary,
                                 ),
-                              ),
-                              ListTile(
-                                title: Text('정보 1'),
-                              ),
-                              ListTile(
-                                title: Text('정보 2'),
-                              ),
-                              ListTile(
-                                title: Text('정보 3'),
-                              ),
                             ],
                           ),
-                        ),
-                      ],
+                          // Expanded(
+                          //   child: ListView(
+                          //     padding: EdgeInsets.all(8),
+                          //     children: [
+                          //       Center(
+                          //         child: Text(
+                          //           '상세 정보',
+                          //           style: TextStyle(fontSize: 24),
+                          //         ),
+                          //       ),
+                          //       ListTile(
+                          //         title: Text('정보 1'),
+                          //         onTap: () {
+                          //           // Navigator.push(
+                          //           //   context,
+                          //           //   MaterialPageRoute(
+                          //           //     builder: (context) => DetailScreen(),
+                          //           //   ),
+                          //           // );
+                          //         },
+                          //       ),
+                          //       ListTile(
+                          //         title: Text('정보 2'),
+                          //       ),
+                          //       ListTile(
+                          //         title: Text('정보 3'),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
               // 뒤로가기 버튼
               Positioned(
-                top: 10,
-                left: 10,
-                child: Container(
-                  padding: const EdgeInsets.only(
-                    top: 1,
-                    right: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        offset: const Offset(0, 2),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    // color: Colors.white,
-                    icon: SvgPicture.asset(
+                top: 15,
+                left: 15,
+                child: TextButton(
+                  // color: Colors.white,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 1,
+                      right: 2,
+                    ),
+                    child: SvgPicture.asset(
                       'assets/icon/jam_chevron_left.svg',
                       // colorFilter:
                       //     ColorFilter.mode(Colors.black, BlendMode.srcIn),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
                   ),
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.white),
+                    minimumSize: const WidgetStatePropertyAll(Size(40, 40)),
+                    fixedSize: const WidgetStatePropertyAll(Size(40, 40)),
+                    // shape: WidgetStateProperty.all(
+                    //   RoundedRectangleBorder(
+                    //     borderRadius: BorderRadius.circular(10),
+                    //   ),
+                    // ),
+                    shadowColor: WidgetStateProperty.all(
+                      Colors.black.withOpacity(0.25),
+                    ),
+                    elevation: WidgetStateProperty.all(10),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
               ),
               Positioned.fill(
@@ -307,7 +274,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       //       // print('Time changed: $minutes');
                       //     },
                       //   ),
-                      child: Container(
+                      child: SizedBox(
                         width: 200,
                         height: 40,
                         // color: Colors.white,
@@ -320,9 +287,13 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                           );
                           return TextButton(
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all(
+                              backgroundColor: WidgetStateProperty.all(
                                 Colors.white,
                               ),
+                              shadowColor: WidgetStateProperty.all(
+                                Colors.black.withOpacity(0.25),
+                              ),
+                              elevation: WidgetStateProperty.all(10),
                             ),
                             onPressed: () {},
                             child: Row(
@@ -358,4 +329,147 @@ class _ItineraryEditorState extends State<ItineraryEditor>
 
   @override
   bool get wantKeepAlive => true;
+}
+
+class _Header extends StatelessWidget {
+  const _Header({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        // 슬라이더
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: FractionallySizedBox(
+              widthFactor: 0.15,
+              child: Container(
+                height: 2.67,
+                color: cGray4,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 32),
+        // 날짜 보기
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Stack(
+            children: [
+              Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      '10.03',
+                      style: myTextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '내 일정1',
+                      style: myTextStyle(
+                        fontSize: 8,
+                        color: cGray3,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Center(
+                heightFactor: 1.5,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _LR(
+                      text: '전체보기',
+                      onPressed: () {},
+                    ),
+                    _LR(
+                      text: '2024.10.04',
+                      reverse: true,
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _LR extends StatelessWidget {
+  final bool reverse;
+  final void Function()? onPressed;
+  final String text;
+  const _LR({
+    required this.text,
+    this.reverse = false,
+    this.onPressed,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var row = [
+      SizedBox(
+        width: 21,
+        height: 21,
+        child: Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.diagonal3Values(reverse ? -1 : 1, 1, 1),
+          child: SvgPicture.asset(
+            'assets/icon/jam_chevron_left.svg',
+          ),
+        ),
+      ),
+      const SizedBox(width: 8),
+      Text(
+        text,
+        style: myTextStyle(
+          fontSize: 12,
+          color: cGray3,
+          letterSpacing: 0.25,
+          fontWeight: FontWeight.w400,
+        ),
+      ),
+    ];
+    return TextButton(
+      style: ButtonStyle(
+        padding: WidgetStateProperty.all(EdgeInsets.only(
+          left: reverse ? 18 : 8,
+          right: reverse ? 8 : 18,
+        )),
+        backgroundColor: WidgetStateProperty.all(Colors.white),
+      ),
+      onPressed: onPressed,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: reverse ? row.reversed.toList() : row,
+      ),
+    );
+  }
+}
+
+class DailyItineraryEditor extends StatefulWidget {
+  final DailyItineraryCubit? dailyItineraryCubit;
+
+  const DailyItineraryEditor({
+    super.key,
+    this.dailyItineraryCubit,
+  });
+
+  @override
+  _DailyItineraryEditorState createState() => _DailyItineraryEditorState();
 }

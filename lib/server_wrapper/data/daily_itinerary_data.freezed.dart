@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-DailyItinerary _$DailyItineraryFromJson(Map<String, dynamic> json) {
+DailyItineraryData _$DailyItineraryFromJson(Map<String, dynamic> json) {
   return _DailyItinerary.fromJson(json);
 }
 
@@ -31,15 +31,15 @@ mixin _$DailyItinerary {
   /// Create a copy of DailyItinerary
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $DailyItineraryCopyWith<DailyItinerary> get copyWith =>
+  $DailyItineraryCopyWith<DailyItineraryData> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
 abstract class $DailyItineraryCopyWith<$Res> {
   factory $DailyItineraryCopyWith(
-          DailyItinerary value, $Res Function(DailyItinerary) then) =
-      _$DailyItineraryCopyWithImpl<$Res, DailyItinerary>;
+          DailyItineraryData value, $Res Function(DailyItineraryData) then) =
+      _$DailyItineraryCopyWithImpl<$Res, DailyItineraryData>;
   @useResult
   $Res call(
       {String dailyItineraryId,
@@ -49,7 +49,7 @@ abstract class $DailyItineraryCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$DailyItineraryCopyWithImpl<$Res, $Val extends DailyItinerary>
+class _$DailyItineraryCopyWithImpl<$Res, $Val extends DailyItineraryData>
     implements $DailyItineraryCopyWith<$Res> {
   _$DailyItineraryCopyWithImpl(this._value, this._then);
 
@@ -199,7 +199,7 @@ class _$DailyItineraryImpl extends _DailyItinerary {
   }
 }
 
-abstract class _DailyItinerary extends DailyItinerary {
+abstract class _DailyItinerary extends DailyItineraryData {
   const factory _DailyItinerary(
       {required final String dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)

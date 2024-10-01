@@ -17,7 +17,8 @@ _$ItineraryDataImpl _$$ItineraryDataImplFromJson(Map<String, dynamic> json) =>
       iconPath: json['iconPath'] as String?,
       iconColor: _colorFromJson((json['iconColor'] as num).toInt()),
       dailyItineraries: (json['dailyItineraries'] as List<dynamic>?)
-              ?.map((e) => DailyItinerary.fromJson(e as Map<String, dynamic>))
+              ?.map(
+                  (e) => DailyItineraryData.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
     );
