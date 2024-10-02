@@ -38,7 +38,7 @@ void main() async {
     javaScriptAppKey: kakaoJavascriptKey,
   );
 
-  ServerWrapper.loginIdPw('test@test', '1234');
+  // ServerWrapper.loginIdPw('test@test', '1234');
 
   runApp(const ProviderScope(child: Tradule()));
 }
