@@ -36,7 +36,7 @@ class ServerWrapper {
     var itineraryIds = ['1', '2', '3'];
     userCubit.setUser(UserData(
       id: userId,
-      name: '테스트 유저',
+      name: '테스터',
       email: 'test@test',
       itineraries: itineraryIds,
     ));
@@ -45,7 +45,7 @@ class ServerWrapper {
         ItineraryData(
           id: itineraryIds[0],
           users: [userId],
-          title: '테스트 일정',
+          title: '서울 여행',
           startDate: DateTime(2024, 9, 29),
           endDate: DateTime(2024, 10, 2),
           iconColor: Colors.blue,
@@ -141,7 +141,7 @@ class ServerWrapper {
         ItineraryData(
           id: itineraryIds[1],
           users: [userId],
-          title: '테스트 일정2',
+          title: '맛집 탐방',
           startDate: DateTime(2024, 10, 14),
           endDate: DateTime(2024, 10, 16),
           iconPath: 'assets/icon/나침판.svg',
@@ -152,7 +152,7 @@ class ServerWrapper {
         ItineraryData(
           id: itineraryIds[2],
           users: [userId],
-          title: '테스트 일정3',
+          title: '수학여행',
           startDate: DateTime(2024, 10, 20),
           endDate: DateTime(2024, 10, 22),
           iconColor: Colors.red,
