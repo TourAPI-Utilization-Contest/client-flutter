@@ -15,6 +15,7 @@ _$MovementDataImpl _$$MovementDataImplFromJson(Map<String, dynamic> json) =>
           _durationWithNullFromJson((json['minDuration'] as num?)?.toInt()),
       maxDuration:
           _durationWithNullFromJson((json['maxDuration'] as num?)?.toInt()),
+      distance: (json['distance'] as num).toDouble(),
       startLatitude: (json['startLatitude'] as num?)?.toDouble(),
       startLongitude: (json['startLongitude'] as num?)?.toDouble(),
       endLatitude: (json['endLatitude'] as num?)?.toDouble(),
@@ -30,6 +31,7 @@ Map<String, dynamic> _$$MovementDataImplToJson(_$MovementDataImpl instance) =>
       'duration': _durationToJson(instance.duration),
       'minDuration': _durationWithNullToJson(instance.minDuration),
       'maxDuration': _durationWithNullToJson(instance.maxDuration),
+      'distance': instance.distance,
       'startLatitude': instance.startLatitude,
       'startLongitude': instance.startLongitude,
       'endLatitude': instance.endLatitude,

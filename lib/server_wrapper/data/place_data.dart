@@ -8,8 +8,9 @@ part 'place_data.g.dart';
 Color _colorFromJson(int? color) => Color(color ?? 0);
 int _colorToJson(Color? color) => color?.value ?? 0;
 
-// DateTime _dateTimeFromJson(String date) => DateTime.parse(date);
-// String _dateTimeToJson(DateTime date) => date.toIso8601String();
+DateTime? _dateTimeFromJson(String? date) =>
+    date != null ? DateTime.parse(date) : null;
+String? _dateTimeToJson(DateTime? date) => date?.toIso8601String();
 
 Duration _durationFromJson(int? duration) => Duration(minutes: duration ?? 0);
 int _durationToJson(Duration? duration) => duration?.inMinutes ?? 0;
@@ -24,6 +25,8 @@ class PlaceData with _$PlaceData {
     required double longitude,
     @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
     Duration? stayTime,
+    @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+    DateTime? visitDate,
     String? description,
     String? phoneNumber,
     String? homepage,

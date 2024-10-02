@@ -30,6 +30,7 @@ class MovementData with _$MovementData {
     @JsonKey(
         fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
     Duration? maxDuration,
+    required double distance,
     double? startLatitude,
     double? startLongitude,
     double? endLatitude,

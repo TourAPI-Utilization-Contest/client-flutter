@@ -40,6 +40,8 @@ mixin _$MovementData {
   Duration? get maxDuration => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   set maxDuration(Duration? value) => throw _privateConstructorUsedError;
+  double get distance => throw _privateConstructorUsedError;
+  set distance(double value) => throw _privateConstructorUsedError;
   double? get startLatitude => throw _privateConstructorUsedError;
   set startLatitude(double? value) => throw _privateConstructorUsedError;
   double? get startLongitude => throw _privateConstructorUsedError;
@@ -82,6 +84,7 @@ abstract class $MovementDataCopyWith<$Res> {
       @JsonKey(
           fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
       Duration? maxDuration,
+      double distance,
       double? startLatitude,
       double? startLongitude,
       double? endLatitude,
@@ -110,6 +113,7 @@ class _$MovementDataCopyWithImpl<$Res, $Val extends MovementData>
     Object? duration = null,
     Object? minDuration = freezed,
     Object? maxDuration = freezed,
+    Object? distance = null,
     Object? startLatitude = freezed,
     Object? startLongitude = freezed,
     Object? endLatitude = freezed,
@@ -138,6 +142,10 @@ class _$MovementDataCopyWithImpl<$Res, $Val extends MovementData>
           ? _value.maxDuration
           : maxDuration // ignore: cast_nullable_to_non_nullable
               as Duration?,
+      distance: null == distance
+          ? _value.distance
+          : distance // ignore: cast_nullable_to_non_nullable
+              as double,
       startLatitude: freezed == startLatitude
           ? _value.startLatitude
           : startLatitude // ignore: cast_nullable_to_non_nullable
@@ -187,6 +195,7 @@ abstract class _$$MovementDataImplCopyWith<$Res>
       @JsonKey(
           fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
       Duration? maxDuration,
+      double distance,
       double? startLatitude,
       double? startLongitude,
       double? endLatitude,
@@ -213,6 +222,7 @@ class __$$MovementDataImplCopyWithImpl<$Res>
     Object? duration = null,
     Object? minDuration = freezed,
     Object? maxDuration = freezed,
+    Object? distance = null,
     Object? startLatitude = freezed,
     Object? startLongitude = freezed,
     Object? endLatitude = freezed,
@@ -241,6 +251,10 @@ class __$$MovementDataImplCopyWithImpl<$Res>
           ? _value.maxDuration
           : maxDuration // ignore: cast_nullable_to_non_nullable
               as Duration?,
+      distance: null == distance
+          ? _value.distance
+          : distance // ignore: cast_nullable_to_non_nullable
+              as double,
       startLatitude: freezed == startLatitude
           ? _value.startLatitude
           : startLatitude // ignore: cast_nullable_to_non_nullable
@@ -285,6 +299,7 @@ class _$MovementDataImpl implements _MovementData {
       @JsonKey(
           fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
       this.maxDuration,
+      required this.distance,
       this.startLatitude,
       this.startLongitude,
       this.endLatitude,
@@ -311,6 +326,8 @@ class _$MovementDataImpl implements _MovementData {
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   Duration? maxDuration;
   @override
+  double distance;
+  @override
   double? startLatitude;
   @override
   double? startLongitude;
@@ -326,7 +343,7 @@ class _$MovementDataImpl implements _MovementData {
 
   @override
   String toString() {
-    return 'MovementData(startTime: $startTime, endTime: $endTime, duration: $duration, minDuration: $minDuration, maxDuration: $maxDuration, startLatitude: $startLatitude, startLongitude: $startLongitude, endLatitude: $endLatitude, endLongitude: $endLongitude, method: $method, source: $source)';
+    return 'MovementData(startTime: $startTime, endTime: $endTime, duration: $duration, minDuration: $minDuration, maxDuration: $maxDuration, distance: $distance, startLatitude: $startLatitude, startLongitude: $startLongitude, endLatitude: $endLatitude, endLongitude: $endLongitude, method: $method, source: $source)';
   }
 
   /// Create a copy of MovementData
@@ -359,6 +376,7 @@ abstract class _MovementData implements MovementData {
       @JsonKey(
           fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
       Duration? maxDuration,
+      required double distance,
       double? startLatitude,
       double? startLongitude,
       double? endLatitude,
@@ -394,6 +412,9 @@ abstract class _MovementData implements MovementData {
   Duration? get maxDuration;
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   set maxDuration(Duration? value);
+  @override
+  double get distance;
+  set distance(double value);
   @override
   double? get startLatitude;
   set startLatitude(double? value);

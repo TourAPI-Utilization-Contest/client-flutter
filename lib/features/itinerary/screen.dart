@@ -1,4 +1,5 @@
 import 'dart:ui' as ui;
+import 'package:dashed_line/dashed_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,6 +10,7 @@ import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
+import 'package:tradule/server_wrapper/data/movement_data.dart';
 
 import 'bloc.dart';
 import 'map_style.dart';
@@ -165,7 +167,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                             _bottomSheetHeight -= details.delta.dy;
                             _bottomSheetHeight = _bottomSheetHeight.clamp(
                                 _bottomSheetMinHeight,
-                                constraints.maxHeight / 2);
+                                constraints.maxHeight * 0.8);
                           });
                         },
                         child: Container(
@@ -536,16 +538,38 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    var list = <Widget>[];
+    for (var i = 0;
+        i < widget.dailyItineraryCubit.state.placeList.length;
+        i++) {
+      list.add(DailyItineraryItem(
+        key: Key('${i * 2}'),
+        index: i * 2,
+        place: true,
+        placeCubit: widget.dailyItineraryCubit.state.placeList[i],
+      ));
+      if (widget.dailyItineraryCubit.state.movementList.length - 1 == i) break;
+      if (widget.dailyItineraryCubit.state.movementList.length <= i) {
+        widget.dailyItineraryCubit.addMovement(
+          MovementCubit(MovementData(
+            startTime: DateTime(1970, 1, 1, 0, 0),
+            endTime: DateTime(1970, 1, 1, 0, 0),
+            method: 'work',
+            source: 'unknown',
+            distance: 0,
+            duration: Duration(minutes: 0),
+          )),
+        );
+      }
+      list.add(DailyItineraryItem(
+        key: Key('${i * 2 + 1}'),
+        index: i * 2 + 1,
+        place: false,
+        movementCubit: widget.dailyItineraryCubit.state.movementList[i],
+      ));
+    }
     return ReorderableListView(
-      children: [
-        for (var i = 0;
-            i < widget.dailyItineraryCubit.state.placeList.length;
-            i++)
-          DailyItineraryPlaceItem(
-            key: Key('$i'),
-            placeCubit: widget.dailyItineraryCubit.state.placeList[i],
-          ),
-      ],
+      buildDefaultDragHandles: false,
       onReorder: (int oldIndex, int newIndex) {
         setState(
           () {
@@ -556,6 +580,7 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
           },
         );
       },
+      children: list,
     );
   }
 
@@ -563,10 +588,145 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
   bool get wantKeepAlive => true;
 }
 
+class DailyItineraryItem extends StatelessWidget {
+  final PlaceCubit? placeCubit;
+  final MovementCubit? movementCubit;
+  final bool place;
+  final bool first;
+  final bool last;
+  final bool dotLine;
+  final int index;
+  const DailyItineraryItem({
+    required this.index,
+    this.placeCubit,
+    this.movementCubit,
+    this.place = false,
+    this.first = false,
+    this.last = false,
+    this.dotLine = false,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    DateTime dateTime = DateTime(1970, 1, 1, 0, 0);
+    var timeFormat1 = DateFormat('m분');
+    var timeFormat2 = DateFormat('h시간 m분');
+    var timeFormat3 = DateFormat('h시간');
+    var timeFormat4 = DateFormat('hh:mm');
+    String TimeFormat(DateTime dateTime) {
+      if (dateTime.hour == 0) {
+        return timeFormat1.format(dateTime);
+      } else if (dateTime.minute == 0) {
+        return timeFormat3.format(dateTime);
+      } else {
+        return timeFormat2.format(dateTime);
+      }
+    }
+
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 8,
+      ),
+      // title: Text(placeData.title),
+      title: Row(
+        children: [
+          Stack(
+            children: [
+              Row(
+                children: [
+                  SvgPicture.asset(
+                    "assets/icon/check_on.svg",
+                    colorFilter: place
+                        ? null
+                        : const ColorFilter.mode(
+                            Colors.transparent, BlendMode.srcIn),
+                  ),
+                  const SizedBox(width: 10),
+                  Stack(
+                    children: [
+                      // SvgPicture.asset(
+                      //     place ? "assets/icon/cc.svg" : "assets/icon/cc2.svg"),
+                      place
+                          ? SvgPicture.asset("assets/icon/cc.svg")
+                          : Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4),
+                              child: SvgPicture.asset("assets/icon/cc2.svg"),
+                            ),
+                      if (place)
+                        Positioned.fill(
+                          child: Center(
+                            child: Text(
+                              "${(index / 2 + 1).truncate()}",
+                              style: myTextStyle(
+                                fontSize: 9,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+              // Positioned(
+              //   left: 50,
+              //   // child: DashedLine(
+              //   //   path: Path()
+              //   //     ..moveTo(0, 0)
+              //   //     ..lineTo(0, 100),
+              //   //   color: cGray,
+              //   // ),
+              // ),
+            ],
+          ),
+          const SizedBox(width: 10),
+          if (place)
+            DailyItineraryPlaceItem(
+              placeCubit: placeCubit!,
+              index: index,
+              place: place,
+              first: first,
+              last: last,
+              dotLine: dotLine,
+            ),
+          if (!place)
+            DailyItineraryMovementItem(
+              movementCubit: movementCubit!,
+              index: index,
+              first: first,
+              last: last,
+              dotLine: dotLine,
+            ),
+        ],
+      ),
+      trailing: place
+          ? ReorderableDragStartListener(
+              index: index,
+              child: SvgPicture.asset("assets/icon/jam_chevron_up_down.svg"),
+            )
+          : null,
+    );
+  }
+}
+
 class DailyItineraryPlaceItem extends StatelessWidget {
   final PlaceCubit placeCubit;
+  final bool place;
+  final bool first;
+  final bool last;
+  final bool dotLine;
+  final int index;
   const DailyItineraryPlaceItem({
     required this.placeCubit,
+    required this.index,
+    this.place = true,
+    this.first = false,
+    this.last = false,
+    this.dotLine = false,
     super.key,
   });
 
@@ -576,45 +736,144 @@ class DailyItineraryPlaceItem extends StatelessWidget {
       value: placeCubit,
       child: BlocBuilder<PlaceCubit, PlaceData>(
         builder: (context, placeData) {
-          return ListTile(
-            title: Text(placeData.title),
-            subtitle: Text(placeData.address),
+          DateTime dateTime = DateTime(1970, 1, 1, 0, 0);
+          var timeFormat1 = DateFormat('m분');
+          var timeFormat2 = DateFormat('h시간 m분');
+          var timeFormat3 = DateFormat('h시간');
+          var timeFormat4 = DateFormat('hh:mm');
+          String TimeFormat(DateTime dateTime) {
+            if (dateTime.hour == 0) {
+              return timeFormat1.format(dateTime);
+            } else if (dateTime.minute == 0) {
+              return timeFormat3.format(dateTime);
+            } else {
+              return timeFormat2.format(dateTime);
+            }
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    placeData.title,
+                    style: myTextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  SvgPicture.asset("assets/icon/jam_pencil_f.svg"),
+                ],
+              ),
+              const SizedBox(height: 3),
+              Row(
+                children: [
+                  Text(
+                    placeData.visitDate == null
+                        ? '??:??'
+                        : timeFormat4.format(placeData.visitDate!),
+                    style: myTextStyle(
+                      fontSize: 9,
+                      color: const Color(0xFF0BB2D1),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    //시간 표시
+                    placeData.stayTime != null &&
+                            placeData.stayTime!.inMinutes > 0
+                        ? '${TimeFormat(dateTime.add(placeData.stayTime!))} 관광'
+                        : '관광 시간 미정',
+                    style: myTextStyle(
+                      fontSize: 9,
+                      color: const Color(0xFF0BB2D1),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    placeData.address,
+                    style: myTextStyle(
+                      fontSize: 9,
+                      color: cGray,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           );
-          // return Container(
-          //   padding: const EdgeInsets.all(16),
-          //   decoration: BoxDecoration(
-          //     color: Colors.white,
-          //     boxShadow: [
-          //       BoxShadow(
-          //         color: Colors.black.withOpacity(0.25),
-          //         offset: const Offset(0, 2),
-          //         blurRadius: 10,
-          //       ),
-          //     ],
-          //   ),
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       Text(
-          //         placeData.title,
-          //         style: myTextStyle(
-          //           fontSize: 16,
-          //           color: Colors.black,
-          //           fontWeight: FontWeight.w500,
-          //         ),
-          //       ),
-          //       const SizedBox(height: 4),
-          //       Text(
-          //         placeData.address,
-          //         style: myTextStyle(
-          //           fontSize: 12,
-          //           color: cGray3,
-          //           fontWeight: FontWeight.w400,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // );
+        },
+      ),
+    );
+  }
+}
+
+class DailyItineraryMovementItem extends StatelessWidget {
+  final MovementCubit movementCubit;
+  final bool first;
+  final bool last;
+  final bool dotLine;
+  final int index;
+  const DailyItineraryMovementItem({
+    required this.movementCubit,
+    required this.index,
+    this.first = false,
+    this.last = false,
+    this.dotLine = false,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: movementCubit,
+      child: BlocBuilder<MovementCubit, MovementData>(
+        builder: (context, movementData) {
+          DateTime dateTime = DateTime(1970, 1, 1, 0, 0);
+          var timeFormat1 = DateFormat('m분');
+          var timeFormat2 = DateFormat('h시간 m분');
+          var timeFormat3 = DateFormat('h시간');
+          var timeFormat4 = DateFormat('hh:mm');
+          String TimeFormat(DateTime dateTime) {
+            if (dateTime.hour == 0) {
+              return timeFormat1.format(dateTime);
+            } else if (dateTime.minute == 0) {
+              return timeFormat3.format(dateTime);
+            } else {
+              return timeFormat2.format(dateTime);
+            }
+          }
+
+          return Row(
+            children: [
+              Text(
+                TimeFormat(dateTime.add(movementData.duration)) +
+                    " 동안 " +
+                    movementData.distance.toString() +
+                    "km 이동",
+                style: myTextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(width: 7),
+              IconButton(
+                padding: EdgeInsets.zero,
+                iconSize: 15,
+                constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
+                icon: Icon(Icons.refresh),
+                onPressed: () {
+                  //새로고침
+                },
+              ),
+            ],
+          );
         },
       ),
     );

@@ -27,6 +27,8 @@ mixin _$PlaceData {
   double get longitude => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   Duration? get stayTime => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+  DateTime? get visitDate => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get phoneNumber => throw _privateConstructorUsedError;
   String? get homepage => throw _privateConstructorUsedError;
@@ -59,6 +61,8 @@ abstract class $PlaceDataCopyWith<$Res> {
       double longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       Duration? stayTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      DateTime? visitDate,
       String? description,
       String? phoneNumber,
       String? homepage,
@@ -90,6 +94,7 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
     Object? latitude = null,
     Object? longitude = null,
     Object? stayTime = freezed,
+    Object? visitDate = freezed,
     Object? description = freezed,
     Object? phoneNumber = freezed,
     Object? homepage = freezed,
@@ -123,6 +128,10 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
           ? _value.stayTime
           : stayTime // ignore: cast_nullable_to_non_nullable
               as Duration?,
+      visitDate: freezed == visitDate
+          ? _value.visitDate
+          : visitDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
@@ -171,6 +180,8 @@ abstract class _$$PlaceDataImplCopyWith<$Res>
       double longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       Duration? stayTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      DateTime? visitDate,
       String? description,
       String? phoneNumber,
       String? homepage,
@@ -200,6 +211,7 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
     Object? latitude = null,
     Object? longitude = null,
     Object? stayTime = freezed,
+    Object? visitDate = freezed,
     Object? description = freezed,
     Object? phoneNumber = freezed,
     Object? homepage = freezed,
@@ -233,6 +245,10 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
           ? _value.stayTime
           : stayTime // ignore: cast_nullable_to_non_nullable
               as Duration?,
+      visitDate: freezed == visitDate
+          ? _value.visitDate
+          : visitDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
@@ -276,6 +292,8 @@ class _$PlaceDataImpl implements _PlaceData {
       required this.longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       this.stayTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      this.visitDate,
       this.description,
       this.phoneNumber,
       this.homepage,
@@ -302,6 +320,9 @@ class _$PlaceDataImpl implements _PlaceData {
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   final Duration? stayTime;
   @override
+  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+  final DateTime? visitDate;
+  @override
   final String? description;
   @override
   final String? phoneNumber;
@@ -319,7 +340,7 @@ class _$PlaceDataImpl implements _PlaceData {
 
   @override
   String toString() {
-    return 'PlaceData(id: $id, title: $title, address: $address, latitude: $latitude, longitude: $longitude, stayTime: $stayTime, description: $description, phoneNumber: $phoneNumber, homepage: $homepage, tag: $tag, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, iconColor: $iconColor)';
+    return 'PlaceData(id: $id, title: $title, address: $address, latitude: $latitude, longitude: $longitude, stayTime: $stayTime, visitDate: $visitDate, description: $description, phoneNumber: $phoneNumber, homepage: $homepage, tag: $tag, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, iconColor: $iconColor)';
   }
 
   @override
@@ -336,6 +357,8 @@ class _$PlaceDataImpl implements _PlaceData {
                 other.longitude == longitude) &&
             (identical(other.stayTime, stayTime) ||
                 other.stayTime == stayTime) &&
+            (identical(other.visitDate, visitDate) ||
+                other.visitDate == visitDate) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.phoneNumber, phoneNumber) ||
@@ -361,6 +384,7 @@ class _$PlaceDataImpl implements _PlaceData {
       latitude,
       longitude,
       stayTime,
+      visitDate,
       description,
       phoneNumber,
       homepage,
@@ -394,6 +418,8 @@ abstract class _PlaceData implements PlaceData {
       required final double longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       final Duration? stayTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      final DateTime? visitDate,
       final String? description,
       final String? phoneNumber,
       final String? homepage,
@@ -419,6 +445,9 @@ abstract class _PlaceData implements PlaceData {
   @override
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   Duration? get stayTime;
+  @override
+  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+  DateTime? get visitDate;
   @override
   String? get description;
   @override
