@@ -243,25 +243,34 @@ class _MainPageState extends State<MainPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Row(
-                      children: <Widget>[
-                        Text(
-                            ServerWrapper.isLogin()
-                                ? '${ServerWrapper.getUser()!.name}'
-                                : '로그인',
-                            style: myTextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                            )),
-                        const SizedBox(width: 6),
-                        Text(ServerWrapper.isLogin() ? '님 안녕하세요!' : '이 필요합니다!',
-                            style: myTextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w400,
-                            )),
-                      ],
+                    Expanded(
+                      child: Row(
+                        children: <Widget>[
+                          Text(
+                              ServerWrapper.isLogin()
+                                  ? '${ServerWrapper.getUser()!.name}'
+                                  : '로그인',
+                              style: myTextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w500,
+                              )),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                                ServerWrapper.isLogin()
+                                    ? '님 안녕하세요!'
+                                    : '이 필요합니다!',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: myTextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w400,
+                                )),
+                          ),
+                        ],
+                      ),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -37,13 +39,11 @@ class DailyItineraryData with _$DailyItineraryData {
       {required String dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required DateTime date,
-      // @Default([]) List<PlaceData> places,
       @Default([])
       @JsonKey(
           fromJson: _placeDataCubitListFromJson,
           toJson: _placeDataCubitListToJson)
       List<PlaceCubit> placeList,
-      //MovementCubit
       @Default([])
       @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
       List<MovementCubit> movementList}) = _DailyItinerary;
@@ -53,8 +53,24 @@ class DailyItineraryData with _$DailyItineraryData {
     return copyWith(date: date.add(Duration(days: shiftDays)));
   }
 
+  // factory DailyItineraryData.fromJson(Map<String, dynamic> json) =>
+  //     _$DailyItineraryDataFromJson(json);
+
   factory DailyItineraryData.fromJson(Map<String, dynamic> json) =>
-      _$DailyItineraryDataFromJson(json);
+      _DailyItineraryDataFromJson(json);
+
+  static DailyItineraryData _DailyItineraryDataFromJson(
+      Map<String, dynamic> json) {
+    var dud = _$DailyItineraryDataFromJson(json);
+    if (dud.movementList.length < dud.placeList.length - 1) {
+      var newMovementList = List<MovementCubit>.from(dud.movementList);
+      while (newMovementList.length < dud.placeList.length - 1) {
+        newMovementList.add(MovementCubit(MovementData.initial()));
+      }
+      dud = dud.copyWith(movementList: newMovementList);
+    }
+    return dud;
+  }
 }
 
 class DailyItineraryCubit extends Cubit<DailyItineraryData> {
@@ -79,11 +95,43 @@ class DailyItineraryCubit extends Cubit<DailyItineraryData> {
             state.placeList.map((p) => p == place ? place : p).toList()));
   }
 
-  void reorderPlaces(int oldIndex, int newIndex) {
+  bool reorderPlaces(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return false;
+    if (oldIndex < 0 || oldIndex >= state.placeList.length) return false;
+    if (newIndex < 0 || newIndex >= state.placeList.length) return false;
+    if (state.placeList.length - 1 != state.movementList.length) {
+      print('placeList와 movementList의 길이가 다릅니다.');
+      return false;
+    }
+    var length = state.placeList.length;
     var newPlaces = List<PlaceCubit>.from(state.placeList);
     final place = newPlaces.removeAt(oldIndex);
     newPlaces.insert(newIndex, place);
-    emit(state.copyWith(placeList: newPlaces));
+    // 영향을 받는 movement 수정
+    var newMovements = List<MovementCubit>.from(state.movementList);
+    var oldMovementIndex = min(oldIndex, length - 2);
+    var newMovementIndex = min(newIndex, length - 2);
+    final movement = newMovements.removeAt(oldMovementIndex);
+    newMovements.insert(newMovementIndex, movement);
+    if (oldIndex < newIndex) {
+      if (0 < oldIndex) {
+        newMovements[oldIndex - 1] = MovementCubit(MovementData.initial());
+      }
+      newMovements[newIndex - 1] = MovementCubit(MovementData.initial());
+      if (newIndex < length - 1) {
+        newMovements[newIndex] = MovementCubit(MovementData.initial());
+      }
+    } else {
+      if (oldIndex < length - 1) {
+        newMovements[oldIndex] = MovementCubit(MovementData.initial());
+      }
+      newMovements[newIndex] = MovementCubit(MovementData.initial());
+      if (0 < newIndex) {
+        newMovements[newIndex - 1] = MovementCubit(MovementData.initial());
+      }
+    }
+    emit(state.copyWith(placeList: newPlaces, movementList: newMovements));
+    return true;
   }
 
   void addMovement(MovementCubit movement) {

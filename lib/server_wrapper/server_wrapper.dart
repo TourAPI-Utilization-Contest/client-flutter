@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'data/daily_itinerary_data.dart';
+import 'data/movement_data.dart';
 import 'data/place_data.dart';
 import 'server_info.dart';
 import 'data/user_data.dart';
@@ -125,6 +126,24 @@ class ServerWrapper {
                   longitude: 127.123456,
                   iconColor: Colors.blue,
                   stayTime: const Duration(minutes: 30),
+                )),
+              ],
+              movementList: [
+                MovementCubit(MovementData(
+                  duration: const Duration(minutes: 30),
+                  distance: 1000,
+                  method: '도보',
+                  source: 'Google',
+                  startTime: DateTime(2024, 9, 29, 9, 0),
+                  endTime: DateTime(2024, 9, 29, 10, 0),
+                )),
+                MovementCubit(MovementData(
+                  duration: const Duration(minutes: 30),
+                  distance: 1000,
+                  method: '지하철',
+                  source: 'Google',
+                  startTime: DateTime(2024, 9, 29, 10, 0),
+                  endTime: DateTime(2024, 9, 29, 10, 30),
                 )),
               ],
             )),

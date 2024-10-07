@@ -76,6 +76,8 @@ class PlaceCard extends StatelessWidget {
                 children: [
                   Text(
                     placeData.title,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
                     style: myTextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -84,14 +86,17 @@ class PlaceCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Text(
-                        placeData.address,
-                        style: myTextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w200,
+                      Expanded(
+                        child: Text(
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          placeData.address,
+                          style: myTextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w200,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       SvgPicture.asset(
                         'assets/icon/관심_장소_off.svg',
                         // width: 16,

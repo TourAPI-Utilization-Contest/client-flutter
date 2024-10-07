@@ -220,6 +220,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                           minimumSize:
                               const WidgetStatePropertyAll(Size(40, 40)),
                           fixedSize: const WidgetStatePropertyAll(Size(40, 40)),
+                          padding: WidgetStateProperty.all(EdgeInsets.zero),
                           // shape: WidgetStateProperty.all(
                           //   RoundedRectangleBorder(
                           //     borderRadius: BorderRadius.circular(10),
@@ -543,49 +544,39 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    var list = <Widget>[];
-    for (var i = 0;
-        i < widget.dailyItineraryCubit.state.placeList.length;
-        i++) {
-      list.add(DailyItineraryItem(
-        key: Key('${i * 2}'),
-        index: i * 2,
-        place: true,
-        placeCubit: widget.dailyItineraryCubit.state.placeList[i],
-      ));
-      if (widget.dailyItineraryCubit.state.movementList.length - 1 == i) break;
-      if (widget.dailyItineraryCubit.state.movementList.length <= i) {
-        widget.dailyItineraryCubit.addMovement(
-          MovementCubit(MovementData(
-            startTime: DateTime(1970, 1, 1, 0, 0),
-            endTime: DateTime(1970, 1, 1, 0, 0),
-            method: 'work',
-            source: 'unknown',
-            distance: 0,
-            duration: Duration(minutes: 0),
-          )),
+    return BlocProvider.value(
+      value: widget.dailyItineraryCubit,
+      child: BlocBuilder<DailyItineraryCubit, DailyItineraryData>(
+          builder: (context, dailyItineraryData) {
+        var list = <Widget>[];
+        for (var i = 0; i < dailyItineraryData.placeList.length; i++) {
+          list.add(DailyItineraryItem(
+            key: Key('${i * 2}'),
+            index: i * 2,
+            place: true,
+            first: i == 0,
+            last: i == dailyItineraryData.placeList.length - 2,
+            placeCubit: dailyItineraryData.placeList[i],
+          ));
+          if (dailyItineraryData.movementList.length - 1 == i) break;
+          if (dailyItineraryData.movementList.length <= i) {
+            widget.dailyItineraryCubit.addMovement(
+              MovementCubit(MovementData.initial()),
+            );
+          }
+          list.add(DailyItineraryItem(
+            key: Key('${i * 2 + 1}'),
+            index: i * 2 + 1,
+            place: false,
+            movementCubit: dailyItineraryData.movementList[i],
+          ));
+        }
+        return SingleChildScrollFadeView(
+          child: Column(
+            children: list,
+          ),
         );
-      }
-      list.add(DailyItineraryItem(
-        key: Key('${i * 2 + 1}'),
-        index: i * 2 + 1,
-        place: false,
-        movementCubit: widget.dailyItineraryCubit.state.movementList[i],
-      ));
-    }
-    return ReorderableListView(
-      buildDefaultDragHandles: false,
-      onReorder: (int oldIndex, int newIndex) {
-        setState(
-          () {
-            if (oldIndex < newIndex) {
-              newIndex -= 1;
-            }
-            widget.dailyItineraryCubit.reorderPlaces(oldIndex, newIndex);
-          },
-        );
-      },
-      children: list,
+      }),
     );
   }
 
@@ -601,6 +592,7 @@ class DailyItineraryItem extends StatelessWidget {
   final bool last;
   final bool dotLine;
   final int index;
+  final Size jamChevronUpDownSize = const Size(20, 20);
   const DailyItineraryItem({
     required this.index,
     this.placeCubit,
@@ -677,15 +669,6 @@ class DailyItineraryItem extends StatelessWidget {
                   ),
                 ],
               ),
-              // Positioned(
-              //   left: 50,
-              //   // child: DashedLine(
-              //   //   path: Path()
-              //   //     ..moveTo(0, 0)
-              //   //     ..lineTo(0, 100),
-              //   //   color: cGray,
-              //   // ),
-              // ),
             ],
           ),
           const SizedBox(width: 10),
@@ -711,7 +694,64 @@ class DailyItineraryItem extends StatelessWidget {
       trailing: place
           ? ReorderableDragStartListener(
               index: index,
-              child: SvgPicture.asset("assets/icon/jam_chevron_up_down.svg"),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Visibility(
+                    visible: !first,
+                    child: TextButton(
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
+                        minimumSize:
+                            WidgetStateProperty.all(jamChevronUpDownSize),
+                        fixedSize:
+                            WidgetStateProperty.all(jamChevronUpDownSize),
+                      ),
+                      child: SvgPicture.asset(
+                        "assets/icon/jam_chevron_up.svg",
+                        fit: BoxFit.contain,
+                        width: jamChevronUpDownSize.width,
+                        height: jamChevronUpDownSize.height,
+                      ),
+                      onPressed: () {
+                        //위로
+                        context.read<DailyItineraryCubit>().reorderPlaces(
+                              index ~/ 2,
+                              index ~/ 2 - 1,
+                            );
+                      },
+                    ),
+                  ),
+                  Visibility(
+                    visible: !last,
+                    child: TextButton(
+                      style: ButtonStyle(
+                        padding: WidgetStateProperty.all(EdgeInsets.zero),
+                        minimumSize:
+                            WidgetStateProperty.all(jamChevronUpDownSize),
+                        fixedSize:
+                            WidgetStateProperty.all(jamChevronUpDownSize),
+                      ),
+                      onPressed: () {
+                        //아래로(reorderPlaces)
+                        context.read<DailyItineraryCubit>().reorderPlaces(
+                              index ~/ 2,
+                              index ~/ 2 + 1,
+                            );
+                      },
+                      child: Transform.flip(
+                        flipY: true,
+                        child: SvgPicture.asset(
+                          "assets/icon/jam_chevron_up.svg",
+                          fit: BoxFit.contain,
+                          width: jamChevronUpDownSize.width,
+                          height: jamChevronUpDownSize.height,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             )
           : null,
     );
@@ -756,61 +796,66 @@ class DailyItineraryPlaceItem extends StatelessWidget {
             }
           }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    placeData.title,
-                    style: myTextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
+          return Expanded(
+            child: Column(
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      placeData.title,
+                      style: myTextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 5),
-                  SvgPicture.asset("assets/icon/jam_pencil_f.svg"),
-                ],
-              ),
-              const SizedBox(height: 3),
-              Row(
-                children: [
-                  Text(
-                    placeData.visitDate == null
-                        ? '??:??'
-                        : timeFormat4.format(placeData.visitDate!),
-                    style: myTextStyle(
-                      fontSize: 9,
-                      color: const Color(0xFF0BB2D1),
-                      fontWeight: FontWeight.w400,
+                    const SizedBox(width: 5),
+                    SvgPicture.asset("assets/icon/jam_pencil_f.svg"),
+                  ],
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  spacing: 10,
+                  children: [
+                    Text(
+                      placeData.visitDate == null
+                          ? '??:??'
+                          : timeFormat4.format(placeData.visitDate!),
+                      style: myTextStyle(
+                        fontSize: 9,
+                        color: const Color(0xFF0BB2D1),
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    //시간 표시
-                    placeData.stayTime != null &&
-                            placeData.stayTime!.inMinutes > 0
-                        ? '${TimeFormat(dateTime.add(placeData.stayTime!))} 관광'
-                        : '관광 시간 미정',
-                    style: myTextStyle(
-                      fontSize: 9,
-                      color: const Color(0xFF0BB2D1),
-                      fontWeight: FontWeight.w400,
+                    Text(
+                      //시간 표시
+                      placeData.stayTime != null &&
+                              placeData.stayTime!.inMinutes > 0
+                          ? '${TimeFormat(dateTime.add(placeData.stayTime!))} 관광'
+                          : '관광 시간 미정',
+                      style: myTextStyle(
+                        fontSize: 9,
+                        color: const Color(0xFF0BB2D1),
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    placeData.address,
-                    style: myTextStyle(
-                      fontSize: 9,
-                      color: cGray,
-                      fontWeight: FontWeight.w500,
+                    Expanded(
+                      child: Text(
+                        placeData.address,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: myTextStyle(
+                          fontSize: 9,
+                          color: cGray,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           );
         },
       ),

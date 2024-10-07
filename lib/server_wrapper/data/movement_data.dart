@@ -39,6 +39,21 @@ class MovementData with _$MovementData {
     required String source, // 경로 출처(Google, Kakao)
   }) = _MovementData;
 
+  factory MovementData.initial() => MovementData(
+        startTime: DateTime(1970, 1, 1, 0, 0),
+        endTime: DateTime(1970, 1, 1, 0, 0),
+        duration: Duration.zero,
+        minDuration: null,
+        maxDuration: null,
+        distance: 0,
+        startLatitude: null,
+        startLongitude: null,
+        endLatitude: null,
+        endLongitude: null,
+        method: 'work',
+        source: 'unknown',
+      );
+
   factory MovementData.fromJson(Map<String, dynamic> json) =>
       _$MovementDataFromJson(json);
 }
