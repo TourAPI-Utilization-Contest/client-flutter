@@ -1,0 +1,20 @@
+{
+  "" : {
+    "const-values" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/shared_preferences_foundation-master.swiftconstvalues",
+    "dependencies" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/shared_preferences_foundation-master.d",
+    "diagnostics" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/shared_preferences_foundation-master.dia",
+    "emit-module-dependencies" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/shared_preferences_foundation-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/shared_preferences_foundation-master-emit-module.dia",
+    "swift-dependencies" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/shared_preferences_foundation-master.swiftdeps"
+  },
+  "/Users/tyndall.log/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.2/darwin/shared_preferences_foundation/Sources/shared_preferences_foundation/messages.g.swift" : {
+    "index-unit-output-path" : "/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/messages.g.o",
+    "llvm-bc" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/messages.g.bc",
+    "object" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/messages.g.o"
+  },
+  "/Users/tyndall.log/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.5.2/darwin/shared_preferences_foundation/Sources/shared_preferences_foundation/SharedPreferencesPlugin.swift" : {
+    "index-unit-output-path" : "/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/SharedPreferencesPlugin.o",
+    "llvm-bc" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/SharedPreferencesPlugin.bc",
+    "object" : "/Users/tyndall.log/Desktop/김은수/tradule/macos/build/Pods.build/Release/shared_preferences_foundation.build/Objects-normal/arm64/SharedPreferencesPlugin.o"
+  }
+}

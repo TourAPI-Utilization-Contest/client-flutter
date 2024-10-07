@@ -17,7 +17,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final TextEditingController _pwController = TextEditingController();
 
-  bool _failed = false;
+  // bool _failed = false;
+  LoginResult? _loginResult;
 
   @override
   Widget build(BuildContext context) {
@@ -78,27 +79,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           if (_formKey.currentState!.validate()) {
                             print(
                                 '로그인 시도: ID=${_idController.text}, PW=${_pwController.text}');
-                            final result = await ServerWrapper.loginIdPw(
+                            _loginResult = await ServerWrapper.loginIdPw(
                                 _idController.text, _pwController.text);
-                            if (result) {
-                              _failed = false;
-                            } else {
-                              _failed = true;
-                            }
                             setState(() {});
                           }
                         },
                         child: Text('로그인'),
                       ),
-                      SizedBox(height: 10),
-                      if (_failed)
+                      const SizedBox(height: 10),
+                      if (_loginResult != null && !_loginResult!.success)
                         Center(
                           child: Text(
-                            '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
+                            _loginResult!.message!,
                             style: TextStyle(color: Colors.red),
                           ),
                         ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/my_text_style.dart';
+import 'package:tradule/common/single_child_scroll_fade_view.dart';
 import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
@@ -389,6 +390,7 @@ class _Header extends StatelessWidget {
                       left: 0,
                       top: 0,
                       child: _LR(
+                        key: const Key('left'),
                         text: tabController.index == 1
                             ? '전체보기'
                             : dateFormat.format(itinerary.startDate
@@ -404,6 +406,7 @@ class _Header extends StatelessWidget {
                       right: 0,
                       top: 0,
                       child: _LR(
+                        key: const Key('right'),
                         text: dateFormat.format(itinerary.startDate
                             .add(Duration(days: tabController.index))),
                         reverse: true,
@@ -434,6 +437,7 @@ class _Body extends StatefulWidget {
 }
 
 class _BodyState extends State<_Body> with TickerProviderStateMixin {
+  final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     // var tabController = context.watch<TabControllerCubit>().state;
@@ -443,7 +447,8 @@ class _BodyState extends State<_Body> with TickerProviderStateMixin {
         controller: widget.tabController,
         children: [
           //전체 일정
-          SingleChildScrollView(
+          SingleChildScrollFadeView(
+            scrollController: _scrollController,
             child: Column(
               children: [
                 Text(
@@ -473,10 +478,10 @@ class _LR extends StatelessWidget {
   final void Function()? onPressed;
   final String text;
   const _LR({
+    super.key,
     required this.text,
     this.reverse = false,
     this.onPressed,
-    super.key,
   });
 
   @override

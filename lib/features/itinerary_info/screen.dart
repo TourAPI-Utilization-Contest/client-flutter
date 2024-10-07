@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:tradule/common/section.dart';
+import 'package:tradule/common/single_child_scroll_fade_view.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 
@@ -44,7 +45,7 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
       appBar: AppBar(
         title: isEditing ? const Text('기존 일정 수정하기') : const Text('새 일정 만들기'),
       ),
-      body: SingleChildScrollView(
+      body: SingleChildScrollFadeView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

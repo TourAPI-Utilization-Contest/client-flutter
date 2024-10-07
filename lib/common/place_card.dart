@@ -109,9 +109,9 @@ class PlaceCard extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.symmetric(
                             horizontal: 11,
-                            vertical: 0,
+                            // vertical: 10,
                           ),
-                          minimumSize: const Size(68, 17),
+                          minimumSize: const Size(68, 25),
                           shadowColor: Colors.transparent,
                         ),
                         onPressed: () {
@@ -125,7 +125,8 @@ class PlaceCard extends StatelessWidget {
                         child: Text(
                           '내 일정에 추가',
                           style: myTextStyle(
-                            height: 17 / 8,
+                            // height: 17 / 8,
+                            height: 1.2,
                             color: Colors.white,
                             fontSize: 8,
                           ),

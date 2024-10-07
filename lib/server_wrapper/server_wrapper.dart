@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
@@ -11,6 +12,12 @@ import 'server_info.dart';
 import 'data/user_data.dart';
 import 'data/itinerary_data.dart';
 
+class LoginResult {
+  bool success;
+  String? message;
+  LoginResult(this.success, {this.message});
+}
+
 class ServerWrapper {
   static bool _testAccount = false;
   static int _loginKind = 0; // 1: ID/PW, 2: Kakao
@@ -19,15 +26,44 @@ class ServerWrapper {
   static ItineraryCubitMapCubit itineraryCubitMapCubit =
       ItineraryCubitMapCubit();
 
-  static Future<bool> loginIdPw(String id, String pw) async {
+  static Future<LoginResult> loginIdPw(String id, String pw) async {
     if (id == 'test@test' && pw == '1234') {
       _testAccount = true;
       _loginKind = 1;
       _testAccountLogin();
-      return true;
+      return LoginResult(true);
     } else {
-      _testAccount = false;
-      return false;
+      final FirebaseAuth auth = FirebaseAuth.instance;
+      try {
+        if (id == "admin@tradule.com" && pw == "1234") pw = "tradule1234";
+        await auth.signInWithEmailAndPassword(email: id, password: pw);
+        print(auth.currentUser);
+        if (auth.currentUser != null) {
+          if (!auth.currentUser!.emailVerified && id != "admin@tradule.com") {
+            await auth.currentUser!.sendEmailVerification();
+            return LoginResult(false, message: '이메일 인증을 완료해주세요.');
+          }
+          _testAccount = false;
+          _loginKind = 1;
+          //TODO: 서버에서 유저 정보 가져오기
+          return LoginResult(true);
+        }
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          return LoginResult(false, message: '존재하지 않는 이메일입니다.');
+        } else if (e.code == 'wrong-password') {
+          return LoginResult(false, message: '비밀번호가 틀렸습니다.');
+        } else if (e.code == 'invalid-email') {
+          return LoginResult(false, message: '이메일 형식이 아닙니다.');
+        } else if (e.code == 'invalid-credential') {
+          return LoginResult(false, message: '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.');
+        } else if (e.code == 'user-disabled') {
+          return LoginResult(false, message: '차단된 계정입니다.');
+        } else {
+          return LoginResult(false, message: e.toString());
+        }
+      }
+      return LoginResult(false, message: '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.');
     }
   }
 
@@ -199,6 +235,11 @@ class ServerWrapper {
   }
 
   static void logout() {
+    if (_loginKind == 2) {
+      UserApi.instance.logout();
+    } else if (_loginKind == 1) {
+      FirebaseAuth.instance.signOut();
+    }
     _testAccount = false;
     _loginKind = 0;
     userCubit.setUser(null);

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
@@ -10,6 +11,7 @@ import 'package:tradule/common/section.dart';
 import 'package:tradule/common/place_card.dart';
 import 'package:tradule/common/my_text_field.dart';
 import 'package:tradule/common/my_text_style.dart';
+import 'package:tradule/common/single_child_scroll_fade_view.dart';
 import 'package:tradule/tourapi_wrapper/GW.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
 
@@ -21,6 +23,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   // final TextEditingController _textController2 = TextEditingController();
   // final Color cGray = const Color(0xff9E9E9E);
@@ -75,6 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         // title: const Text('Search'),
         backgroundColor: Colors.white,
+        scrolledUnderElevation: 0,
         leading: common.BackButton(context: context),
         title: Row(
           children: [
@@ -98,48 +102,98 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: MyTextField(
-                    controller: _textController,
-                    focusNode: _focusNode,
-                    onTap: () {
-                      suggestionsVisible = true;
-                      setState(() {});
-                    },
-                    // onTapOutside: (event) {
-                    //   suggestionsVisible = false;
-                    //   _focusNode.unfocus();
-                    // },
-                    onChanged: onChanged,
-                    onSubmitted: onEnter,
-                    hintText: _focusNode.hasFocus
-                        ? '주소, 장소, 키워드를 입력하세요'
-                        : '어디로 떠나볼까요?',
-                  )),
-              Column(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: MyTextField(
+                  controller: _textController,
+                  focusNode: _focusNode,
+                  onTap: () {
+                    suggestionsVisible = true;
+                    setState(() {});
+                  },
+                  onTapOutside: (event) {
+                    // suggestionsVisible = false;
+                    _focusNode.unfocus();
+                  },
+                  onChanged: onChanged,
+                  onSubmitted: onEnter,
+                  hintText:
+                      _focusNode.hasFocus ? '주소, 장소, 키워드를 입력하세요' : '어디로 떠나볼까요?',
+                )),
+            // if (suggestionsVisible && _textController.text.isNotEmpty)
+            //   buildSuggestions(),
+            // if (firstSearch && _textController.text.isEmpty)
+            //   Padding(
+            //     padding: const EdgeInsets.only(top: 16),
+            //     child: Text(
+            //       '어서 검색해 보세요!',
+            //       style: myTextStyle(
+            //         fontSize: 16,
+            //         fontWeight: FontWeight.w400,
+            //       ),
+            //     ),
+            //   ),
+            Expanded(
+              child: Stack(
                 children: [
-                  // searchTextField(context, readOnly: false),
-                  // if (_focusNode.hasFocus)
-                  // Container(
-                  //   color: Colors.white,
-                  //   child: Column(
-                  //     children: [
-                  //       for (var item in suggestions)
-                  //         Padding(
-                  //           padding: const EdgeInsets.all(8.0),
-                  //           child: item,
-                  //         ),
-                  //     ],
-                  //   ),
-                  // ),
+                  Positioned.fill(
+                    child: SingleChildScrollFadeView(
+                      scrollController: _scrollController,
+                      child: Column(
+                        children: [
+                          if (!firstSearch)
+                            Section(
+                              title: Text('검색 결과',
+                                  style: myTextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  )),
+                              content: Column(
+                                children: [
+                                  for (var item in searchResults)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: item,
+                                    ),
+                                  if (searchResultsLoading)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: CircularProgressIndicator(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
+                                      ),
+                                    ),
+                                  if (!searchResultsLoading &&
+                                      searchResults.isEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: Text(
+                                        '검색 결과가 없습니다.',
+                                        style: myTextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                   if (suggestionsVisible && _textController.text.isNotEmpty)
-                    buildSuggestions(),
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: buildSuggestions(),
+                    ),
                   if (firstSearch && _textController.text.isEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
@@ -151,45 +205,10 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                     ),
-                  if (!firstSearch)
-                    Section(
-                      title: Text('검색 결과',
-                          style: myTextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          )),
-                      content: Column(
-                        children: [
-                          for (var item in searchResults)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: item,
-                            ),
-                          if (searchResultsLoading)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: CircularProgressIndicator(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          if (!searchResultsLoading && searchResults.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 16),
-                              child: Text(
-                                '검색 결과가 없습니다.',
-                                style: myTextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -335,75 +354,85 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget buildSuggestions() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 8,
-        horizontal: 16,
-      ),
-      child: Column(
-        children: [
-          Stack(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '추천 검색어',
-                    style: myTextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w200,
-                      color: const Color(0xFF50555C),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: suggestionsVisible
+            ? ImageFilter.blur(sigmaX: 5, sigmaY: 5)
+            : ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+        child: Material(
+          color: const Color(0xE0FFFFFF),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              vertical: 8,
+              horizontal: 16,
+            ),
+            child: Column(
+              children: [
+                Stack(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '추천 검색어',
+                          style: myTextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w200,
+                            color: const Color(0xFF50555C),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            suggestionsVisible = false;
+                            setState(() {});
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            minimumSize: Size.zero,
+                          ),
+                          child: Text(
+                            '닫기',
+                            style: myTextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w200,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      suggestionsVisible = false;
-                      setState(() {});
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
+                    if (suggestionsLoading)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
                       ),
-                      minimumSize: Size.zero,
-                    ),
-                    child: Text(
-                      '닫기',
-                      style: myTextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w200,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (suggestionsLoading)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
+                    if (suggestions.isEmpty && !suggestionsLoading)
+                      const SizedBox.shrink(),
+                  ],
                 ),
-              if (suggestions.isEmpty && !suggestionsLoading)
-                const SizedBox.shrink(),
-            ],
+                for (var i = 0; i < suggestions.length; i++) ...[
+                  suggestions[i],
+                  if (i < suggestions.length - 1)
+                    const Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: Color(0xFFD9D9D9),
+                    ),
+                ],
+              ],
+            ),
           ),
-          for (var i = 0; i < suggestions.length; i++) ...[
-            suggestions[i],
-            if (i < suggestions.length - 1)
-              const Divider(
-                height: 1,
-                thickness: 1,
-                color: Color(0xFFD9D9D9),
-              ),
-          ],
-        ],
+        ),
       ),
     );
   }

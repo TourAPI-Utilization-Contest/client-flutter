@@ -1,3 +1,4 @@
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
@@ -22,7 +23,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // GoogleFonts.config.allowRuntimeFetching = false;
 
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
@@ -41,7 +44,9 @@ void main() async {
     javaScriptAppKey: kakaoJavascriptKey,
   );
 
-  // ServerWrapper.loginIdPw('test@test', '1234');
+  if (kDebugMode) {
+    ServerWrapper.loginIdPw('test@test', '1234');
+  }
 
   runApp(const ProviderScope(child: Tradule()));
 }

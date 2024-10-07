@@ -1,3 +1,6 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/common/section.dart';
@@ -12,13 +15,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final ScrollController _scrollController = ScrollController();
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _pwController = TextEditingController();
   // final _focusNode = FocusNode();
   final FocusNode _focusNodeEmail = FocusNode();
   final FocusNode _focusNodePassword = FocusNode();
-  bool _failed = false;
+  // bool _failed = false;
+  LoginResult? _loginResult;
   bool _isFormValidateFailFlag = false;
   bool _emailValidateFlag = false;
   bool _passwordValidateFlag = false;
@@ -34,13 +39,32 @@ class _LoginScreenState extends State<LoginScreen> {
         preferredSize: const Size.fromHeight(kToolbarHeight + 10),
         child: ClipPath(
           clipper: const InvertedCornerClipper(arcRadius: 10),
-          child: AppBar(
-            title: const Text('로그인'),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+            child: ListenableBuilder(
+              listenable: _scrollController,
+              builder: (context, _) => AppBar(
+                title: const Text('로그인'),
+                elevation: 0,
+                scrolledUnderElevation: 0,
+                backgroundColor: Color.lerp(
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.primary.withAlpha(0),
+                  min(
+                      0.3,
+                      _scrollController.hasClients
+                          ? _scrollController.position.pixels / 300
+                          : 0),
+                ),
+              ),
+            ),
           ),
         ),
       ),
       body: Center(
         child: SingleChildScrollView(
+          clipBehavior: Clip.none,
+          controller: _scrollController,
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 40,
@@ -100,8 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               _submitted(context: context);
                             },
                             style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 0, vertical: 20),
+                              // padding: const EdgeInsets.symmetric(
+                              //     horizontal: 0, vertical: 20),
                               backgroundColor:
                                   Theme.of(context).colorScheme.primary,
                               shape: RoundedRectangleBorder(
@@ -120,11 +144,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        if (_failed)
+                        // if (_failed)
+                        if (_loginResult != null && !_loginResult!.success)
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
-                              '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
+                              _loginResult?.message ??
+                                  '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.error,
                                 fontSize: 12.0,
@@ -184,8 +210,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       print('카카오 로그인 버튼 클릭');
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 0, vertical: 20),
+                      // padding: const EdgeInsets.symmetric(
+                      //     horizontal: 0, vertical: 20),
                       backgroundColor: const Color(0xFFFEE500),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50.0),
@@ -260,13 +286,15 @@ class _LoginScreenState extends State<LoginScreen> {
         if (isPassword) {
           if (!_passwordValidateFlag) return;
           _passwordValidateFlag = false;
-          _failed = false;
+          // _failed = false;
+          _loginResult = null;
           _passwordKey.currentState!.validate();
           setState(() {});
         } else {
           if (!_emailValidateFlag) return;
           _emailValidateFlag = false;
-          _failed = false;
+          // _failed = false;
+          _loginResult = null;
           _emailKey.currentState!.validate();
           setState(() {});
         }
@@ -340,13 +368,15 @@ class _LoginScreenState extends State<LoginScreen> {
       print('로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
       final result =
           await ServerWrapper.loginIdPw(_idController.text, _pwController.text);
-      if (!mounted) return;
-      if (result) {
-        _failed = false;
+      if (!context.mounted) return;
+      if (result.success) {
+        // _failed = false;
+        _loginResult = result;
         Navigator.pop(context);
         setState(() {});
       } else {
-        _failed = true;
+        // _failed = true;
+        _loginResult = result;
         _focusNodePassword.requestFocus();
         setState(() {});
       }
