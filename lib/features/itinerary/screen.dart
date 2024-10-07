@@ -555,15 +555,15 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
             index: i * 2,
             place: true,
             first: i == 0,
-            last: i == dailyItineraryData.placeList.length - 2,
+            last: i == dailyItineraryData.placeList.length - 1,
             placeCubit: dailyItineraryData.placeList[i],
           ));
-          if (dailyItineraryData.movementList.length - 1 == i) break;
-          if (dailyItineraryData.movementList.length <= i) {
-            widget.dailyItineraryCubit.addMovement(
-              MovementCubit(MovementData.initial()),
-            );
-          }
+          if (dailyItineraryData.movementList.length <= i) break;
+          // if (dailyItineraryData.movementList.length <= i) {
+          //   widget.dailyItineraryCubit.addMovement(
+          //     MovementCubit(MovementData.initial()),
+          //   );
+          // }
           list.add(DailyItineraryItem(
             key: Key('${i * 2 + 1}'),
             index: i * 2 + 1,
@@ -621,139 +621,144 @@ class DailyItineraryItem extends StatelessWidget {
       }
     }
 
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 8,
-      ),
-      // title: Text(placeData.title),
-      title: Row(
-        children: [
-          Stack(
-            children: [
-              Row(
-                children: [
-                  SvgPicture.asset(
-                    "assets/icon/check_on.svg",
-                    colorFilter: place
-                        ? null
-                        : const ColorFilter.mode(
-                            Colors.transparent, BlendMode.srcIn),
-                  ),
-                  const SizedBox(width: 10),
-                  Stack(
-                    children: [
-                      // SvgPicture.asset(
-                      //     place ? "assets/icon/cc.svg" : "assets/icon/cc2.svg"),
-                      place
-                          ? SvgPicture.asset("assets/icon/cc.svg")
-                          : Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: SvgPicture.asset("assets/icon/cc2.svg"),
-                            ),
-                      if (place)
-                        Positioned.fill(
-                          child: Center(
-                            child: Text(
-                              "${(index / 2 + 1).truncate()}",
-                              style: myTextStyle(
-                                fontSize: 9,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
+    return Material(
+      child: ListTile(
+        onTap: () {
+          print('onTap: $index');
+        },
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 8,
+        ),
+        // title: Text(placeData.title),
+        title: Row(
+          children: [
+            Stack(
+              children: [
+                Row(
+                  children: [
+                    SvgPicture.asset(
+                      "assets/icon/check_on.svg",
+                      colorFilter: place
+                          ? null
+                          : const ColorFilter.mode(
+                              Colors.transparent, BlendMode.srcIn),
+                    ),
+                    const SizedBox(width: 10),
+                    Stack(
+                      children: [
+                        // SvgPicture.asset(
+                        //     place ? "assets/icon/cc.svg" : "assets/icon/cc2.svg"),
+                        place
+                            ? SvgPicture.asset("assets/icon/cc.svg")
+                            : Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: SvgPicture.asset("assets/icon/cc2.svg"),
+                              ),
+                        if (place)
+                          Positioned.fill(
+                            child: Center(
+                              child: Text(
+                                "${(index / 2 + 1).truncate()}",
+                                style: myTextStyle(
+                                  fontSize: 9,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(width: 10),
-          if (place)
-            DailyItineraryPlaceItem(
-              placeCubit: placeCubit!,
-              index: index,
-              place: place,
-              first: first,
-              last: last,
-              dotLine: dotLine,
-            ),
-          if (!place)
-            DailyItineraryMovementItem(
-              movementCubit: movementCubit!,
-              index: index,
-              first: first,
-              last: last,
-              dotLine: dotLine,
-            ),
-        ],
-      ),
-      trailing: place
-          ? ReorderableDragStartListener(
-              index: index,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Visibility(
-                    visible: !first,
-                    child: TextButton(
-                      style: ButtonStyle(
-                        padding: WidgetStateProperty.all(EdgeInsets.zero),
-                        minimumSize:
-                            WidgetStateProperty.all(jamChevronUpDownSize),
-                        fixedSize:
-                            WidgetStateProperty.all(jamChevronUpDownSize),
-                      ),
-                      child: SvgPicture.asset(
-                        "assets/icon/jam_chevron_up.svg",
-                        fit: BoxFit.contain,
-                        width: jamChevronUpDownSize.width,
-                        height: jamChevronUpDownSize.height,
-                      ),
-                      onPressed: () {
-                        //위로
-                        context.read<DailyItineraryCubit>().reorderPlaces(
-                              index ~/ 2,
-                              index ~/ 2 - 1,
-                            );
-                      },
+                      ],
                     ),
-                  ),
-                  Visibility(
-                    visible: !last,
-                    child: TextButton(
-                      style: ButtonStyle(
-                        padding: WidgetStateProperty.all(EdgeInsets.zero),
-                        minimumSize:
-                            WidgetStateProperty.all(jamChevronUpDownSize),
-                        fixedSize:
-                            WidgetStateProperty.all(jamChevronUpDownSize),
-                      ),
-                      onPressed: () {
-                        //아래로(reorderPlaces)
-                        context.read<DailyItineraryCubit>().reorderPlaces(
-                              index ~/ 2,
-                              index ~/ 2 + 1,
-                            );
-                      },
-                      child: Transform.flip(
-                        flipY: true,
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(width: 10),
+            if (place)
+              DailyItineraryPlaceItem(
+                placeCubit: placeCubit!,
+                index: index,
+                place: place,
+                first: first,
+                last: last,
+                dotLine: dotLine,
+              ),
+            if (!place)
+              DailyItineraryMovementItem(
+                movementCubit: movementCubit!,
+                index: index,
+                first: first,
+                last: last,
+                dotLine: dotLine,
+              ),
+          ],
+        ),
+        trailing: place
+            ? ReorderableDragStartListener(
+                index: index,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Visibility(
+                      visible: !first,
+                      child: TextButton(
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(EdgeInsets.zero),
+                          minimumSize:
+                              WidgetStateProperty.all(jamChevronUpDownSize),
+                          fixedSize:
+                              WidgetStateProperty.all(jamChevronUpDownSize),
+                        ),
                         child: SvgPicture.asset(
                           "assets/icon/jam_chevron_up.svg",
                           fit: BoxFit.contain,
                           width: jamChevronUpDownSize.width,
                           height: jamChevronUpDownSize.height,
                         ),
+                        onPressed: () {
+                          //위로
+                          context.read<DailyItineraryCubit>().reorderPlaces(
+                                index ~/ 2,
+                                index ~/ 2 - 1,
+                              );
+                        },
                       ),
                     ),
-                  ),
-                ],
-              ),
-            )
-          : null,
+                    Visibility(
+                      visible: !last,
+                      child: TextButton(
+                        style: ButtonStyle(
+                          padding: WidgetStateProperty.all(EdgeInsets.zero),
+                          minimumSize:
+                              WidgetStateProperty.all(jamChevronUpDownSize),
+                          fixedSize:
+                              WidgetStateProperty.all(jamChevronUpDownSize),
+                        ),
+                        onPressed: () {
+                          //아래로(reorderPlaces)
+                          context.read<DailyItineraryCubit>().reorderPlaces(
+                                index ~/ 2,
+                                index ~/ 2 + 1,
+                              );
+                        },
+                        child: Transform.flip(
+                          flipY: true,
+                          child: SvgPicture.asset(
+                            "assets/icon/jam_chevron_up.svg",
+                            fit: BoxFit.contain,
+                            width: jamChevronUpDownSize.width,
+                            height: jamChevronUpDownSize.height,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : null,
+      ),
     );
   }
 }
