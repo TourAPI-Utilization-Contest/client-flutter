@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kakao_flutter_sdk_common/kakao_flutter_sdk_common.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:intl/intl.dart';
@@ -20,6 +21,8 @@ import 'package:tradule/features/login/screen_legacy.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // GoogleFonts.config.allowRuntimeFetching = false;
+
+  await Firebase.initializeApp();
 
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
