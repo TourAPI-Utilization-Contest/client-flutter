@@ -81,7 +81,13 @@ class DailyItineraryCubit extends Cubit<DailyItineraryData> {
   }
 
   void addPlace(PlaceCubit place) {
-    emit(state.copyWith(placeList: [...state.placeList, place]));
+    emit(state.copyWith(placeList: [
+      ...state.placeList,
+      place
+    ], movementList: [
+      ...state.movementList,
+      MovementCubit(MovementData.initial())
+    ]));
   }
 
   void removePlace(PlaceCubit place) {

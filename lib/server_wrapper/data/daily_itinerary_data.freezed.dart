@@ -22,12 +22,10 @@ DailyItineraryData _$DailyItineraryDataFromJson(Map<String, dynamic> json) {
 mixin _$DailyItineraryData {
   String get dailyItineraryId => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime get date =>
-      throw _privateConstructorUsedError; // @Default([]) List<PlaceData> places,
+  DateTime get date => throw _privateConstructorUsedError;
   @JsonKey(
       fromJson: _placeDataCubitListFromJson, toJson: _placeDataCubitListToJson)
-  List<PlaceCubit> get placeList =>
-      throw _privateConstructorUsedError; //MovementCubit
+  List<PlaceCubit> get placeList => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
   List<MovementCubit> get movementList => throw _privateConstructorUsedError;
 
@@ -184,9 +182,7 @@ class _$DailyItineraryImpl extends _DailyItinerary {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime date;
-// @Default([]) List<PlaceData> places,
   final List<PlaceCubit> _placeList;
-// @Default([]) List<PlaceData> places,
   @override
   @JsonKey(
       fromJson: _placeDataCubitListFromJson, toJson: _placeDataCubitListToJson)
@@ -196,9 +192,7 @@ class _$DailyItineraryImpl extends _DailyItinerary {
     return EqualUnmodifiableListView(_placeList);
   }
 
-//MovementCubit
   final List<MovementCubit> _movementList;
-//MovementCubit
   @override
   @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
   List<MovementCubit> get movementList {
@@ -272,11 +266,11 @@ abstract class _DailyItinerary extends DailyItineraryData {
   String get dailyItineraryId;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime get date; // @Default([]) List<PlaceData> places,
+  DateTime get date;
   @override
   @JsonKey(
       fromJson: _placeDataCubitListFromJson, toJson: _placeDataCubitListToJson)
-  List<PlaceCubit> get placeList; //MovementCubit
+  List<PlaceCubit> get placeList;
   @override
   @JsonKey(fromJson: _movementCubitFromJson, toJson: _movementCubitToJson)
   List<MovementCubit> get movementList;

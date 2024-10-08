@@ -35,6 +35,7 @@ TextStyle myTextStyle({
   double? letterSpacing,
   FontWeight? fontWeight,
   String? fontFamily,
+  TextBaseline? textBaseline,
 }) {
   height = height ?? (21 / (fontSize ?? _defaultTextStyle.fontSize!));
   var c = _defaultTextStyle.copyWith(
@@ -44,6 +45,7 @@ TextStyle myTextStyle({
     fontFamily: fontFamily,
     fontWeight: fontWeight,
     letterSpacing: letterSpacing,
+    textBaseline: textBaseline,
     fontVariations: [
       FontVariation('wght',
           ((fontWeight ?? _defaultTextStyle.fontWeight!).index + 1) * 100),

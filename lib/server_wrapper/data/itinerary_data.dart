@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'daily_itinerary_data.dart';
 
@@ -9,6 +10,17 @@ part 'itinerary_data.g.dart';
 
 DateTime _dateTimeFromJson(String date) => DateTime.parse(date);
 String _dateTimeToJson(DateTime date) => date.toIso8601String();
+// DateTime _dateTimeFromJson(dynamic date) {
+//   if (date is Timestamp) {
+//     return date.toDate();
+//   } else if (date is String) {
+//     return DateTime.parse(date);
+//   } else {
+//     throw Exception('Unsupported date format');
+//   }
+// }
+//
+// Timestamp _dateTimeToJson(DateTime date) => Timestamp.fromDate(date);
 
 Color _colorFromJson(int color) => Color(color);
 int _colorToJson(Color color) => color.value;

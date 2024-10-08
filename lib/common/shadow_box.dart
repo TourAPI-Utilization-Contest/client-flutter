@@ -7,6 +7,7 @@ class ShadowBox extends StatefulWidget {
   final bool supportExpansion;
   final double height;
   final double? expandedHeight;
+  final void Function()? onPressed;
   const ShadowBox({
     required this.child,
     this.borderRadius = 8.0,
@@ -14,6 +15,7 @@ class ShadowBox extends StatefulWidget {
     this.supportExpansion = false,
     this.height = 100,
     this.expandedHeight,
+    this.onPressed,
     super.key,
   });
 
@@ -29,29 +31,35 @@ class _ShadowBoxState extends State<ShadowBox> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.transparent,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderRadius: BorderRadius.all(Radius.circular(widget.borderRadius)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 1,
+            offset: const Offset(0, 0),
           ),
         ],
       ),
-      child: Container(
-        width: double.infinity,
-        height: _isExpanded ? 200 : 119,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.all(Radius.circular(10)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.25),
-              blurRadius: 1,
-              offset: const Offset(0, 0),
-            ),
-          ],
+      height: _isExpanded ? widget.expandedHeight ?? 200 : widget.height,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          backgroundColor: widget.color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+          ),
         ),
+        // onPressed: widget.onPressed,
+        onPressed: () {
+          if (widget.supportExpansion) {
+            setState(() {
+              _isExpanded = !_isExpanded;
+            });
+          }
+          if (widget.onPressed != null) {
+            widget.onPressed!();
+          }
+        },
         child: widget.child,
       ),
     );

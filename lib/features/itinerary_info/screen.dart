@@ -4,6 +4,7 @@ import 'package:flutter_date_range_picker/flutter_date_range_picker.dart'
     as drp;
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tradule/common/app_bar_blur.dart';
 
 import 'package:tradule/common/section.dart';
 import 'package:tradule/common/single_child_scroll_fade_view.dart';
@@ -24,6 +25,7 @@ class ItineraryInfoScreen extends StatefulWidget {
 }
 
 class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
+  final ScrollController _scrollController = ScrollController();
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -42,10 +44,16 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      // appBar: AppBar(
+      //   title: isEditing ? const Text('기존 일정 수정하기') : const Text('새 일정 만들기'),
+      // ),
+      appBar: AppBarBlur(
         title: isEditing ? const Text('기존 일정 수정하기') : const Text('새 일정 만들기'),
+        scrollController: _scrollController,
       ),
-      body: SingleChildScrollFadeView(
+      body: SingleChildScrollView(
+        controller: _scrollController,
+        clipBehavior: Clip.none,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tradule/common/app_bar_blur.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/color.dart';
@@ -35,31 +36,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
+      appBar: AppBarBlur(
+        title: const Text('로그인'),
+        scrollController: _scrollController,
+        clipper: const InvertedCornerClipper(arcRadius: 10),
         preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-        child: ClipPath(
-          clipper: const InvertedCornerClipper(arcRadius: 10),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-            child: ListenableBuilder(
-              listenable: _scrollController,
-              builder: (context, _) => AppBar(
-                title: const Text('로그인'),
-                elevation: 0,
-                scrolledUnderElevation: 0,
-                backgroundColor: Color.lerp(
-                  Theme.of(context).colorScheme.primary,
-                  Theme.of(context).colorScheme.primary.withAlpha(0),
-                  min(
-                      0.3,
-                      _scrollController.hasClients
-                          ? _scrollController.position.pixels / 300
-                          : 0),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
       body: Center(
         child: SingleChildScrollView(
