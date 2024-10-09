@@ -62,14 +62,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
-  avs_svg_provider:
-    dependency: "direct main"
-    description:
-      name: avs_svg_provider
-      sha256: "2868d078825a6a98920662852cb1333adef6797101877c6b500453e8661f05b2"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   bloc:
     dependency: transitive
     description:

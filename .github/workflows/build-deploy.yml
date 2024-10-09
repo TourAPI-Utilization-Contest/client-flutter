@@ -16,7 +16,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.3' # 사용하는 Flutter 버전으로 변경
+          flutter-version: '3.26.0-0.1.pre' # 원하는 Flutter 버전으로 변경
+          channel: beta # 채널도 beta로 설정
 
       - name: Install Dependencies
         run: flutter pub get

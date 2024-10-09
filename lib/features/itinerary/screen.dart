@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'package:avs_svg_provider/avs_svg_provider.dart';
 import 'package:dashed_line/dashed_line.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +42,7 @@ Future<Uint8List> svgAssetToPngBytes(
   final PictureInfo pictureInfo = await vg.loadPicture(svg, null);
   final ui.Picture picture = pictureInfo.picture;
   final ui.PictureRecorder recorder = ui.PictureRecorder();
+  print(pictureInfo.size);
   final double targetWidth = pictureInfo.size.width * pixelRatio;
   final double targetHeight = pictureInfo.size.height * pixelRatio;
   final ui.Canvas canvas = Canvas(recorder,
