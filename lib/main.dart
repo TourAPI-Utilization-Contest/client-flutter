@@ -59,6 +59,7 @@ class Tradule extends StatelessWidget {
     return MaterialApp(
       title: 'Tradule',
       theme: ThemeData(
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         colorScheme: MaterialTheme.lightScheme(),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xff0ED2F7),

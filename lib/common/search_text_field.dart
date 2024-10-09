@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/features/search/screen.dart';
 
 import 'color.dart';
@@ -51,7 +52,7 @@ Widget searchTextField(BuildContext context,
             children: [
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: 0),
                   child: KeyboardListener(
                     focusNode: _focusNode,
                     onKeyEvent: (event) {
@@ -77,13 +78,14 @@ Widget searchTextField(BuildContext context,
                         previousText = text.text;
                       },
                       onSubmitted: !readOnly ? onEnter : null,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '어디로 떠나볼까요?',
-                        hintStyle: TextStyle(
+                        hintStyle: myTextStyle(
                           color: cGray,
                           fontSize: 16,
-                          fontFamily: 'NotoSansKR',
-                          fontVariations: [FontVariation('wght', 200)],
+                          fontWeight: FontWeight.w200,
+                          // fontFamily: 'NotoSansKR',
+                          // fontVariations: [FontVariation('wght', 200)],
                         ),
                         border: InputBorder.none,
                       ),

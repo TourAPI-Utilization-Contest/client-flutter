@@ -1,6 +1,10 @@
+import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:avs_svg_provider/avs_svg_provider.dart';
 import 'package:dashed_line/dashed_line.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -29,6 +33,47 @@ class ItineraryEditor extends StatefulWidget {
   _ItineraryEditorState createState() => _ItineraryEditorState();
 }
 
+Future<Uint8List> svgAssetToPngBytes(
+  // The SVG file path
+  String svgPath,
+  // The pixelRatio
+  double pixelRatio,
+) async {
+  final SvgAssetLoader svg = SvgAssetLoader(svgPath);
+  final PictureInfo pictureInfo = await vg.loadPicture(svg, null);
+  final ui.Picture picture = pictureInfo.picture;
+  final ui.PictureRecorder recorder = ui.PictureRecorder();
+  final double targetWidth = pictureInfo.size.width * pixelRatio;
+  final double targetHeight = pictureInfo.size.height * pixelRatio;
+  final ui.Canvas canvas = Canvas(recorder,
+      Rect.fromPoints(Offset.zero, Offset(targetWidth, targetHeight)));
+  canvas.scale(pixelRatio, pixelRatio);
+  canvas.drawPicture(picture);
+  final ui.Image imgByteData = await recorder
+      .endRecording()
+      .toImage(targetWidth.ceil(), targetHeight.ceil());
+  final ByteData? bytesData =
+      await imgByteData.toByteData(format: ui.ImageByteFormat.png);
+  final Uint8List imageData = bytesData?.buffer.asUint8List() ?? Uint8List(0);
+  pictureInfo.picture.dispose();
+  return imageData;
+}
+
+Future<BitmapDescriptor> svgToBitmapDescriptor(String assetName,
+    {double? scaleFactor}) async {
+  // 디바이스의 픽셀 비율을 가져옴
+  double pixelRatio = scaleFactor ??
+      ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
+
+  //웹일 경우 픽셀 비율을 1로 설정
+  var pixelRatio2 = kIsWeb ? 1.0 : pixelRatio;
+
+  return BitmapDescriptor.bytes(
+    await svgAssetToPngBytes(assetName, pixelRatio2),
+    imagePixelRatio: pixelRatio,
+  );
+}
+
 class _ItineraryEditorState extends State<ItineraryEditor>
     with TickerProviderStateMixin {
   GoogleMapController? _mapController;
@@ -40,12 +85,69 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
   DateTime _mapTime = DateTime.now();
   TabController? _tabController;
+  Set<Marker> _markers = {};
+  Set<Polyline> _polylines = {};
 
   @override
   void initState() {
     super.initState();
-    _createCustomMarkerBitmap('Hello World', 2).then((BitmapDescriptor bitmap) {
+    // _createCustomMarkerBitmap('Hello World', 2).then((BitmapDescriptor bitmap) {
+    //   _markerIcon = bitmap;
+    //   setState(() {});
+    // });
+    svgToBitmapDescriptor('assets/icon/iconamoon_location_pin_fill.svg')
+        .then((BitmapDescriptor bitmap) {
       _markerIcon = bitmap;
+      setState(() {});
+      // _markers.add(
+      //   Marker(
+      //     markerId: MarkerId('marker_1'),
+      //     icon: _markerIcon,
+      //     position: LatLng(37.5662952, 126.9779451),
+      //     draggable: false,
+      //     onDrag: (LatLng position) {
+      //       print('Marker position: $position');
+      //     },
+      //     infoWindow: InfoWindow(
+      //       title: '서울특별시청',
+      //       snippet: '서울특별시 중구 태평로1가 31',
+      //       anchor: Offset(0.5, 0.5),
+      //     ),
+      //   ),
+      // );
+      //
+      // _polylines.add(
+      //   Polyline(
+      //     polylineId: PolylineId('polyline_1'),
+      //     points: [
+      //       LatLng(37.5662952, 126.9779451),
+      //       LatLng(37.55, 126.7),
+      //       LatLng(37.6, 126.6),
+      //     ],
+      //     jointType: JointType.round,
+      //     startCap: Cap.roundCap,
+      //     endCap: Cap.roundCap,
+      //     zIndex: 2,
+      //     color: Theme.of(context).primaryColor,
+      //     width: 7,
+      //   ),
+      // );
+      // _polylines.add(
+      //   Polyline(
+      //     polylineId: PolylineId('polyline_2'),
+      //     points: [
+      //       LatLng(37.5662952, 126.9779451),
+      //       LatLng(37.55, 126.7),
+      //       LatLng(37.6, 126.6),
+      //     ],
+      //     jointType: JointType.round,
+      //     startCap: Cap.roundCap,
+      //     endCap: Cap.roundCap,
+      //     zIndex: 1,
+      //     color: Colors.white,
+      //     width: 10,
+      //   ),
+      // );
     });
   }
 
@@ -69,7 +171,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
     // 텍스트 그리기 (스케일에 맞춰서)
     textPainter.text = TextSpan(
       text: text,
-      style: myTextStyle(
+      style: TextStyle(
         fontSize: 20.0 * scaleFactor, // 스케일에 맞춘 폰트 크기
         color: Colors.white,
       ),
@@ -84,7 +186,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
     final data = await img.toByteData(format: ui.ImageByteFormat.png);
     return BitmapDescriptor.bytes(
       data!.buffer.asUint8List(),
-      imagePixelRatio: scaleFactor,
+      // imagePixelRatio: scaleFactor,
     );
   }
 
@@ -99,13 +201,51 @@ class _ItineraryEditorState extends State<ItineraryEditor>
             initialIndex: 0,
             length: itinerary!.dailyItineraryCubitList.length + 1,
             vsync: this,
-          );
+          )..addListener(() {
+              // print('Tab previous index: ${_tabController!.previousIndex}');
+              // print('Tab index: ${_tabController!.index}');
+              _markers.clear();
+              _polylines.clear();
+              var dailyItineraryCubit = itinerary.dailyItineraryCubitList[
+                  _tabController!.index == 0 ? 0 : _tabController!.index - 1];
+              for (var placeCubit in dailyItineraryCubit.state.placeList) {
+                _markers.add(
+                  Marker(
+                    markerId: MarkerId(placeCubit.state.id),
+                    icon: _markerIcon,
+                    position: LatLng(
+                        placeCubit.state.latitude, placeCubit.state.longitude),
+                    draggable: false,
+                    infoWindow: InfoWindow(
+                      title: placeCubit.state.title,
+                      snippet: placeCubit.state.address,
+                      anchor: Offset(0.5, 0.5),
+                    ),
+                  ),
+                );
+              }
+              // for (var movementCubit in dailyItineraryCubit.state.movementList) {
+              //   _polylines.add(
+              //     Polyline(
+              //       polylineId: PolylineId(movementCubit.state.id),
+              //       points: movementCubit.state.latLngList,
+              //       jointType: JointType.round,
+              //       startCap: Cap.roundCap,
+              //       endCap: Cap.roundCap,
+              //       zIndex: 2,
+              //       color: Theme.of(context).primaryColor,
+              //       width: 7,
+              //     ),
+              //   );
+              // }
+            });
           return BlocProvider(
             create: (context) =>
                 TabControllerCubit(tabController: _tabController!),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 double mapHeight = constraints.maxHeight - _bottomSheetHeight;
+                final padding = MediaQuery.of(context).padding;
                 return Stack(
                   children: [
                     Positioned(
@@ -114,7 +254,11 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       right: 0,
                       height: mapHeight,
                       child: GoogleMap(
+                        onLongPress: (LatLng latLng) {
+                          print('Map long pressed: $latLng');
+                        },
                         key: _mapKey,
+                        webGestureHandling: WebGestureHandling.greedy,
                         onMapCreated: (GoogleMapController controller) {
                           _mapController = controller;
                         },
@@ -123,39 +267,11 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                           target: LatLng(37.5662952, 126.9779451),
                           zoom: 12,
                         ),
-                        // cloudMapId: '254d275a4bbfaf53',
                         cloudMapId: _cloudMapId,
-                        style: _style,
+                        // style: _style,
                         // mapToolbarEnabled: true,
-                        markers: {
-                          Marker(
-                            markerId: MarkerId('marker_1'),
-                            icon: _markerIcon,
-                            position: LatLng(37.5662952, 126.9779451),
-                            draggable: false,
-                            onDrag: (LatLng position) {
-                              print('Marker position: $position');
-                            },
-                            infoWindow: InfoWindow(
-                              title: '서울특별시청',
-                              snippet: '서울특별시 중구 태평로1가 31',
-                              anchor: Offset(0.5, 0.5),
-                            ),
-                          ),
-                        },
-
-                        polylines: {
-                          Polyline(
-                            polylineId: PolylineId('polyline_1'),
-                            points: [
-                              LatLng(37.5662952, 126.9779451),
-                              LatLng(37.55, 126.7),
-                              LatLng(37.6, 126.6),
-                            ],
-                            color: Colors.red,
-                            width: 3,
-                          ),
-                        },
+                        markers: _markers,
+                        polylines: _polylines,
                       ),
                     ),
                     Positioned(
@@ -187,7 +303,9 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                             ],
                           ),
                           child: Material(
+                            // color: Theme.of(context).primaryColor,
                             child: Column(
+                              spacing: 10,
                               children: [
                                 _Header(),
                                 _Body(tabController: _tabController!),
@@ -199,7 +317,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                     ),
                     // 뒤로가기 버튼
                     Positioned(
-                      top: 15,
+                      top: 15 + padding.top,
                       left: 15,
                       child: TextButton(
                         // color: Colors.white,
@@ -237,7 +355,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       ),
                     ),
                     Positioned.fill(
-                      top: 0,
+                      top: padding.top,
                       child: Row(
                         //상단 가운데
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -921,7 +1039,10 @@ class DailyItineraryMovementItem extends StatelessWidget {
               IconButton(
                 padding: EdgeInsets.zero,
                 iconSize: 15,
-                constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
+                constraints: const BoxConstraints(
+                  minWidth: 10,
+                  minHeight: 10,
+                ),
                 icon: Icon(Icons.refresh),
                 onPressed: () {
                   //새로고침

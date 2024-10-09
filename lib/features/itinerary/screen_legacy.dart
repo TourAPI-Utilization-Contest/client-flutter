@@ -94,8 +94,8 @@ class _CustomBottomSheetMapState extends State<CustomBottomSheetMap>
                     zoom: 12,
                   ),
                   // cloudMapId: '254d275a4bbfaf53',
-                  cloudMapId: _cloudMapId,
-                  style: _style,
+                  // cloudMapId: _cloudMapId,
+                  // style: _style,
                   // mapToolbarEnabled: true,
                   markers: {
                     Marker(

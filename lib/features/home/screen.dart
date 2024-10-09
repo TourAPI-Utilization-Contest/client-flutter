@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:tradule/common/itinerary_card.dart';
+import 'package:tradule/features/itinerary/screen_legacy.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/features/login/screen.dart';
@@ -462,6 +463,7 @@ class _MainPageState extends State<MainPage>
                                                   ItineraryEditor(
                                                       itineraryCubit:
                                                           itineraryCubit),
+                                              // CustomBottomSheetMap(),
                                             ),
                                           );
                                         },
