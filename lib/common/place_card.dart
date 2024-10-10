@@ -127,13 +127,6 @@ class PlaceCard extends StatelessWidget {
                           // shadowColor: Colors.transparent,
                         ),
                         onPressed: () {
-                          // print('내 일정에 추가');
-                          // // TODO: 일정 선택 다이얼로그
-                          // ServerWrapper.itineraryCubitMapCubit.state['1']!.state
-                          //     .dailyItineraryCubitList[0]
-                          //     .addPlace(
-                          //   PlaceCubit(placeData),
-                          // );
                           var showGeneralDialogResult =
                               selectItinerary(context);
                         },
@@ -153,6 +146,10 @@ class PlaceCard extends StatelessWidget {
   }
 
   Future<Object?> selectItinerary(BuildContext context) {
+    //로그인 안되어있으면 로그인 페이지로 이동
+    if (ServerWrapper.isLogin() == false) {
+      return Navigator.of(context).pushNamed('/login');
+    }
     return showGeneralDialog(
       context: context,
       barrierDismissible: true,

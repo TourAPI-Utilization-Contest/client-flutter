@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:dashed_line/dashed_line.dart';
@@ -11,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/common/single_child_scroll_fade_view.dart';
+import 'package:tradule/google_map_routes/google_map_routes.dart';
 import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
@@ -42,7 +44,6 @@ Future<Uint8List> svgAssetToPngBytes(
   final PictureInfo pictureInfo = await vg.loadPicture(svg, null);
   final ui.Picture picture = pictureInfo.picture;
   final ui.PictureRecorder recorder = ui.PictureRecorder();
-  print(pictureInfo.size);
   final double targetWidth = pictureInfo.size.width * pixelRatio;
   final double targetHeight = pictureInfo.size.height * pixelRatio;
   final ui.Canvas canvas = Canvas(recorder,
@@ -204,40 +205,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
           )..addListener(() {
               // print('Tab previous index: ${_tabController!.previousIndex}');
               // print('Tab index: ${_tabController!.index}');
-              _markers.clear();
-              _polylines.clear();
-              var dailyItineraryCubit = itinerary.dailyItineraryCubitList[
-                  _tabController!.index == 0 ? 0 : _tabController!.index - 1];
-              for (var placeCubit in dailyItineraryCubit.state.placeList) {
-                _markers.add(
-                  Marker(
-                    markerId: MarkerId(placeCubit.state.id),
-                    icon: _markerIcon,
-                    position: LatLng(
-                        placeCubit.state.latitude, placeCubit.state.longitude),
-                    draggable: false,
-                    infoWindow: InfoWindow(
-                      title: placeCubit.state.title,
-                      snippet: placeCubit.state.address,
-                      anchor: Offset(0.5, 0.5),
-                    ),
-                  ),
-                );
-              }
-              // for (var movementCubit in dailyItineraryCubit.state.movementList) {
-              //   _polylines.add(
-              //     Polyline(
-              //       polylineId: PolylineId(movementCubit.state.id),
-              //       points: movementCubit.state.latLngList,
-              //       jointType: JointType.round,
-              //       startCap: Cap.roundCap,
-              //       endCap: Cap.roundCap,
-              //       zIndex: 2,
-              //       color: Theme.of(context).primaryColor,
-              //       width: 7,
-              //     ),
-              //   );
-              // }
+              tabControllerListener(itinerary);
             });
           return BlocProvider(
             create: (context) =>
@@ -253,26 +221,35 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       left: 0,
                       right: 0,
                       height: mapHeight,
-                      child: GoogleMap(
-                        onLongPress: (LatLng latLng) {
-                          print('Map long pressed: $latLng');
-                        },
-                        key: _mapKey,
-                        webGestureHandling: WebGestureHandling.greedy,
-                        onMapCreated: (GoogleMapController controller) {
-                          _mapController = controller;
-                        },
-                        // padding: EdgeInsets.only(bottom: _bottomSheetHeight),
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(37.5662952, 126.9779451),
-                          zoom: 12,
-                        ),
-                        cloudMapId: _cloudMapId,
-                        // style: _style,
-                        // mapToolbarEnabled: true,
-                        markers: _markers,
-                        polylines: _polylines,
-                      ),
+                      child: Builder(builder: (context) {
+                        // var index = _tabController!.index;
+                        // if (index > 0) {
+                        //   var dailyItineraryCubit =
+                        //       itinerary!.dailyItineraryCubitList[index - 1];
+                        //   dailyItineraryCubit.
+                        //   // context.watch<DailyItineraryCubit>().state;
+                        // }
+                        return GoogleMap(
+                          onLongPress: (LatLng latLng) {
+                            print('Map long pressed: $latLng');
+                          },
+                          key: _mapKey,
+                          webGestureHandling: WebGestureHandling.greedy,
+                          onMapCreated: (GoogleMapController controller) {
+                            _mapController = controller;
+                          },
+                          // padding: EdgeInsets.only(bottom: _bottomSheetHeight),
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(37.5662952, 126.9779451),
+                            zoom: 12,
+                          ),
+                          cloudMapId: _cloudMapId,
+                          // style: _style,
+                          // mapToolbarEnabled: true,
+                          markers: _markers,
+                          polylines: _polylines,
+                        );
+                      }),
                     ),
                     Positioned(
                       left: 0,
@@ -428,6 +405,44 @@ class _ItineraryEditorState extends State<ItineraryEditor>
         }),
       ),
     );
+  }
+
+  void tabControllerListener(ItineraryData itinerary) {
+    _markers.clear();
+    _polylines.clear();
+    var dailyItineraryCubit = itinerary.dailyItineraryCubitList[
+        _tabController!.index == 0 ? 0 : _tabController!.index - 1];
+    for (var placeCubit in dailyItineraryCubit.state.placeList) {
+      _markers.add(
+        Marker(
+          markerId: MarkerId(placeCubit.state.id),
+          icon: _markerIcon,
+          position:
+              LatLng(placeCubit.state.latitude, placeCubit.state.longitude),
+          draggable: false,
+          infoWindow: InfoWindow(
+            title: placeCubit.state.title,
+            snippet: placeCubit.state.address,
+            anchor: Offset(0.5, 0.5),
+          ),
+        ),
+      );
+    }
+    // for (var movementCubit in dailyItineraryCubit.state.movementList) {
+    //   _polylines.add(
+    //     Polyline(
+    //       polylineId: PolylineId(movementCubit.state.id),
+    //       points: movementCubit.state.latLngList,
+    //       jointType: JointType.round,
+    //       startCap: Cap.roundCap,
+    //       endCap: Cap.roundCap,
+    //       zIndex: 2,
+    //       color: Theme.of(context).primaryColor,
+    //       width: 7,
+    //     ),
+    //   );
+    // }
+    setState(() {});
   }
 
   @override
@@ -942,9 +957,9 @@ class DailyItineraryPlaceItem extends StatelessWidget {
                   spacing: 10,
                   children: [
                     Text(
-                      placeData.visitDate == null
+                      placeData.visitTime == null
                           ? '??:??'
-                          : timeFormat4.format(placeData.visitDate!),
+                          : timeFormat4.format(placeData.visitTime!),
                       style: myTextStyle(
                         fontSize: 9,
                         color: const Color(0xFF0BB2D1),
@@ -1027,7 +1042,7 @@ class DailyItineraryMovementItem extends StatelessWidget {
               Text(
                 TimeFormat(dateTime.add(movementData.duration)) +
                     " 동안 " +
-                    movementData.distance.toString() +
+                    (movementData.distance / 1000).toString() +
                     "km 이동",
                 style: myTextStyle(
                   fontSize: 16,
@@ -1044,8 +1059,17 @@ class DailyItineraryMovementItem extends StatelessWidget {
                   minHeight: 10,
                 ),
                 icon: Icon(Icons.refresh),
-                onPressed: () {
+                onPressed: () async {
                   //새로고침
+                  var placeIndex = index ~/ 2;
+                  var placeList =
+                      context.read<DailyItineraryCubit>().state.placeList;
+                  var movementData = await getGoogleMapRoutes(
+                    placeList[placeIndex].state,
+                    placeList[placeIndex + 1].state,
+                  );
+                  print(jsonEncode(movementData.toJson()));
+                  movementCubit.update(movementData);
                 },
               ),
             ],

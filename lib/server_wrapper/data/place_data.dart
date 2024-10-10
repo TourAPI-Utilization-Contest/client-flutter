@@ -26,7 +26,7 @@ class PlaceData with _$PlaceData {
     @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
     Duration? stayTime,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-    DateTime? visitDate,
+    DateTime? visitTime,
     String? description,
     String? phoneNumber,
     String? homepage,
@@ -41,7 +41,7 @@ class PlaceData with _$PlaceData {
 }
 
 class PlaceCubit extends Cubit<PlaceData> {
-  PlaceCubit(PlaceData state) : super(state);
+  PlaceCubit(super.state);
 
   void update(PlaceData place) {
     emit(place);

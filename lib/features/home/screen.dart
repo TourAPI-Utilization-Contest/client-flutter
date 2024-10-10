@@ -300,37 +300,37 @@ class _MainPageState extends State<MainPage>
                   top: 0,
                   left: 17,
                   right: 17,
-                  bottom: 54,
+                  bottom: 25,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  // crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
                       child: Row(
                         children: <Widget>[
                           Text(
-                              ServerWrapper.isLogin()
-                                  ? '${ServerWrapper.getUser()!.name}'
-                                  : '로그인',
-                              style: myTextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w500,
-                              )),
+                            ServerWrapper.isLogin()
+                                ? '${ServerWrapper.getUser()!.name}'
+                                : '로그인',
+                            style: myTextStyle(
+                              color: Colors.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                                ServerWrapper.isLogin()
-                                    ? '님 안녕하세요!'
-                                    : '이 필요합니다!',
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: myTextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w400,
-                                )),
+                              ServerWrapper.isLogin() ? '님 안녕하세요!' : '이 필요합니다!',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: myTextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -341,7 +341,6 @@ class _MainPageState extends State<MainPage>
                             const Color.fromRGBO(255, 255, 255, 0.8),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
-                          vertical: 12,
                         ),
                         // fixedSize: const Size(46, 21),
                         // maximumSize: const Size(46, 21),

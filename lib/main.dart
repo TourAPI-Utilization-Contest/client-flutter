@@ -17,7 +17,8 @@ import 'theme.dart';
 // import 'package:tradule/login/login_screen.dart';
 import 'package:tradule/provider/auth_provider.dart';
 import 'package:tradule/features/home/screen.dart';
-import 'package:tradule/features/login/screen_legacy.dart';
+// import 'package:tradule/features/login/screen_legacy.dart';
+import 'package:tradule/features/login/screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

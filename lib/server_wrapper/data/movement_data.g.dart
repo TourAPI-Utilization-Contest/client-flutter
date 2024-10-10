@@ -22,6 +22,11 @@ _$MovementDataImpl _$$MovementDataImplFromJson(Map<String, dynamic> json) =>
       endLongitude: (json['endLongitude'] as num?)?.toDouble(),
       method: json['method'] as String,
       source: json['source'] as String,
+      details: (json['details'] as List<dynamic>?)
+              ?.map(
+                  (e) => MovementDetailData.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$MovementDataImplToJson(_$MovementDataImpl instance) =>
@@ -38,4 +43,5 @@ Map<String, dynamic> _$$MovementDataImplToJson(_$MovementDataImpl instance) =>
       'endLongitude': instance.endLongitude,
       'method': instance.method,
       'source': instance.source,
+      'details': instance.details.map((e) => e.toJson()).toList(),
     };

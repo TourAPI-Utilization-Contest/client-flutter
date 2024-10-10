@@ -23,37 +23,22 @@ mixin _$MovementData {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime get startTime => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  set startTime(DateTime value) => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime get endTime => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  set endTime(DateTime value) => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   Duration get duration => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
-  set duration(Duration value) => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   Duration? get minDuration => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-  set minDuration(Duration? value) => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   Duration? get maxDuration => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-  set maxDuration(Duration? value) => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
-  set distance(double value) => throw _privateConstructorUsedError;
   double? get startLatitude => throw _privateConstructorUsedError;
-  set startLatitude(double? value) => throw _privateConstructorUsedError;
   double? get startLongitude => throw _privateConstructorUsedError;
-  set startLongitude(double? value) => throw _privateConstructorUsedError;
   double? get endLatitude => throw _privateConstructorUsedError;
-  set endLatitude(double? value) => throw _privateConstructorUsedError;
   double? get endLongitude => throw _privateConstructorUsedError;
-  set endLongitude(double? value) => throw _privateConstructorUsedError;
-  String get method => throw _privateConstructorUsedError;
-  set method(String value) => throw _privateConstructorUsedError; // 이동수단
-  String get source => throw _privateConstructorUsedError; // 이동수단
-  set source(String value) => throw _privateConstructorUsedError;
+  String get method => throw _privateConstructorUsedError; // 이동수단
+  String get source =>
+      throw _privateConstructorUsedError; // 경로 출처(Google, Kakao)
+  List<MovementDetailData> get details => throw _privateConstructorUsedError;
 
   /// Serializes this MovementData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -90,7 +75,8 @@ abstract class $MovementDataCopyWith<$Res> {
       double? endLatitude,
       double? endLongitude,
       String method,
-      String source});
+      String source,
+      List<MovementDetailData> details});
 }
 
 /// @nodoc
@@ -120,6 +106,7 @@ class _$MovementDataCopyWithImpl<$Res, $Val extends MovementData>
     Object? endLongitude = freezed,
     Object? method = null,
     Object? source = null,
+    Object? details = null,
   }) {
     return _then(_value.copyWith(
       startTime: null == startTime
@@ -170,6 +157,10 @@ class _$MovementDataCopyWithImpl<$Res, $Val extends MovementData>
           ? _value.source
           : source // ignore: cast_nullable_to_non_nullable
               as String,
+      details: null == details
+          ? _value.details
+          : details // ignore: cast_nullable_to_non_nullable
+              as List<MovementDetailData>,
     ) as $Val);
   }
 }
@@ -201,7 +192,8 @@ abstract class _$$MovementDataImplCopyWith<$Res>
       double? endLatitude,
       double? endLongitude,
       String method,
-      String source});
+      String source,
+      List<MovementDetailData> details});
 }
 
 /// @nodoc
@@ -229,6 +221,7 @@ class __$$MovementDataImplCopyWithImpl<$Res>
     Object? endLongitude = freezed,
     Object? method = null,
     Object? source = null,
+    Object? details = null,
   }) {
     return _then(_$MovementDataImpl(
       startTime: null == startTime
@@ -279,12 +272,17 @@ class __$$MovementDataImplCopyWithImpl<$Res>
           ? _value.source
           : source // ignore: cast_nullable_to_non_nullable
               as String,
+      details: null == details
+          ? _value._details
+          : details // ignore: cast_nullable_to_non_nullable
+              as List<MovementDetailData>,
     ));
   }
 }
 
 /// @nodoc
-@JsonSerializable()
+
+@JsonSerializable(explicitToJson: true)
 class _$MovementDataImpl implements _MovementData {
   _$MovementDataImpl(
       {@JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
@@ -305,46 +303,105 @@ class _$MovementDataImpl implements _MovementData {
       this.endLatitude,
       this.endLongitude,
       required this.method,
-      required this.source});
+      required this.source,
+      final List<MovementDetailData> details = const []})
+      : _details = details;
 
   factory _$MovementDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$MovementDataImplFromJson(json);
 
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime startTime;
+  final DateTime startTime;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime endTime;
+  final DateTime endTime;
   @override
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
-  Duration duration;
+  final Duration duration;
   @override
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-  Duration? minDuration;
+  final Duration? minDuration;
   @override
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-  Duration? maxDuration;
+  final Duration? maxDuration;
   @override
-  double distance;
+  final double distance;
   @override
-  double? startLatitude;
+  final double? startLatitude;
   @override
-  double? startLongitude;
+  final double? startLongitude;
   @override
-  double? endLatitude;
+  final double? endLatitude;
   @override
-  double? endLongitude;
+  final double? endLongitude;
   @override
-  String method;
+  final String method;
 // 이동수단
   @override
-  String source;
+  final String source;
+// 경로 출처(Google, Kakao)
+  final List<MovementDetailData> _details;
+// 경로 출처(Google, Kakao)
+  @override
+  @JsonKey()
+  List<MovementDetailData> get details {
+    if (_details is EqualUnmodifiableListView) return _details;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_details);
+  }
 
   @override
   String toString() {
-    return 'MovementData(startTime: $startTime, endTime: $endTime, duration: $duration, minDuration: $minDuration, maxDuration: $maxDuration, distance: $distance, startLatitude: $startLatitude, startLongitude: $startLongitude, endLatitude: $endLatitude, endLongitude: $endLongitude, method: $method, source: $source)';
+    return 'MovementData(startTime: $startTime, endTime: $endTime, duration: $duration, minDuration: $minDuration, maxDuration: $maxDuration, distance: $distance, startLatitude: $startLatitude, startLongitude: $startLongitude, endLatitude: $endLatitude, endLongitude: $endLongitude, method: $method, source: $source, details: $details)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MovementDataImpl &&
+            (identical(other.startTime, startTime) ||
+                other.startTime == startTime) &&
+            (identical(other.endTime, endTime) || other.endTime == endTime) &&
+            (identical(other.duration, duration) ||
+                other.duration == duration) &&
+            (identical(other.minDuration, minDuration) ||
+                other.minDuration == minDuration) &&
+            (identical(other.maxDuration, maxDuration) ||
+                other.maxDuration == maxDuration) &&
+            (identical(other.distance, distance) ||
+                other.distance == distance) &&
+            (identical(other.startLatitude, startLatitude) ||
+                other.startLatitude == startLatitude) &&
+            (identical(other.startLongitude, startLongitude) ||
+                other.startLongitude == startLongitude) &&
+            (identical(other.endLatitude, endLatitude) ||
+                other.endLatitude == endLatitude) &&
+            (identical(other.endLongitude, endLongitude) ||
+                other.endLongitude == endLongitude) &&
+            (identical(other.method, method) || other.method == method) &&
+            (identical(other.source, source) || other.source == source) &&
+            const DeepCollectionEquality().equals(other._details, _details));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      startTime,
+      endTime,
+      duration,
+      minDuration,
+      maxDuration,
+      distance,
+      startLatitude,
+      startLongitude,
+      endLatitude,
+      endLongitude,
+      method,
+      source,
+      const DeepCollectionEquality().hash(_details));
 
   /// Create a copy of MovementData
   /// with the given fields replaced by the non-null parameter values.
@@ -365,24 +422,25 @@ class _$MovementDataImpl implements _MovementData {
 abstract class _MovementData implements MovementData {
   factory _MovementData(
       {@JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-      required DateTime startTime,
+      required final DateTime startTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-      required DateTime endTime,
+      required final DateTime endTime,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
-      required Duration duration,
+      required final Duration duration,
       @JsonKey(
           fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-      Duration? minDuration,
+      final Duration? minDuration,
       @JsonKey(
           fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-      Duration? maxDuration,
-      required double distance,
-      double? startLatitude,
-      double? startLongitude,
-      double? endLatitude,
-      double? endLongitude,
-      required String method,
-      required String source}) = _$MovementDataImpl;
+      final Duration? maxDuration,
+      required final double distance,
+      final double? startLatitude,
+      final double? startLongitude,
+      final double? endLatitude,
+      final double? endLongitude,
+      required final String method,
+      required final String source,
+      final List<MovementDetailData> details}) = _$MovementDataImpl;
 
   factory _MovementData.fromJson(Map<String, dynamic> json) =
       _$MovementDataImpl.fromJson;
@@ -390,49 +448,34 @@ abstract class _MovementData implements MovementData {
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime get startTime;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  set startTime(DateTime value);
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime get endTime;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  set endTime(DateTime value);
   @override
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   Duration get duration;
-  @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
-  set duration(Duration value);
   @override
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   Duration? get minDuration;
-  @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-  set minDuration(Duration? value);
   @override
   @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
   Duration? get maxDuration;
-  @JsonKey(fromJson: _durationWithNullFromJson, toJson: _durationWithNullToJson)
-  set maxDuration(Duration? value);
   @override
   double get distance;
-  set distance(double value);
   @override
   double? get startLatitude;
-  set startLatitude(double? value);
   @override
   double? get startLongitude;
-  set startLongitude(double? value);
   @override
   double? get endLatitude;
-  set endLatitude(double? value);
   @override
   double? get endLongitude;
-  set endLongitude(double? value);
   @override
-  String get method;
-  set method(String value); // 이동수단
+  String get method; // 이동수단
   @override
-  String get source; // 이동수단
-  set source(String value);
+  String get source; // 경로 출처(Google, Kakao)
+  @override
+  List<MovementDetailData> get details;
 
   /// Create a copy of MovementData
   /// with the given fields replaced by the non-null parameter values.

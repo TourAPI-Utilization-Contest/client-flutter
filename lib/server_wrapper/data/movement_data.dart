@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'movement_detail_data.dart';
+
 part 'movement_data.freezed.dart';
 part 'movement_data.g.dart';
 
@@ -15,8 +17,9 @@ Duration? _durationWithNullFromJson(int? duration) =>
     duration == null ? null : Duration(seconds: duration);
 int? _durationWithNullToJson(Duration? duration) => duration?.inSeconds;
 
-@unfreezed
+@freezed
 class MovementData with _$MovementData {
+  @JsonSerializable(explicitToJson: true)
   factory MovementData({
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
     required DateTime startTime,
@@ -37,6 +40,7 @@ class MovementData with _$MovementData {
     double? endLongitude,
     required String method, // 이동수단
     required String source, // 경로 출처(Google, Kakao)
+    @Default([]) List<MovementDetailData> details,
   }) = _MovementData;
 
   factory MovementData.initial() => MovementData(
@@ -59,5 +63,9 @@ class MovementData with _$MovementData {
 }
 
 class MovementCubit extends Cubit<MovementData> {
-  MovementCubit(MovementData state) : super(state);
+  MovementCubit(super.state);
+
+  void update(MovementData movement) {
+    emit(movement);
+  }
 }
