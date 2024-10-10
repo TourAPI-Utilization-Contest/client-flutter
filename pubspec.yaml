@@ -52,6 +52,7 @@ dependencies:
   flutter_iconpicker: ^4.0.1
   freezed_annotation: ^2.4.4
   dashed_line: ^0.1.0+3
+  flutter_polyline_points: ^2.1.0
 #  avs_svg_provider: ^1.0.1
 #  google_maps_routes: ^1.1.2
 

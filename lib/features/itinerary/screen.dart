@@ -17,6 +17,7 @@ import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
 import 'package:tradule/server_wrapper/data/movement_data.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 import 'bloc.dart';
 import 'map_style.dart';
@@ -100,55 +101,6 @@ class _ItineraryEditorState extends State<ItineraryEditor>
         .then((BitmapDescriptor bitmap) {
       _markerIcon = bitmap;
       setState(() {});
-      // _markers.add(
-      //   Marker(
-      //     markerId: MarkerId('marker_1'),
-      //     icon: _markerIcon,
-      //     position: LatLng(37.5662952, 126.9779451),
-      //     draggable: false,
-      //     onDrag: (LatLng position) {
-      //       print('Marker position: $position');
-      //     },
-      //     infoWindow: InfoWindow(
-      //       title: '서울특별시청',
-      //       snippet: '서울특별시 중구 태평로1가 31',
-      //       anchor: Offset(0.5, 0.5),
-      //     ),
-      //   ),
-      // );
-      //
-      // _polylines.add(
-      //   Polyline(
-      //     polylineId: PolylineId('polyline_1'),
-      //     points: [
-      //       LatLng(37.5662952, 126.9779451),
-      //       LatLng(37.55, 126.7),
-      //       LatLng(37.6, 126.6),
-      //     ],
-      //     jointType: JointType.round,
-      //     startCap: Cap.roundCap,
-      //     endCap: Cap.roundCap,
-      //     zIndex: 2,
-      //     color: Theme.of(context).primaryColor,
-      //     width: 7,
-      //   ),
-      // );
-      // _polylines.add(
-      //   Polyline(
-      //     polylineId: PolylineId('polyline_2'),
-      //     points: [
-      //       LatLng(37.5662952, 126.9779451),
-      //       LatLng(37.55, 126.7),
-      //       LatLng(37.6, 126.6),
-      //     ],
-      //     jointType: JointType.round,
-      //     startCap: Cap.roundCap,
-      //     endCap: Cap.roundCap,
-      //     zIndex: 1,
-      //     color: Colors.white,
-      //     width: 10,
-      //   ),
-      // );
     });
   }
 
@@ -428,20 +380,40 @@ class _ItineraryEditorState extends State<ItineraryEditor>
         ),
       );
     }
-    // for (var movementCubit in dailyItineraryCubit.state.movementList) {
-    //   _polylines.add(
-    //     Polyline(
-    //       polylineId: PolylineId(movementCubit.state.id),
-    //       points: movementCubit.state.latLngList,
-    //       jointType: JointType.round,
-    //       startCap: Cap.roundCap,
-    //       endCap: Cap.roundCap,
-    //       zIndex: 2,
-    //       color: Theme.of(context).primaryColor,
-    //       width: 7,
-    //     ),
-    //   );
-    // }
+    for (var movementCubit in dailyItineraryCubit.state.movementList) {
+      for (var movementDetail in movementCubit.state.details) {
+        _polylines.add(
+          Polyline(
+            polylineId: PolylineId(Random().nextInt(100000).toString()),
+            points: PolylinePoints()
+                .decodePolyline(movementDetail.path)
+                .map((e) => LatLng(e.latitude, e.longitude))
+                .toList(),
+            jointType: JointType.round,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+            zIndex: 2,
+            color: Theme.of(context).primaryColor,
+            width: 7,
+          ),
+        );
+        _polylines.add(
+          Polyline(
+            polylineId: PolylineId(Random().nextInt(100000).toString()),
+            points: PolylinePoints()
+                .decodePolyline(movementDetail.path)
+                .map((e) => LatLng(e.latitude, e.longitude))
+                .toList(),
+            jointType: JointType.round,
+            startCap: Cap.roundCap,
+            endCap: Cap.roundCap,
+            zIndex: 1,
+            color: Colors.white,
+            width: 10,
+          ),
+        );
+      }
+    }
     setState(() {});
   }
 
