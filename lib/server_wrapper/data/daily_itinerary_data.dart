@@ -36,7 +36,7 @@ List<dynamic> _movementCubitToJson(List<MovementCubit> movements) {
 @freezed
 class DailyItineraryData with _$DailyItineraryData {
   const factory DailyItineraryData(
-      {required String dailyItineraryId,
+      {required int dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required DateTime date,
       @Default([])

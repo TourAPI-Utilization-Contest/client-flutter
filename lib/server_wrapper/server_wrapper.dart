@@ -94,8 +94,8 @@ class ServerWrapper {
   }
 
   static void _testAccountLogin() {
-    var userId = 'test@test';
-    var itineraryIds = ['1', '2', '3'];
+    var userId = 1;
+    var itineraryIds = [1, 2, 3];
     userCubit.setUser(UserData(
       id: userId,
       nickname: '트래쥴',
@@ -272,6 +272,8 @@ class ServerWrapper {
           '카카오톡으로 로그인 성공, 이름: ${user.kakaoAccount!.profile!.nickname}, ${token.accessToken}');
       _accessToken = token.accessToken;
       _refreshToken = token.refreshToken ?? '';
+      _testAccount = false;
+      _loginKind = 2;
       return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);
     } catch (error) {
       print('카카오톡으로 로그인 실패 $error');
@@ -297,6 +299,8 @@ class ServerWrapper {
   static void logout() {
     if (_loginKind == 2) {
       UserApi.instance.logout();
+      _accessToken = '';
+      _refreshToken = '';
     } else if (_loginKind == 1) {
       FirebaseAuth.instance.signOut();
     }
@@ -321,12 +325,14 @@ class ServerWrapper {
     return itineraryCubitMapCubit.state.values.toList();
   }
 
+  // ----------------------- 서버 통신 -----------------------
+
   static Future<LoginResult> _getUser({
     required String accessToken,
     String refreshToken = '',
     String memberId = '',
   }) async {
-    var userUrl = Uri.parse('$serverUrl/api/oauth/user');
+    var userUrl = Uri.parse('${serverUrl}api/oauth/user');
     var response = await http.get(
       userUrl,
       headers: {
@@ -337,6 +343,8 @@ class ServerWrapper {
     );
     print(response.body);
     if (response.statusCode == 200) {
+      print(utf8.decode(response.bodyBytes));
+      print(response.bodyBytes);
       var user =
           UserData.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       userCubit.setUser(user);
@@ -344,18 +352,28 @@ class ServerWrapper {
     }
     return LoginResult(false, message: '사용자 정보를 불러오는데 실패하였습니다.');
   }
+
+  // static Future<
+
+  // static Future<bool> putSchedule(ItineraryCubit itineraryCubit) async {
+  //   var itinerary = itineraryCubit.state;
+  //   var itineraryId = itinerary
 }
 
-class ItineraryCubitMapCubit extends Cubit<Map<String, ItineraryCubit>> {
+class ItineraryCubitMapCubit extends Cubit<Map<int, ItineraryCubit>> {
   ItineraryCubitMapCubit() : super({});
 
-  void setItineraryCubitMap(Map<String, ItineraryCubit> itineraryCubitMap) {
+  void setItineraryCubitMap(Map<int, ItineraryCubit> itineraryCubitMap) {
     emit(itineraryCubitMap);
   }
 
   void addItineraryCubit(ItineraryCubit itineraryCubit) {
-    var itineraryId = itineraryCubit.state!.id;
-    emit({...state, itineraryId: itineraryCubit});
+    int itineraryId = itineraryCubit.state.id;
+    var newMap = Map<int, ItineraryCubit>.from(state);
+    newMap[itineraryId] = itineraryCubit;
+    emit(newMap);
+    // emit(
+    //     {...state, itineraryId: itineraryCubit});
     print('addItineraryCubit: $itineraryId');
     // TODO: 서버로 전송
   }
@@ -363,7 +381,7 @@ class ItineraryCubitMapCubit extends Cubit<Map<String, ItineraryCubit>> {
 
 void Set() {
   var s =
-      """{"id":"1","users":["test@test"],"title":"서울 여행","description":null,"startDate":"2024-09-29T00:00:00.000","endDate":"2024-10-02T00:00:00.000","iconPath":null,"iconColor":4280391411,"dailyItineraryCubitList":[{"dailyItineraryId":"1","date":"2024-09-29T00:00:00.000","placeList":[{"id":"11548","title":"우리 집","address":"테스트 주소1","latitude":37.123456,"longitude":127.123456,"stayTime":10,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411},{"id":"126508","title":"경복궁","address":"서울특별시 종로구 사직로 161","latitude":37.5788222356,"longitude":126.9769930325,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":"http://tong.visitkorea.or.kr/cms/resource/33/2678633_image2_1.jpg","thumbnailUrl":"http://tong.visitkorea.or.kr/cms/resource/33/2678633_image3_1.jpg","iconColor":4288475135},{"id":"2809117","title":"런던베이글뮤지엄","address":"서울특별시 종로구 북촌로4길 20 연화빌딩","latitude":37.5792251324,"longitude":126.9862171806,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":"","thumbnailUrl":"","iconColor":4288475135},{"id":"44726","title":"숙소","address":"테스트 주소2","latitude":37.123456,"longitude":127.123456,"stayTime":30,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[{"startTime":"1970-01-01T00:00:00.000","endTime":"1970-01-01T00:00:00.000","duration":0,"minDuration":null,"maxDuration":null,"distance":0,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"work","source":"unknown","details":[]},{"startTime":"2024-10-10T16:00:08.426","endTime":"2024-10-10T16:17:03.426","duration":1015,"minDuration":null,"maxDuration":null,"distance":1529,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"TRANSIT","source":"Google","details":[{"duration":403,"distance":402,"path":"srjdFee_fWvSiJ","method":"WALK","source":"Google"},{"duration":344,"distance":860,"path":"{}idFop_fWYu@OqBGaB?i@ZyDT{EPyAEoAgAmEq@wBcCuFQc@Io@Wo@a@_BKw@Ca@@k@","method":"TRANSIT","source":"Google"},{"duration":268,"distance":267,"path":"qhjdFiiafWsKlI","method":"WALK","source":"Google"}]},{"startTime":"1970-01-01T00:00:00.000","endTime":"1970-01-01T00:00:00.000","duration":0,"minDuration":null,"maxDuration":null,"distance":0,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"work","source":"unknown","details":[]}]},{"dailyItineraryId":"1","date":"2024-09-30T00:00:00.000","placeList":[{"id":"65049","title":"테스트 장소3","address":"테스트 주소3","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]},{"dailyItineraryId":"1","date":"2024-10-01T00:00:00.000","placeList":[{"id":"1926","title":"테스트 장소4","address":"테스트 주소4","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]},{"dailyItineraryId":"1","date":"2024-10-02T00:00:00.000","placeList":[{"id":"83937","title":"테스트 장소5","address":"테스트 주소5","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]}]}""";
-  ServerWrapper.itineraryCubitMapCubit.state['1']!
+      """{"id":1,"users":[1],"title":"서울 여행","description":null,"startDate":"2024-09-29T00:00:00.000","endDate":"2024-10-02T00:00:00.000","iconPath":null,"iconColor":4280391411,"dailyItineraryCubitList":[{"dailyItineraryId":1,"date":"2024-09-29T00:00:00.000","placeList":[{"id":11548,"title":"우리 집","address":"테스트 주소1","latitude":37.123456,"longitude":127.123456,"stayTime":10,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411},{"id":126508,"title":"경복궁","address":"서울특별시 종로구 사직로 161","latitude":37.5788222356,"longitude":126.9769930325,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":"http://tong.visitkorea.or.kr/cms/resource/33/2678633_image2_1.jpg","thumbnailUrl":"http://tong.visitkorea.or.kr/cms/resource/33/2678633_image3_1.jpg","iconColor":4288475135},{"id":2809117,"title":"런던베이글뮤지엄","address":"서울특별시 종로구 북촌로4길 20 연화빌딩","latitude":37.5792251324,"longitude":126.9862171806,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":"","thumbnailUrl":"","iconColor":4288475135},{"id":44726,"title":"숙소","address":"테스트 주소2","latitude":37.123456,"longitude":127.123456,"stayTime":30,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[{"startTime":"1970-01-01T00:00:00.000","endTime":"1970-01-01T00:00:00.000","duration":0,"minDuration":null,"maxDuration":null,"distance":0,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"work","source":"unknown","details":[]},{"startTime":"2024-10-10T16:00:08.426","endTime":"2024-10-10T16:17:03.426","duration":1015,"minDuration":null,"maxDuration":null,"distance":1529,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"TRANSIT","source":"Google","details":[{"duration":403,"distance":402,"path":"srjdFee_fWvSiJ","method":"WALK","source":"Google"},{"duration":344,"distance":860,"path":"{}idFop_fWYu@OqBGaB?i@ZyDT{EPyAEoAgAmEq@wBcCuFQc@Io@Wo@a@_BKw@Ca@@k@","method":"TRANSIT","source":"Google"},{"duration":268,"distance":267,"path":"qhjdFiiafWsKlI","method":"WALK","source":"Google"}]},{"startTime":"1970-01-01T00:00:00.000","endTime":"1970-01-01T00:00:00.000","duration":0,"minDuration":null,"maxDuration":null,"distance":0,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"work","source":"unknown","details":[]}]},{"dailyItineraryId":1,"date":"2024-09-30T00:00:00.000","placeList":[{"id":65049,"title":"테스트 장소3","address":"테스트 주소3","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]},{"dailyItineraryId":1,"date":"2024-10-01T00:00:00.000","placeList":[{"id":1926,"title":"테스트 장소4","address":"테스트 주소4","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]},{"dailyItineraryId":1,"date":"2024-10-02T00:00:00.000","placeList":[{"id":83937,"title":"테스트 장소5","address":"테스트 주소5","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]}]}""";
+  ServerWrapper.itineraryCubitMapCubit.state[1]!
       .setItinerary(ItineraryData.fromJson(json.decode(s)));
 }

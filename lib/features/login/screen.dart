@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/common/app_bar_blur.dart';
@@ -18,8 +19,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final ScrollController _scrollController = ScrollController();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _idController = TextEditingController();
-  final TextEditingController _pwController = TextEditingController();
+  final TextEditingController _idController = TextEditingController(
+    text: kDebugMode ? 'admin@tradule.com' : null,
+  );
+  final TextEditingController _pwController = TextEditingController(
+    text: kDebugMode ? '1234' : null,
+  );
   // final _focusNode = FocusNode();
   final FocusNode _focusNodeEmail = FocusNode();
   final FocusNode _focusNodePassword = FocusNode();
@@ -190,6 +195,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: () async {
                       print('카카오 로그인 버튼 클릭');
                       _loginResult = await ServerWrapper.loginKakao();
+                      if (!context.mounted) return;
+                      if (_loginResult!.success) {
+                        Navigator.pop(context);
+                      } else {
+                        _loginResult = null;
+                      }
                       setState(() {});
                     },
                     style: ElevatedButton.styleFrom(
@@ -254,10 +265,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget buildLoginTextFormField({
     required String hintText,
     required isPassword,
+    String? initialValue,
     TextEditingController? controller,
   }) {
     return TextFormField(
       key: isPassword ? _passwordKey : _emailKey,
+      initialValue: initialValue,
       controller: controller,
       obscureText: isPassword,
       autofocus: !isPassword,

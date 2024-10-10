@@ -8,7 +8,7 @@ part of 'daily_itinerary_data.dart';
 
 _$DailyItineraryImpl _$$DailyItineraryImplFromJson(Map<String, dynamic> json) =>
     _$DailyItineraryImpl(
-      dailyItineraryId: json['dailyItineraryId'] as String,
+      dailyItineraryId: (json['dailyItineraryId'] as num).toInt(),
       date: _dateTimeFromJson(json['date'] as String),
       placeList: json['placeList'] == null
           ? const []

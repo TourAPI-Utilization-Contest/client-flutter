@@ -20,7 +20,7 @@ DailyItineraryData _$DailyItineraryDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$DailyItineraryData {
-  String get dailyItineraryId => throw _privateConstructorUsedError;
+  int get dailyItineraryId => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime get date => throw _privateConstructorUsedError;
   @JsonKey(
@@ -46,7 +46,7 @@ abstract class $DailyItineraryDataCopyWith<$Res> {
       _$DailyItineraryDataCopyWithImpl<$Res, DailyItineraryData>;
   @useResult
   $Res call(
-      {String dailyItineraryId,
+      {int dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime date,
       @JsonKey(
@@ -81,7 +81,7 @@ class _$DailyItineraryDataCopyWithImpl<$Res, $Val extends DailyItineraryData>
       dailyItineraryId: null == dailyItineraryId
           ? _value.dailyItineraryId
           : dailyItineraryId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       date: null == date
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
@@ -107,7 +107,7 @@ abstract class _$$DailyItineraryImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String dailyItineraryId,
+      {int dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime date,
       @JsonKey(
@@ -140,7 +140,7 @@ class __$$DailyItineraryImplCopyWithImpl<$Res>
       dailyItineraryId: null == dailyItineraryId
           ? _value.dailyItineraryId
           : dailyItineraryId // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       date: null == date
           ? _value.date
           : date // ignore: cast_nullable_to_non_nullable
@@ -178,7 +178,7 @@ class _$DailyItineraryImpl extends _DailyItinerary {
       _$$DailyItineraryImplFromJson(json);
 
   @override
-  final String dailyItineraryId;
+  final int dailyItineraryId;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime date;
@@ -248,7 +248,7 @@ class _$DailyItineraryImpl extends _DailyItinerary {
 
 abstract class _DailyItinerary extends DailyItineraryData {
   const factory _DailyItinerary(
-      {required final String dailyItineraryId,
+      {required final int dailyItineraryId,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       required final DateTime date,
       @JsonKey(
@@ -263,7 +263,7 @@ abstract class _DailyItinerary extends DailyItineraryData {
       _$DailyItineraryImpl.fromJson;
 
   @override
-  String get dailyItineraryId;
+  int get dailyItineraryId;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime get date;

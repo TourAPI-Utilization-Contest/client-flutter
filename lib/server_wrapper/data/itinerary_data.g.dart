@@ -8,8 +8,10 @@ part of 'itinerary_data.dart';
 
 _$ItineraryDataImpl _$$ItineraryDataImplFromJson(Map<String, dynamic> json) =>
     _$ItineraryDataImpl(
-      id: json['id'] as String,
-      users: (json['users'] as List<dynamic>).map((e) => e as String).toList(),
+      id: (json['id'] as num).toInt(),
+      users: (json['users'] as List<dynamic>)
+          .map((e) => (e as num).toInt())
+          .toList(),
       title: json['title'] as String,
       description: json['description'] as String?,
       startDate: _dateTimeFromJson(json['startDate'] as String),

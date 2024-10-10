@@ -442,7 +442,7 @@ class _MainPageState extends State<MainPage>
                     content: BlocProvider.value(
                       value: ServerWrapper.itineraryCubitMapCubit,
                       child: BlocBuilder<ItineraryCubitMapCubit,
-                          Map<String, ItineraryCubit>>(
+                          Map<int, ItineraryCubit>>(
                         builder: (context, itineraryCubitMap) {
                           return Column(
                             children: [

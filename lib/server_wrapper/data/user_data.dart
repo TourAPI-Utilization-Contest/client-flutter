@@ -5,12 +5,12 @@ part 'user_data.g.dart';
 
 @JsonSerializable()
 class UserData {
-  final String id;
+  final int id;
   String? email;
   String? nickname;
   String? kakaoId;
   String? profileUrl;
-  List<String> itineraries = [];
+  List<int> itineraries = [];
 
   UserData({
     required this.id,
@@ -34,14 +34,14 @@ class UserCubit extends Cubit<UserData?> {
     emit(user);
   }
 
-  void addItinerary(String itineraryId) {
+  void addItinerary(int itineraryId) {
     if (state != null) {
       state!.itineraries.add(itineraryId);
       emit(state);
     }
   }
 
-  void removeItinerary(String itineraryId) {
+  void removeItinerary(int itineraryId) {
     if (state != null) {
       state!.itineraries.remove(itineraryId);
       emit(state);

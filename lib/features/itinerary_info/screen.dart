@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart'
@@ -118,10 +120,10 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                     ServerWrapper.itineraryCubitMapCubit.addItineraryCubit(
                       ItineraryCubit(
                         ItineraryData(
-                          id: 'new_id',
-                          users: ['user_id'],
+                          id: Random().nextInt(1000),
+                          users: [ServerWrapper.userCubit.state!.id],
                           title: isEditing && _titleController.text.isEmpty
-                              ? widget.itineraryCubit!.state!.title
+                              ? widget.itineraryCubit!.state.title
                               : _titleController.text,
                           startDate: _startDate!,
                           endDate: _endDate!,

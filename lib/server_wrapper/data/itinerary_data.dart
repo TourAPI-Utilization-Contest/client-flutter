@@ -43,8 +43,8 @@ class ItineraryData with _$ItineraryData {
   const ItineraryData._(); // Private constructor for custom methods
 
   factory ItineraryData({
-    required String id,
-    required List<String> users,
+    required int id,
+    required List<int> users,
     required String title,
     String? description,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)

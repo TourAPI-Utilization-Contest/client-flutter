@@ -20,10 +20,10 @@ ItineraryData _$ItineraryDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ItineraryData {
-  String get id => throw _privateConstructorUsedError;
-  set id(String value) => throw _privateConstructorUsedError;
-  List<String> get users => throw _privateConstructorUsedError;
-  set users(List<String> value) => throw _privateConstructorUsedError;
+  int get id => throw _privateConstructorUsedError;
+  set id(int value) => throw _privateConstructorUsedError;
+  List<int> get users => throw _privateConstructorUsedError;
+  set users(List<int> value) => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   set title(String value) => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
@@ -77,8 +77,8 @@ abstract class $ItineraryDataCopyWith<$Res> {
       _$ItineraryDataCopyWithImpl<$Res, ItineraryData>;
   @useResult
   $Res call(
-      {String id,
-      List<String> users,
+      {int id,
+      List<int> users,
       String title,
       String? description,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
@@ -122,11 +122,11 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       users: null == users
           ? _value.users
           : users // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<int>,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -168,8 +168,8 @@ abstract class _$$ItineraryDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
-      List<String> users,
+      {int id,
+      List<int> users,
       String title,
       String? description,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
@@ -211,11 +211,11 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       users: null == users
           ? _value.users
           : users // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as List<int>,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -273,9 +273,9 @@ class _$ItineraryDataImpl extends _ItineraryData {
       _$$ItineraryDataImplFromJson(json);
 
   @override
-  String id;
+  int id;
   @override
-  List<String> users;
+  List<int> users;
   @override
   String title;
   @override
@@ -325,8 +325,8 @@ class _$ItineraryDataImpl extends _ItineraryData {
 
 abstract class _ItineraryData extends ItineraryData {
   factory _ItineraryData(
-      {required String id,
-      required List<String> users,
+      {required int id,
+      required List<int> users,
       required String title,
       String? description,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
@@ -346,11 +346,11 @@ abstract class _ItineraryData extends ItineraryData {
       _$ItineraryDataImpl.fromJson;
 
   @override
-  String get id;
-  set id(String value);
+  int get id;
+  set id(int value);
   @override
-  List<String> get users;
-  set users(List<String> value);
+  List<int> get users;
+  set users(List<int> value);
   @override
   String get title;
   set title(String value);

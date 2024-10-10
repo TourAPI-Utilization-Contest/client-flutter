@@ -46,6 +46,7 @@ void main() async {
   );
 
   if (kDebugMode) {
+    //디버그라면
     ServerWrapper.loginIdPw('test@test', '1234');
   }
 
