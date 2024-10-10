@@ -187,8 +187,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: double.infinity,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       print('카카오 로그인 버튼 클릭');
+                      _loginResult = await ServerWrapper.loginKakao();
+                      setState(() {});
                     },
                     style: ElevatedButton.styleFrom(
                       // padding: const EdgeInsets.symmetric(

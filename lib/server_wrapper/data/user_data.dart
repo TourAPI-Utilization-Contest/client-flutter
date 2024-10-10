@@ -7,15 +7,17 @@ part 'user_data.g.dart';
 class UserData {
   final String id;
   String? email;
-  String? name;
+  String? nickname;
   String? kakaoId;
+  String? profileUrl;
   List<String> itineraries = [];
 
   UserData({
     required this.id,
     this.email,
-    this.name,
+    this.nickname,
     this.kakaoId,
+    this.profileUrl,
     this.itineraries = const [],
   });
 

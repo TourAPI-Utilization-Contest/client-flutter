@@ -130,8 +130,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     IconButton(
                       icon: SvgPicture.asset(
                           'assets/images/kakao_login_medium_narrow.svg'),
-                      // onPressed: () => _login(context, ref),
-                      onPressed: () => print('카카오 로그인'),
+                      onPressed: () async {
+                        print('카카오 로그인 버튼 클릭');
+                        _loginResult = await ServerWrapper.loginKakao();
+                        setState(() {});
+                      },
                       hoverColor: Colors.transparent,
                       highlightColor: Colors.transparent,
                       focusColor: Colors.transparent,

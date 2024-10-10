@@ -311,7 +311,7 @@ class _MainPageState extends State<MainPage>
                         children: <Widget>[
                           Text(
                             ServerWrapper.isLogin()
-                                ? '${ServerWrapper.getUser()!.name}'
+                                ? '${ServerWrapper.getUser()!.nickname}'
                                 : '로그인',
                             style: myTextStyle(
                               color: Colors.white,
@@ -396,7 +396,7 @@ class _MainPageState extends State<MainPage>
                         children: <Widget>[
                           Text(
                               ServerWrapper.isLogin()
-                                  ? '${ServerWrapper.getUser()!.name}'
+                                  ? '${ServerWrapper.getUser()!.nickname}'
                                   : '로그인',
                               style: const TextStyle(
                                 // color: Colors.white,

@@ -9,7 +9,7 @@ part of 'user_data.dart';
 UserData _$UserDataFromJson(Map<String, dynamic> json) => UserData(
       id: json['id'] as String,
       email: json['email'] as String?,
-      name: json['name'] as String?,
+      nickname: json['name'] as String?,
       kakaoId: json['kakaoId'] as String?,
       itineraries: (json['itineraries'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -20,7 +20,7 @@ UserData _$UserDataFromJson(Map<String, dynamic> json) => UserData(
 Map<String, dynamic> _$UserDataToJson(UserData instance) => <String, dynamic>{
       'id': instance.id,
       'email': instance.email,
-      'name': instance.name,
+      'name': instance.nickname,
       'kakaoId': instance.kakaoId,
       'itineraries': instance.itineraries,
     };

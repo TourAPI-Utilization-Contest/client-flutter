@@ -24,6 +24,8 @@ class ServerWrapper {
   static bool _testAccount = false;
   static int _loginKind = 0; // 1: ID/PW, 2: Kakao
   static UserCubit userCubit = UserCubit();
+  static String _accessToken = '';
+  static String _refreshToken = '';
   // static Map<String, ItineraryCubit> itineraryCubitMap = {}; // key: itineraryId
   static ItineraryCubitMapCubit itineraryCubitMapCubit =
       ItineraryCubitMapCubit();
@@ -47,7 +49,7 @@ class ServerWrapper {
           }
           _testAccount = false;
           _loginKind = 1;
-          var loginUrl = Uri.parse('$serverUrl/api/oauth/login-test');
+          var loginUrl = Uri.parse('${serverUrl}api/oauth/login-test');
           var response = await http.post(
             loginUrl,
             headers: {
@@ -56,24 +58,17 @@ class ServerWrapper {
             body: json.encode({"email": id, "password": "1234"}),
           );
           if (response.statusCode == 200) {
-            var accessToken = json.decode(response.body)['accessToken'];
-            var memberId = json.decode(response.body)['memberId'];
-            if (accessToken == null || memberId == null) {
-              return LoginResult(false, message: '로그인에 실패하였습니다.');
+            if (response.body[0] == '{') {
+              return LoginResult(false, message: '메인 서버의 응답이 잘못되었습니다.');
             }
-            var userUrl = Uri.parse('$serverUrl/api/oauth/user');
-            response = await http.post(
-              userUrl,
-              headers: {
-                'access_token': accessToken,
-                'member_id': memberId,
-              },
+            var accessToken = "abeda";
+            var memberId = response.body;
+            return _getUser(
+              accessToken: accessToken,
+              memberId: memberId,
             );
-            if (response.statusCode == 200) {
-              var user = UserData.fromJson(json.decode(response.body));
-              userCubit.setUser(user);
-              return LoginResult(true);
-            }
+          } else {
+            return LoginResult(false, message: '메인 서버와 통신에 실패하였습니다.');
           }
         }
       } on FirebaseAuthException catch (e) {
@@ -90,6 +85,9 @@ class ServerWrapper {
         } else {
           return LoginResult(false, message: '알 수 없는 오류: $e');
         }
+      } catch (e) {
+        print(e);
+        return LoginResult(false, message: '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.');
       }
       return LoginResult(false, message: '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.');
     }
@@ -100,7 +98,7 @@ class ServerWrapper {
     var itineraryIds = ['1', '2', '3'];
     userCubit.setUser(UserData(
       id: userId,
-      name: '트래쥴',
+      nickname: '트래쥴',
       email: 'test@test',
       itineraries: itineraryIds,
     ));
@@ -262,10 +260,26 @@ class ServerWrapper {
         .encode(itineraryCubitMapCubit.state[itineraryIds[0]]!.state.toJson()));
   }
 
-  static Future<bool> loginKakao() async {
-    _testAccount = false;
-    _loginKind = 2;
-    return true;
+  static Future<LoginResult> loginKakao() async {
+    final UserApi api = UserApi.instance;
+    try {
+      OAuthToken token = await (await isKakaoTalkInstalled()
+          ? api.loginWithKakaoTalk()
+          : api.loginWithKakaoAccount());
+      var user = await api.me();
+      print(user);
+      print(
+          '카카오톡으로 로그인 성공, 이름: ${user.kakaoAccount!.profile!.nickname}, ${token.accessToken}');
+      _accessToken = token.accessToken;
+      _refreshToken = token.refreshToken ?? '';
+      return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);
+    } catch (error) {
+      print('카카오톡으로 로그인 실패 $error');
+      return LoginResult(false, message: '카카오톡 로그인에 실패하였습니다.');
+    }
+    // _testAccount = false;
+    // _loginKind = 2;
+    // return true;
   }
 
   static bool isLogin() {
@@ -305,6 +319,30 @@ class ServerWrapper {
   static Future<List<ItineraryCubit>> getAllItineraries() async {
     await Future.delayed(Duration(milliseconds: 500));
     return itineraryCubitMapCubit.state.values.toList();
+  }
+
+  static Future<LoginResult> _getUser({
+    required String accessToken,
+    String refreshToken = '',
+    String memberId = '',
+  }) async {
+    var userUrl = Uri.parse('$serverUrl/api/oauth/user');
+    var response = await http.get(
+      userUrl,
+      headers: {
+        'access_token': accessToken,
+        'refresh_token': refreshToken,
+        'member_id': memberId,
+      },
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      var user =
+          UserData.fromJson(json.decode(utf8.decode(response.bodyBytes)));
+      userCubit.setUser(user);
+      return LoginResult(true);
+    }
+    return LoginResult(false, message: '사용자 정보를 불러오는데 실패하였습니다.');
   }
 }
 

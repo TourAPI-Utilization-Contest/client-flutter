@@ -48,3 +48,4 @@ app.*.map.json
 
 # 직접 추가한 부분
 GoogleService-Info.plist
+/my-release-key.jks
