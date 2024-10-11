@@ -85,6 +85,7 @@ class PlaceCard extends StatelessWidget {
                     maxLines: 2,
                     style: myTextStyle(
                       fontSize: 16,
+                      color: Colors.black,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -98,6 +99,7 @@ class PlaceCard extends StatelessWidget {
                           placeData.address,
                           style: myTextStyle(
                             fontSize: 10,
+                            color: cGray3,
                             fontWeight: FontWeight.w200,
                           ),
                         ),

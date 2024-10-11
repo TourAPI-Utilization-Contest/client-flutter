@@ -331,7 +331,7 @@ class _SearchScreenState extends State<SearchScreen> {
           searchResults.add(
             PlaceCard(
               placeData: PlaceData(
-                id: item["contentid"],
+                id: int.parse(item["contentid"]),
                 title: item["title"],
                 address: item["addr1"],
                 latitude: double.parse(item["mapy"]),

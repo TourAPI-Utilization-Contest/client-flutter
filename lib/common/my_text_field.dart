@@ -143,6 +143,10 @@ class MyTextFormField extends StatefulWidget {
   final String? labelText;
   final String? hintText;
   final String? Function(String?)? validator;
+  final String? suffixToolTip;
+  final void Function()? suffixOnPressed;
+  final bool obscureText;
+  final bool enabled;
 
   MyTextFormField({
     super.key,
@@ -156,6 +160,10 @@ class MyTextFormField extends StatefulWidget {
     this.labelText,
     this.hintText,
     this.validator,
+    this.suffixToolTip,
+    this.suffixOnPressed,
+    this.obscureText = false,
+    this.enabled = true,
     // this.hintText = ''
   });
 
@@ -175,6 +183,8 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       focusNode: widget.focusNode,
       autofocus: widget.autoFocus,
       validator: widget.validator,
+      enabled: widget.enabled,
+      obscureText: widget.obscureText,
       onTap: () {
         widget.onTap?.call();
         setState(() {});
@@ -215,6 +225,13 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
           ),
           borderRadius: BorderRadius.all(Radius.circular(50.0)),
         ),
+        disabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(
+            color: cGray3,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+        ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
             color: Theme.of(context).primaryColor,
@@ -247,12 +264,12 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
         // overlayColor: const WidgetStatePropertyAll<Color>(
         //   Colors.transparent,
         // ),
-        suffixIcon: widget.controller.text.isEmpty
+        suffixIcon: widget.controller.text.isEmpty || !widget.enabled
             ? null
             : Padding(
                 padding: const EdgeInsets.only(right: 10.0),
                 child: Tooltip(
-                  message: '초기화',
+                  message: widget.suffixToolTip ?? '초기화',
                   child: IconButton(
                     icon: SvgPicture.asset(
                       'assets/icon/jam_close_circle_f.svg',
@@ -260,11 +277,12 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                           const ColorFilter.mode(cGray, BlendMode.srcIn),
                       height: 19.9,
                     ),
-                    onPressed: () {
-                      // _controller.closeView(null);
-                      widget.controller.clear();
-                      setState(() {});
-                    },
+                    onPressed: widget.suffixOnPressed ??
+                        () {
+                          // _controller.closeView(null);
+                          widget.controller.clear();
+                          setState(() {});
+                        },
                   ),
                 ),
               ),

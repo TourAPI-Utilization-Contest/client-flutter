@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 //my_text_style.dart
 
 const TextStyle _defaultTextStyle = TextStyle(
-  color: Colors.black,
+  // color: Colors.black,
   fontSize: 20,
   letterSpacing: -0.32,
   fontWeight: FontWeight.normal,
@@ -36,6 +36,8 @@ TextStyle myTextStyle({
   FontWeight? fontWeight,
   String? fontFamily,
   TextBaseline? textBaseline,
+  TextDecoration? decoration,
+  Color? decorationColor,
 }) {
   height = height ?? (21 / (fontSize ?? _defaultTextStyle.fontSize!));
   var c = _defaultTextStyle.copyWith(
@@ -46,6 +48,8 @@ TextStyle myTextStyle({
     fontWeight: fontWeight,
     letterSpacing: letterSpacing,
     textBaseline: textBaseline,
+    decoration: decoration,
+    decorationColor: decorationColor,
     fontVariations: [
       FontVariation('wght',
           ((fontWeight ?? _defaultTextStyle.fontWeight!).index + 1) * 100),

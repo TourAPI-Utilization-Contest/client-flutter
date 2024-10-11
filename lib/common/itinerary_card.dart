@@ -102,6 +102,7 @@ class _ItineraryCardState extends State<ItineraryCard> {
                                           maxLines: 1,
                                           style: myTextStyle(
                                             fontSize: widget.preview ? 16 : 20,
+                                            color: Colors.black,
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),

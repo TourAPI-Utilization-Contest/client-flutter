@@ -47,4 +47,11 @@ class UserCubit extends Cubit<UserData?> {
       emit(state);
     }
   }
+
+  void updateNickname(String value) {
+    if (state != null) {
+      state!.nickname = value;
+      emit(state);
+    }
+  }
 }
