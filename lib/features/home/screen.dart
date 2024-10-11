@@ -465,6 +465,9 @@ class _MainPageState extends State<MainPage>
                                               // CustomBottomSheetMap(),
                                             ),
                                           );
+                                          ServerWrapper
+                                              .getScheduleDetailWithClear(
+                                                  itineraryCubit);
                                         },
                                         onEditPressed: () {
                                           Navigator.push(

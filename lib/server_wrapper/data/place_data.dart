@@ -18,7 +18,7 @@ int _durationToJson(Duration? duration) => duration?.inMinutes ?? 0;
 @freezed
 class PlaceData with _$PlaceData {
   const factory PlaceData({
-    required String id, // contentid
+    required int id, // contentid
     required String title,
     required String address,
     required double latitude,

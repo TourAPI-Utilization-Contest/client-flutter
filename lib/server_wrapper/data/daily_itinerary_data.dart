@@ -59,6 +59,13 @@ class DailyItineraryData with _$DailyItineraryData {
   factory DailyItineraryData.fromJson(Map<String, dynamic> json) =>
       _DailyItineraryDataFromJson(json);
 
+  factory DailyItineraryData.initial() => DailyItineraryData(
+        dailyItineraryId: 0,
+        date: DateTime.now(),
+        placeList: [],
+        movementList: [],
+      );
+
   static DailyItineraryData _DailyItineraryDataFromJson(
       Map<String, dynamic> json) {
     var dud = _$DailyItineraryDataFromJson(json);

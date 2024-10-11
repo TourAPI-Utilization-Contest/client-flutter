@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'color.dart';
+import 'my_text_style.dart';
 
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
@@ -127,6 +128,147 @@ class _MyTextFieldState extends State<MyTextField> {
                 ),
               )
       ],
+    );
+  }
+}
+
+class MyTextFormField extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode? focusNode;
+  final bool autoFocus;
+  final void Function()? onTap;
+  final void Function(PointerDownEvent event)? onTapOutside;
+  final void Function(String value)? onSubmitted;
+  final void Function(String value)? onChanged;
+  final String? labelText;
+  final String? hintText;
+  final String? Function(String?)? validator;
+
+  MyTextFormField({
+    super.key,
+    required this.controller,
+    this.focusNode,
+    this.autoFocus = false,
+    this.onTap,
+    this.onTapOutside,
+    this.onSubmitted,
+    this.onChanged,
+    this.labelText,
+    this.hintText,
+    this.validator,
+    // this.hintText = ''
+  });
+
+  @override
+  State<MyTextFormField> createState() => _MyTextFormFieldState();
+}
+
+class _MyTextFormFieldState extends State<MyTextFormField> {
+  String _previousText = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      // padding: const MaterialStatePropertyAll<EdgeInsets>(
+      //     EdgeInsets.symmetric(horizontal: 16.0)),
+      focusNode: widget.focusNode,
+      autofocus: widget.autoFocus,
+      validator: widget.validator,
+      onTap: () {
+        widget.onTap?.call();
+        setState(() {});
+      },
+      onTapOutside: widget.onTapOutside == null
+          ? null
+          : (PointerDownEvent event) {
+              widget.onTapOutside!(event);
+              setState(() {});
+            },
+      onFieldSubmitted: (value) async {
+        widget.onSubmitted?.call(value);
+        setState(() {});
+      },
+      onChanged: (_) {
+        widget.onChanged?.call(widget.controller.text);
+        setState(() {});
+      },
+      style: myTextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w200,
+      ),
+
+      decoration: InputDecoration(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20.0, vertical: 17.0),
+        // border: const OutlineInputBorder(
+        //   borderSide: BorderSide(
+        //     color: cAqua,
+        //     width: 10.0,
+        //   ),
+        //   borderRadius: BorderRadius.all(Radius.circular(50.0)),
+        // ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(
+            color: cGray3,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).primaryColor,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+        ),
+        hoverColor: Theme.of(context).primaryColor.withAlpha(10),
+        // labelStyle: const TextStyle(
+        //   color: cGray,
+        //   fontSize: 16,
+        //   fontFamily: 'NotoSansKR',
+        //   fontVariations: [FontVariation('wght', 200)],
+        // ),,
+        filled: true,
+        fillColor: Colors.white,
+        labelText: widget.labelText,
+        hintText: widget.hintText,
+        hintStyle: const TextStyle(
+          // color: _focusNode.hasFocus ? Colors.black38 : cGray,
+          color: cGray,
+          fontSize: 16,
+          fontFamily: 'NotoSansKR',
+          fontVariations: [FontVariation('wght', 200)],
+        ),
+        // leading: const Icon(Icons.search),
+        // surfaceTintColor: const WidgetStatePropertyAll<Color>(
+        //   Colors.white,
+        // ),
+        // overlayColor: const WidgetStatePropertyAll<Color>(
+        //   Colors.transparent,
+        // ),
+        suffixIcon: widget.controller.text.isEmpty
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(right: 10.0),
+                child: Tooltip(
+                  message: '초기화',
+                  child: IconButton(
+                    icon: SvgPicture.asset(
+                      'assets/icon/jam_close_circle_f.svg',
+                      colorFilter:
+                          const ColorFilter.mode(cGray, BlendMode.srcIn),
+                      height: 19.9,
+                    ),
+                    onPressed: () {
+                      // _controller.closeView(null);
+                      widget.controller.clear();
+                      setState(() {});
+                    },
+                  ),
+                ),
+              ),
+      ),
     );
   }
 }

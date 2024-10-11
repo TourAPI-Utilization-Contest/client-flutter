@@ -55,7 +55,14 @@ class ServerWrapper {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: json.encode({"email": id, "password": "1234"}),
+            body: json.encode({
+              'method': 'POST',
+              'header': {'Content-Type': 'application/json'},
+              'body': {
+                "email": id,
+                "password": "1234",
+              }
+            }),
           );
           if (response.statusCode == 200) {
             if (response.body[0] == '{') {
@@ -117,7 +124,7 @@ class ServerWrapper {
               date: DateTime(2024, 9, 29),
               placeList: [
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '우리 집',
                   address: '테스트 주소1',
                   latitude: 37.123456,
@@ -126,7 +133,7 @@ class ServerWrapper {
                   stayTime: const Duration(minutes: 10),
                 )),
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '경복궁',
                   address: '테스트 주소2',
                   latitude: 37.123456,
@@ -135,7 +142,7 @@ class ServerWrapper {
                   stayTime: const Duration(minutes: 120),
                 )),
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '런던베이글뮤지엄',
                   address: '테스트 주소2',
                   latitude: 37.123456,
@@ -144,7 +151,7 @@ class ServerWrapper {
                   stayTime: const Duration(minutes: 30),
                 )),
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '숙소',
                   address: '테스트 주소2',
                   latitude: 37.123456,
@@ -177,7 +184,7 @@ class ServerWrapper {
               date: DateTime(2024, 9, 30),
               placeList: [
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '테스트 장소3',
                   address: '테스트 주소3',
                   latitude: 37.123456,
@@ -191,7 +198,7 @@ class ServerWrapper {
               date: DateTime(2024, 10, 1),
               placeList: [
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '테스트 장소4',
                   address: '테스트 주소4',
                   latitude: 37.123456,
@@ -205,7 +212,7 @@ class ServerWrapper {
               date: DateTime(2024, 10, 2),
               placeList: [
                 PlaceCubit(PlaceData(
-                  id: Random().nextInt(100000).toString(),
+                  id: Random().nextInt(100000),
                   title: '테스트 장소5',
                   address: '테스트 주소5',
                   latitude: 37.123456,
@@ -224,7 +231,7 @@ class ServerWrapper {
           title: '맛집 탐방',
           startDate: DateTime(2024, 10, 14),
           endDate: DateTime(2024, 10, 16),
-          iconPath: 'assets/icon/나침판.svg',
+          iconPath: 'assets/icon/나침반.svg',
           iconColor: Colors.green,
         ),
       ),
@@ -325,21 +332,30 @@ class ServerWrapper {
     return itineraryCubitMapCubit.state.values.toList();
   }
 
-  // ----------------------- 서버 통신 -----------------------
+  // ------------------------- 서버 통신 -------------------------
 
   static Future<LoginResult> _getUser({
     required String accessToken,
     String refreshToken = '',
     String memberId = '',
   }) async {
+    _accessToken = accessToken;
+    _refreshToken = refreshToken;
     var userUrl = Uri.parse('${serverUrl}api/oauth/user');
-    var response = await http.get(
+    print('accessToken: $accessToken');
+    var response = await http.post(
       userUrl,
       headers: {
-        'access_token': accessToken,
-        'refresh_token': refreshToken,
-        'member_id': memberId,
+        'Content-Type': 'application/json',
       },
+      body: json.encode({
+        'method': 'GET',
+        'header': {
+          'access_token': accessToken,
+          'refresh_token': refreshToken,
+          'member_id': memberId,
+        }
+      }),
     );
     print(response.body);
     if (response.statusCode == 200) {
@@ -353,11 +369,266 @@ class ServerWrapper {
     return LoginResult(false, message: '사용자 정보를 불러오는데 실패하였습니다.');
   }
 
-  // static Future<
+  static Future<bool> getScheduleWithClear() async {
+    var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'GET',
+        'header': {
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        }
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      itineraryCubitMapCubit.setItineraryCubitMap({});
+      var scheduleList = json.decode(response.body)['scheduleList'];
+      for (var schedule in scheduleList) {
+        var itinerary = ItineraryData(
+          id: schedule['id'],
+          users: [userCubit.state!.id],
+          title: schedule['title'],
+          startDate: DateTime.parse(schedule['startsAt']),
+          endDate: DateTime.parse(schedule['endsAt']),
+          iconColor: Color(schedule['color']),
+          iconPath: schedule['icon'],
+          dailyItineraryCubitList: [],
+        );
+        itineraryCubitMapCubit.addItineraryCubit(ItineraryCubit(itinerary));
+      }
+      return true;
+    }
+    return false;
+  }
 
-  // static Future<bool> putSchedule(ItineraryCubit itineraryCubit) async {
-  //   var itinerary = itineraryCubit.state;
-  //   var itineraryId = itinerary
+  static Future<bool> getScheduleDetailWithClear(
+      ItineraryCubit itinerary) async {
+    var scheduleUrl = Uri.parse(
+        '${serverUrl}api/schedule/${itinerary.state.id}?contains-user=false');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'GET',
+        'header': {
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        }
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      itinerary.clearDailyItineraryCubitList();
+      var schedule = json.decode(response.body);
+      var details = schedule['details'];
+      for (var i = 0; i < details.length; i++) {
+        var detail = details[i];
+        DailyItineraryCubit dailyItineraryCubit;
+        var id = detail['id'];
+        var detail2 = detail['detail'];
+        try {
+          dailyItineraryCubit =
+              DailyItineraryCubit(DailyItineraryData.fromJson(detail2).copyWith(
+            dailyItineraryId: id,
+          ));
+        } catch (e) {
+          dailyItineraryCubit =
+              DailyItineraryCubit(DailyItineraryData.initial().copyWith(
+            dailyItineraryId: id,
+          ));
+        }
+        itinerary.addDailyItineraryCubit(dailyItineraryCubit);
+      }
+      return true;
+    }
+    print('getScheduleDetailWithClear 실패');
+    return false;
+  }
+
+  static Future<bool> postSchedule(ItineraryCubit itineraryCubit) async {
+    var itinerary = itineraryCubit.state;
+    var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'POST',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+        'body': {
+          'title': itinerary.title,
+          'startsAt': itinerary.startDate.toIso8601String(),
+          'endsAt': itinerary.endDate.toIso8601String(),
+          'updatedAt': DateTime.now().toIso8601String(),
+          'color': itinerary.iconColor.value,
+          'icon': itinerary.iconPath,
+        },
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    print('postSchedule 실패');
+    return false;
+  }
+
+  static Future<bool> postScheduleDetail(
+      DailyItineraryCubit dailyItineraryCubit) async {
+    var dailyItinerary = dailyItineraryCubit.state;
+    var scheduleUrl = Uri.parse(
+        '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'POST',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+        'body': {
+          'detail': json.encode(dailyItinerary.toJson()),
+        },
+      }),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    }
+    print('postScheduleDetail 실패');
+    return false;
+  }
+
+  static Future<bool> deleteSchedule(ItineraryCubit itineraryCubit) async {
+    var itinerary = itineraryCubit.state;
+    var scheduleUrl = Uri.parse('${serverUrl}api/schedule/${itinerary.id}');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'DELETE',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    print('deleteSchedule 실패');
+    return false;
+  }
+
+  static Future<bool> deleteScheduleDetail(
+      DailyItineraryCubit dailyItineraryCubit) async {
+    var dailyItinerary = dailyItineraryCubit.state;
+    var scheduleUrl = Uri.parse(
+        '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'DELETE',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    print('deleteScheduleDetail 실패');
+    return false;
+  }
+
+  static Future<bool> putSchedule(ItineraryCubit itineraryCubit) async {
+    var itinerary = itineraryCubit.state;
+    var scheduleUrl = Uri.parse('${serverUrl}api/schedule/${itinerary.id}');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'PUT',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+        'body': {
+          'title': itinerary.title,
+          'startsAt': itinerary.startDate.toIso8601String(),
+          'endsAt': itinerary.endDate.toIso8601String(),
+          'updatedAt': DateTime.now().toIso8601String(),
+          'color': itinerary.iconColor.value,
+          'icon': itinerary.iconPath,
+        },
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    print('putSchedule 실패');
+    return false;
+  }
+
+  Future<bool> putScheduleDetail(
+      DailyItineraryCubit dailyItineraryCubit) async {
+    var dailyItinerary = dailyItineraryCubit.state;
+    var scheduleUrl = Uri.parse(
+        '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'PUT',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+        'body': json.encode({
+          'detail': json.encode(dailyItinerary.toJson()),
+        }),
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    print('putScheduleDetail 실패');
+    return false;
+  }
 }
 
 class ItineraryCubitMapCubit extends Cubit<Map<int, ItineraryCubit>> {
@@ -376,6 +647,15 @@ class ItineraryCubitMapCubit extends Cubit<Map<int, ItineraryCubit>> {
     //     {...state, itineraryId: itineraryCubit});
     print('addItineraryCubit: $itineraryId');
     // TODO: 서버로 전송
+  }
+
+  void removeItineraryCubit(ItineraryCubit itineraryCubit) {
+    var itineraryId = itineraryCubit.state.id;
+    var newMap = Map<int, ItineraryCubit>.from(state);
+    newMap.remove(itineraryId);
+    emit(newMap);
+    // emit({...state}..remove(itineraryId));
+    print('removeItineraryCubit: $itineraryId');
   }
 }
 

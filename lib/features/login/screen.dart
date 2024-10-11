@@ -35,125 +35,220 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _passwordValidateFlag = false;
   final _emailKey = GlobalKey<FormFieldState>();
   final _passwordKey = GlobalKey<FormFieldState>();
+  bool _isLoading = false;
 
   final cGray = const Color(0xFFD1D3D9);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBarBlur(
-        title: const Text('로그인'),
-        scrollController: _scrollController,
-        clipper: const InvertedCornerClipper(arcRadius: 10),
-        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          clipBehavior: Clip.none,
-          controller: _scrollController,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 40,
-              vertical: 16,
-            ),
-            child: Column(
-              children: [
-                // 로고
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 32),
-                  child: Column(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/logo/tradule_text.svg',
-                        width: 110,
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBarBlur(
+            title: const Text('로그인'),
+            scrollController: _scrollController,
+            clipper: const InvertedCornerClipper(arcRadius: 10),
+            preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+          ),
+          body: Center(
+            child: SingleChildScrollView(
+              clipBehavior: Clip.none,
+              controller: _scrollController,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 16,
+                ),
+                child: Column(
+                  children: [
+                    // 로고
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Column(
+                        children: [
+                          SvgPicture.asset(
+                            'assets/logo/tradule_text.svg',
+                            width: 110,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            "트래쥴과 함께\n여행을 계획해 보세요!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'NotoSansKR',
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontVariations: [
+                                FontVariation('wght', 500.0),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "트래쥴과 함께\n여행을 계획해 보세요!",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: 'NotoSansKR',
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontVariations: [
-                            FontVariation('wght', 500.0),
+                    ),
+                    const SizedBox(height: 15),
+                    Center(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            buildLoginTextFormField(
+                              hintText: 'Email',
+                              isPassword: false,
+                              controller: _idController,
+                            ),
+                            const SizedBox(height: 15),
+                            buildLoginTextFormField(
+                              hintText: 'Password',
+                              isPassword: true,
+                              controller: _pwController,
+                            ),
+                            const SizedBox(height: 15),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _submitted(context: context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  // padding: const EdgeInsets.symmetric(
+                                  //     horizontal: 0, vertical: 20),
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(50.0),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'sign in',
+                                  style: TextStyle(
+                                    fontFamily: 'NotoSansKR',
+                                    color: Colors.white,
+                                    fontVariations: [
+                                      FontVariation('wght', 400.0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // if (_failed)
+                            if (_loginResult != null && !_loginResult!.success)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  _loginResult?.message ??
+                                      '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.error,
+                                    fontSize: 12.0,
+                                    fontFamily: 'NotoSansKR',
+                                    fontVariations: const [
+                                      FontVariation('wght', 400.0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(height: 10),
+                            TextButton(
+                              onPressed: () {
+                                print('비밀번호 찾기 버튼 클릭');
+                              },
+                              child: Text(
+                                'forgot your password?',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 12.0,
+                                  fontFamily: 'NotoSansKR',
+                                  fontVariations: const [
+                                    FontVariation('wght', 200.0),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Center(
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      height: 1,
+                      child: Container(
+                        color: cGray4,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'or',
+                      style: TextStyle(
+                        color: cGray,
+                        fontSize: 16.0,
+                        fontFamily: 'NotoSansKR',
+                        fontVariations: const [
+                          FontVariation('wght', 200.0),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          print('카카오 로그인 버튼 클릭');
+                          _isLoading = true;
+                          setState(() {});
+                          _loginResult = await ServerWrapper.loginKakao();
+                          if (!context.mounted) return;
+                          if (_loginResult!.success) {
+                            Navigator.pop(context);
+                            ServerWrapper.getScheduleWithClear();
+                          } else {
+                            _loginResult = null;
+                          }
+                          _isLoading = false;
+                          setState(() {});
+                        },
+                        style: ElevatedButton.styleFrom(
+                          // padding: const EdgeInsets.symmetric(
+                          //     horizontal: 0, vertical: 20),
+                          backgroundColor: const Color(0xFFFEE500),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 30),
+                          child: SvgPicture.asset(
+                            'assets/social/kakao_login.svg',
+                            // width: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        buildLoginTextFormField(
-                          hintText: 'Email',
-                          isPassword: false,
-                          controller: _idController,
-                        ),
-                        const SizedBox(height: 15),
-                        buildLoginTextFormField(
-                          hintText: 'Password',
-                          isPassword: true,
-                          controller: _pwController,
-                        ),
-                        const SizedBox(height: 15),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _submitted(context: context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              // padding: const EdgeInsets.symmetric(
-                              //     horizontal: 0, vertical: 20),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'sign in',
-                              style: TextStyle(
-                                fontFamily: 'NotoSansKR',
-                                color: Colors.white,
-                                fontVariations: [
-                                  FontVariation('wght', 400.0),
-                                ],
-                              ),
-                            ),
+                        Text(
+                          'Don\'t have an account?',
+                          style: TextStyle(
+                            color: cGray,
+                            fontSize: 12.0,
+                            fontFamily: 'NotoSansKR',
+                            fontVariations: const [
+                              FontVariation('wght', 200.0),
+                            ],
                           ),
                         ),
-                        // if (_failed)
-                        if (_loginResult != null && !_loginResult!.success)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              _loginResult?.message ??
-                                  '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                                fontSize: 12.0,
-                                fontFamily: 'NotoSansKR',
-                                fontVariations: const [
-                                  FontVariation('wght', 400.0),
-                                ],
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 10),
+                        const SizedBox(width: 5),
                         TextButton(
                           onPressed: () {
-                            print('비밀번호 찾기 버튼 클릭');
+                            print('회원가입 버튼 클릭');
                           },
                           child: Text(
-                            'forgot your password?',
+                            'sign up',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.primary,
                               fontSize: 12.0,
@@ -166,99 +261,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: 1,
-                  child: Container(
-                    color: cGray4,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'or',
-                  style: TextStyle(
-                    color: cGray,
-                    fontSize: 16.0,
-                    fontFamily: 'NotoSansKR',
-                    fontVariations: const [
-                      FontVariation('wght', 200.0),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 15),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      print('카카오 로그인 버튼 클릭');
-                      _loginResult = await ServerWrapper.loginKakao();
-                      if (!context.mounted) return;
-                      if (_loginResult!.success) {
-                        Navigator.pop(context);
-                      } else {
-                        _loginResult = null;
-                      }
-                      setState(() {});
-                    },
-                    style: ElevatedButton.styleFrom(
-                      // padding: const EdgeInsets.symmetric(
-                      //     horizontal: 0, vertical: 20),
-                      backgroundColor: const Color(0xFFFEE500),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50.0),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 30),
-                      child: SvgPicture.asset(
-                        'assets/social/kakao_login.svg',
-                        // width: 20,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 50),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Don\'t have an account?',
-                      style: TextStyle(
-                        color: cGray,
-                        fontSize: 12.0,
-                        fontFamily: 'NotoSansKR',
-                        fontVariations: const [
-                          FontVariation('wght', 200.0),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    TextButton(
-                      onPressed: () {
-                        print('회원가입 버튼 클릭');
-                      },
-                      child: Text(
-                        'sign up',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontSize: 12.0,
-                          fontFamily: 'NotoSansKR',
-                          fontVariations: const [
-                            FontVariation('wght', 200.0),
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        // 로딩 인디케이터와 취소 버튼을 스택에 추가
+        if (_isLoading) ...[
+          ModalBarrier(
+            color: Colors.black.withOpacity(0.3),
+            dismissible: false,
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    _isLoading = false;
+                    setState(() {});
+                  },
+                  child: Text('취소'),
                 ),
               ],
             ),
           ),
-        ),
-      ),
+        ],
+      ],
     );
   }
 
@@ -357,9 +389,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _submitted({required BuildContext context}) async {
+    _isLoading = true;
     _isFormValidateFailFlag = false;
     _emailValidateFlag = true;
     _passwordValidateFlag = true;
+    setState(() {});
     if (_formKey.currentState!.validate()) {
       print('로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
       final result =
@@ -369,6 +403,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // _failed = false;
         _loginResult = result;
         Navigator.pop(context);
+        ServerWrapper.getScheduleWithClear();
         setState(() {});
       } else {
         // _failed = true;
@@ -377,6 +412,8 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {});
       }
     }
+    _isLoading = false;
+    setState(() {});
   }
 }
 

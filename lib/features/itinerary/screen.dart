@@ -86,7 +86,8 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   String? _style = aubergine;
   BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
   DateTime _mapTime = DateTime.now();
-  TabController? _tabController;
+  // TabController? _tabController;
+  TabControllerCubit? _tabControllerCubit;
   Set<Marker> _markers = {};
   Set<Polyline> _polylines = {};
 
@@ -150,18 +151,31 @@ class _ItineraryEditorState extends State<ItineraryEditor>
         value: widget.itineraryCubit,
         child: BlocBuilder<ItineraryCubit, ItineraryData?>(
             builder: (context, itinerary) {
-          _tabController ??= TabController(
-            initialIndex: 0,
-            length: itinerary!.dailyItineraryCubitList.length + 1,
-            vsync: this,
-          )..addListener(() {
-              // print('Tab previous index: ${_tabController!.previousIndex}');
-              // print('Tab index: ${_tabController!.index}');
-              tabControllerListener(itinerary);
-            });
-          return BlocProvider(
-            create: (context) =>
-                TabControllerCubit(tabController: _tabController!),
+          // var _tabController = _tabControllerCubit.state.tabController;
+          if (_tabControllerCubit == null)
+            _tabControllerCubit = TabControllerCubit(
+              tabController: TabController(
+                vsync: this,
+                length: itinerary!.dailyItineraryCubitList.length + 1,
+                initialIndex: 0,
+              ),
+            );
+          else {
+            var tabController = _tabControllerCubit!.state.tabController;
+            if (tabController.length !=
+                itinerary!.dailyItineraryCubitList.length + 1) {
+              tabController.dispose();
+              _tabControllerCubit = TabControllerCubit(
+                tabController: TabController(
+                  vsync: this,
+                  length: itinerary.dailyItineraryCubitList.length + 1,
+                  initialIndex: 0,
+                ),
+              );
+            }
+          }
+          return BlocProvider.value(
+            value: _tabControllerCubit!,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 double mapHeight = constraints.maxHeight - _bottomSheetHeight;
@@ -237,7 +251,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                               spacing: 10,
                               children: [
                                 _Header(),
-                                _Body(tabController: _tabController!),
+                                _Body(tabControllerCubit: _tabControllerCubit!),
                               ],
                             ),
                           ),
@@ -362,12 +376,13 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   void tabControllerListener(ItineraryData itinerary) {
     _markers.clear();
     _polylines.clear();
+    var tabController = _tabControllerCubit!.state.tabController;
     var dailyItineraryCubit = itinerary.dailyItineraryCubitList[
-        _tabController!.index == 0 ? 0 : _tabController!.index - 1];
+        tabController.index == 0 ? 0 : tabController.index - 1];
     for (var placeCubit in dailyItineraryCubit.state.placeList) {
       _markers.add(
         Marker(
-          markerId: MarkerId(placeCubit.state.id),
+          markerId: MarkerId(placeCubit.state.id.toString()),
           icon: _markerIcon,
           position:
               LatLng(placeCubit.state.latitude, placeCubit.state.longitude),
@@ -419,7 +434,8 @@ class _ItineraryEditorState extends State<ItineraryEditor>
 
   @override
   void dispose() {
-    _tabController?.dispose();
+    // _tabController?.dispose();
+    _tabControllerCubit?.state.tabController.dispose();
     super.dispose();
   }
 }
@@ -517,6 +533,7 @@ class _Header extends StatelessWidget {
                             .add(Duration(days: tabController.index))),
                         reverse: true,
                         onPressed: () {
+                          print('right');
                           tabController.index += 1;
                         },
                       ),
@@ -532,9 +549,9 @@ class _Header extends StatelessWidget {
 }
 
 class _Body extends StatefulWidget {
-  final TabController tabController;
+  final TabControllerCubit tabControllerCubit;
   const _Body({
-    required this.tabController,
+    required this.tabControllerCubit,
     super.key,
   });
 
@@ -550,7 +567,7 @@ class _BodyState extends State<_Body> with TickerProviderStateMixin {
     var itinerary = context.read<ItineraryCubit>().state;
     return Expanded(
       child: TabBarView(
-        controller: widget.tabController,
+        controller: widget.tabControllerCubit.state.tabController,
         children: [
           //전체 일정
           SingleChildScrollFadeView(

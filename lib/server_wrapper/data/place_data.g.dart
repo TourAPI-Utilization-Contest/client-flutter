@@ -8,7 +8,7 @@ part of 'place_data.dart';
 
 _$PlaceDataImpl _$$PlaceDataImplFromJson(Map<String, dynamic> json) =>
     _$PlaceDataImpl(
-      id: json['id'] as String,
+      id: (json['id'] as num).toInt(),
       title: json['title'] as String,
       address: json['address'] as String,
       latitude: (json['latitude'] as num).toDouble(),

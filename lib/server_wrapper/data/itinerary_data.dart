@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
+// import '../server_wrapper.dart';
 import 'daily_itinerary_data.dart';
 
 part 'itinerary_data.freezed.dart';
@@ -109,6 +110,27 @@ class ItineraryCubit extends Cubit<ItineraryData> {
 
   void setItinerary(ItineraryData itinerary) {
     emit(itinerary);
+  }
+  //
+  // void putItinerary() {
+  //   ServerWrapper.putSchedule(this);
+  // }
+  //
+  // void deleteItinerary() {
+  //   ServerWrapper.deleteSchedule(this);
+  // }
+
+  void clearDailyItineraryCubitList() {
+    emit(state.copyWith(dailyItineraryCubitList: []));
+  }
+
+  void addDailyItineraryCubit(DailyItineraryCubit dailyItineraryCubit) {
+    emit(state.copyWith(
+      dailyItineraryCubitList: [
+        ...state.dailyItineraryCubitList,
+        dailyItineraryCubit
+      ],
+    ));
   }
 
   void changeDate(DateTime startDate, DateTime endDate) {

@@ -20,7 +20,7 @@ PlaceData _$PlaceDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$PlaceData {
-  String get id => throw _privateConstructorUsedError; // contentid
+  int get id => throw _privateConstructorUsedError; // contentid
   String get title => throw _privateConstructorUsedError;
   String get address => throw _privateConstructorUsedError;
   double get latitude => throw _privateConstructorUsedError;
@@ -54,7 +54,7 @@ abstract class $PlaceDataCopyWith<$Res> {
       _$PlaceDataCopyWithImpl<$Res, PlaceData>;
   @useResult
   $Res call(
-      {String id,
+      {int id,
       String title,
       String address,
       double latitude,
@@ -107,7 +107,7 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -173,7 +173,7 @@ abstract class _$$PlaceDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
+      {int id,
       String title,
       String address,
       double latitude,
@@ -224,7 +224,7 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as String,
+              as int,
       title: null == title
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -306,7 +306,7 @@ class _$PlaceDataImpl implements _PlaceData {
       _$$PlaceDataImplFromJson(json);
 
   @override
-  final String id;
+  final int id;
 // contentid
   @override
   final String title;
@@ -370,8 +370,7 @@ class _$PlaceDataImpl implements _PlaceData {
                 other.imageUrl == imageUrl) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
                 other.thumbnailUrl == thumbnailUrl) &&
-            (identical(other.iconColor, iconColor) ||
-                other.iconColor == iconColor));
+            const DeepCollectionEquality().equals(other.iconColor, iconColor));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -391,7 +390,7 @@ class _$PlaceDataImpl implements _PlaceData {
       tag,
       imageUrl,
       thumbnailUrl,
-      iconColor);
+      const DeepCollectionEquality().hash(iconColor));
 
   /// Create a copy of PlaceData
   /// with the given fields replaced by the non-null parameter values.
@@ -411,7 +410,7 @@ class _$PlaceDataImpl implements _PlaceData {
 
 abstract class _PlaceData implements PlaceData {
   const factory _PlaceData(
-      {required final String id,
+      {required final int id,
       required final String title,
       required final String address,
       required final double latitude,
@@ -433,7 +432,7 @@ abstract class _PlaceData implements PlaceData {
       _$PlaceDataImpl.fromJson;
 
   @override
-  String get id; // contentid
+  int get id; // contentid
   @override
   String get title;
   @override

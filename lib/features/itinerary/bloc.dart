@@ -45,4 +45,11 @@ class TabControllerCubit extends Cubit<TabControllerData> {
       ));
     });
   }
+
+  void setTabController(TabController tabController) {
+    emit(TabControllerData(
+      tabController: tabController,
+      offset: tabController.animation!.value,
+    ));
+  }
 }
