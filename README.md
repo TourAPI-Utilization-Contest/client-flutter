@@ -3,7 +3,7 @@
 ## 메모
 
 `flutter pub run build_runner watch`
-`--web-browser-flag "--disable-web-security"`
+웹 CORS 끄기: `--web-browser-flag "--disable-web-security"`
 
 ### web build
 
