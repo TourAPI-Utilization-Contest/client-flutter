@@ -12,7 +12,7 @@ import 'my_text_style.dart';
 import 'shadow_box.dart';
 import 'color.dart';
 
-class PlaceCard extends StatelessWidget {
+class PlaceCard extends StatefulWidget {
   final PlaceData placeData;
   const PlaceCard({
     required this.placeData,
@@ -20,10 +20,26 @@ class PlaceCard extends StatelessWidget {
   });
 
   @override
+  State<PlaceCard> createState() => _PlaceCardState();
+}
+
+class _PlaceCardState extends State<PlaceCard> {
+  bool isHearted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isHearted = ServerWrapper.getUser()?.places[widget.placeData.id] != null;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ShadowBox(
       child: Padding(
-        padding: const EdgeInsets.all(17),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 17,
+          vertical: 10,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -60,10 +76,10 @@ class PlaceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (placeData.thumbnailUrl != null &&
-                          placeData.thumbnailUrl!.isNotEmpty)
+                      if (widget.placeData.thumbnailUrl != null &&
+                          widget.placeData.thumbnailUrl!.isNotEmpty)
                         Image.network(
-                          placeData.thumbnailUrl!,
+                          widget.placeData.thumbnailUrl!,
                           width: 54,
                           height: 54,
                           fit: BoxFit.cover,
@@ -80,7 +96,7 @@ class PlaceCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    placeData.title,
+                    widget.placeData.title,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                     style: myTextStyle(
@@ -89,14 +105,14 @@ class PlaceCard extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  // const SizedBox(height: 4),
                   Row(
                     children: [
                       Expanded(
                         child: Text(
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
-                          placeData.address,
+                          widget.placeData.address,
                           style: myTextStyle(
                             fontSize: 10,
                             color: cGray3,
@@ -104,12 +120,39 @@ class PlaceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SvgPicture.asset(
-                        'assets/icon/관심_장소_off.svg',
-                        // width: 16,
-                        // height: 16,
+                      Tooltip(
+                        message: '관심 장소',
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(0),
+                            minimumSize: const Size(40, 40),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              if (!ServerWrapper.isLogin()) {
+                                Navigator.of(context).pushNamed('/login');
+                                return;
+                              }
+                              if (isHearted) {
+                                ServerWrapper.userCubit
+                                    .removePlace(widget.placeData);
+                              } else {
+                                ServerWrapper.userCubit
+                                    .addPlace(widget.placeData);
+                              }
+                              isHearted = !isHearted;
+                              setState(() {});
+                            });
+                          },
+                          child: isHearted
+                              ? SvgPicture.asset(
+                                  'assets/icon/관심_장소_on.svg',
+                                )
+                              : SvgPicture.asset(
+                                  'assets/icon/관심_장소_off.svg',
+                                ),
+                        ),
                       ),
-                      const SizedBox(width: 10),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
@@ -159,120 +202,10 @@ class PlaceCard extends StatelessWidget {
       barrierColor: Colors.black.withOpacity(0.2),
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation1, animation2) {
-        return SelectItineraryWidget(placeData: placeData);
+        return SelectItineraryWidget(placeData: widget.placeData);
       },
     );
   }
-
-  // Future<Object?> selectDailyItinerary(
-  //     BuildContext context, ItineraryCubit itineraryCubit) {
-  //   return showGeneralDialog(
-  //     context: context,
-  //     barrierDismissible: true,
-  //     barrierLabel: '',
-  //     barrierColor: Colors.black.withOpacity(0.2),
-  //     transitionDuration: const Duration(milliseconds: 200),
-  //     pageBuilder: (context, animation1, animation2) {
-  //       return Stack(
-  //         children: [
-  //           Positioned(
-  //             top: 50,
-  //             bottom: 50,
-  //             left: 50,
-  //             right: 50,
-  //             child: Center(
-  //               child: Material(
-  //                 color: Colors.transparent,
-  //                 child: Stack(
-  //                   children: [
-  //                     Container(
-  //                       // width: 300,
-  //                       // height: 200,
-  //                       padding: const EdgeInsets.all(20),
-  //                       decoration: BoxDecoration(
-  //                         color: Colors.white,
-  //                         borderRadius: BorderRadius.circular(20),
-  //                       ),
-  //                       child: Column(
-  //                         spacing: 10,
-  //                         mainAxisAlignment: MainAxisAlignment.center,
-  //                         children: [
-  //                           Text(
-  //                             '일정 선택',
-  //                             style: myTextStyle(
-  //                               fontSize: 20,
-  //                               fontWeight: FontWeight.bold,
-  //                             ),
-  //                           ),
-  //                           Expanded(
-  //                             child: SingleChildScrollFadeView(
-  //                               child: Padding(
-  //                                 padding: const EdgeInsets.symmetric(
-  //                                     horizontal: 10, vertical: 10),
-  //                                 child: Column(
-  //                                   spacing: 10,
-  //                                   children: [
-  //                                     for (var dailyItinerary in itineraryCubit
-  //                                         .state.dailyItineraryCubitList)
-  //                                       ShadowBox(
-  //                                         child: Padding(
-  //                                           padding: const EdgeInsets.all(10),
-  //                                           child: Row(
-  //                                             mainAxisAlignment:
-  //                                                 MainAxisAlignment
-  //                                                     .spaceBetween,
-  //                                             children: [
-  //                                               Text(
-  //                                                 dailyItinerary.state.date
-  //                                                     .toString(),
-  //                                                 style: myTextStyle(
-  //                                                   fontSize: 16,
-  //                                                   fontWeight: FontWeight.w500,
-  //                                                 ),
-  //                                               ),
-  //                                               ElevatedButton(
-  //                                                 onPressed: () {
-  //                                                   // print('장소 추가');
-  //                                                   dailyItinerary.addPlace(
-  //                                                     PlaceCubit(placeData),
-  //                                                   );
-  //                                                   Navigator.of(context).pop();
-  //                                                 },
-  //                                                 child: Text('추가'),
-  //                                               ),
-  //                                             ],
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                   ],
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           )
-  //                         ],
-  //                       ),
-  //                       //닫기 버튼
-  //                     ),
-  //                     Positioned(
-  //                       top: 10,
-  //                       right: 10,
-  //                       child: IconButton(
-  //                         onPressed: () {
-  //                           Navigator.of(context).pop();
-  //                         },
-  //                         icon: Icon(Icons.close),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 class SelectItineraryWidget extends StatefulWidget {

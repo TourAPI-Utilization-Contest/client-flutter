@@ -82,6 +82,10 @@ class HomeScreen extends ConsumerWidget {
                 title: Text('설정'),
                 onTap: () {
                   // 설정을 클릭했을 때의 동작
+                  //SettingScreen로 이동
+                  print('설정 클릭');
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/setting');
                 },
               ),
               ListTile(

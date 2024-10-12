@@ -115,7 +115,7 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
     Object? startDate = null,
     Object? endDate = null,
     Object? iconPath = freezed,
-    Object? iconColor = freezed,
+    Object? iconColor = null,
     Object? dailyItineraryCubitList = null,
   }) {
     return _then(_value.copyWith(
@@ -147,7 +147,7 @@ class _$ItineraryDataCopyWithImpl<$Res, $Val extends ItineraryData>
           ? _value.iconPath
           : iconPath // ignore: cast_nullable_to_non_nullable
               as String?,
-      iconColor: freezed == iconColor
+      iconColor: null == iconColor
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
               as Color,
@@ -204,7 +204,7 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
     Object? startDate = null,
     Object? endDate = null,
     Object? iconPath = freezed,
-    Object? iconColor = freezed,
+    Object? iconColor = null,
     Object? dailyItineraryCubitList = null,
   }) {
     return _then(_$ItineraryDataImpl(
@@ -236,7 +236,7 @@ class __$$ItineraryDataImplCopyWithImpl<$Res>
           ? _value.iconPath
           : iconPath // ignore: cast_nullable_to_non_nullable
               as String?,
-      iconColor: freezed == iconColor
+      iconColor: null == iconColor
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
               as Color,

@@ -29,6 +29,7 @@ class _UserScreenState extends State<UserScreen> {
       ),
       body: Center(
         child: SingleChildScrollView(
+          clipBehavior: Clip.none,
           controller: _scrollController,
           child: Padding(
             padding: const EdgeInsets.all(17.0),

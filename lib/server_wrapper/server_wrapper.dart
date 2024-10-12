@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
@@ -268,17 +269,28 @@ class ServerWrapper {
   }
 
   static Future<LoginResult> loginKakao() async {
-    final UserApi api = UserApi.instance;
+    final AuthCodeClient client = AuthCodeClient.instance;
     try {
-      OAuthToken token = await (await isKakaoTalkInstalled()
-          ? api.loginWithKakaoTalk()
-          : api.loginWithKakaoAccount());
-      var user = await api.me();
-      print(user);
-      print(
-          '카카오톡으로 로그인 성공, 이름: ${user.kakaoAccount!.profile!.nickname}, ${token.accessToken}');
+      final api = UserApi.instance;
+      api.loginWithKakaoAccount();
+      String redirectUri =
+          'http://ec2-3-104-73-228.ap-southeast-2.compute.amazonaws.com:8080/api/oauth/authenticate';
+      String code = await (await isKakaoTalkInstalled()
+          ? client.authorizeWithTalk(
+              redirectUri: redirectUri,
+              webPopupLogin: true,
+            )
+          : client.authorize(
+              redirectUri: redirectUri,
+              webPopupLogin: true,
+            ));
+      final token = await AuthApi.instance.issueAccessToken(
+        authCode: code,
+        redirectUri: redirectUri,
+      );
+      TokenManagerProvider.instance.manager.setToken(token);
       _accessToken = token.accessToken;
-      _refreshToken = token.refreshToken ?? '';
+      _refreshToken = token.refreshToken!;
       _testAccount = false;
       _loginKind = 2;
       return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);
@@ -359,8 +371,6 @@ class ServerWrapper {
     );
     print(response.body);
     if (response.statusCode == 200) {
-      print(utf8.decode(response.bodyBytes));
-      print(response.bodyBytes);
       var user =
           UserData.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       userCubit.setUser(user);

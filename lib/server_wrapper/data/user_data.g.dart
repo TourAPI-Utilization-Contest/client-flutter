@@ -6,7 +6,8 @@ part of 'user_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-UserData _$UserDataFromJson(Map<String, dynamic> json) => UserData(
+_$UserDataImpl _$$UserDataImplFromJson(Map<String, dynamic> json) =>
+    _$UserDataImpl(
       id: (json['id'] as num).toInt(),
       email: json['email'] as String?,
       nickname: json['nickname'] as String?,
@@ -16,13 +17,21 @@ UserData _$UserDataFromJson(Map<String, dynamic> json) => UserData(
               ?.map((e) => (e as num).toInt())
               .toList() ??
           const [],
+      places: (json['places'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(
+                int.parse(k), PlaceData.fromJson(e as Map<String, dynamic>)),
+          ) ??
+          const {},
     );
 
-Map<String, dynamic> _$UserDataToJson(UserData instance) => <String, dynamic>{
+Map<String, dynamic> _$$UserDataImplToJson(_$UserDataImpl instance) =>
+    <String, dynamic>{
       'id': instance.id,
       'email': instance.email,
       'nickname': instance.nickname,
       'kakaoId': instance.kakaoId,
       'profileUrl': instance.profileUrl,
       'itineraries': instance.itineraries,
+      'places':
+          instance.places.map((k, e) => MapEntry(k.toString(), e.toJson())),
     };

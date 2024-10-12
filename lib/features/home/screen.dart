@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:tradule/common/itinerary_card.dart';
 import 'package:tradule/features/itinerary/screen_legacy.dart';
+import 'package:tradule/features/my_place/screen.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/features/login/screen.dart';
@@ -59,7 +60,8 @@ class _HomePageState extends State<HomePage>
             children: [
               // Center(child: Text('Page 1')),
               // MapWithBottomSheet(),
-              legacy.CustomBottomSheetMap(),
+              // legacy.CustomBottomSheetMap(),
+              MyPlaceScreen(),
               MainPage(),
               UserScreen(),
               // LoginScreen(),
@@ -239,7 +241,7 @@ class _MainPageState extends State<MainPage>
               leading: Icon(Icons.settings),
               title: Text('설정'),
               onTap: () {
-                // 설정을 클릭했을 때의 동작
+                Navigator.pushNamed(context, '/setting');
               },
             ),
             if (!ServerWrapper.isLogin())
