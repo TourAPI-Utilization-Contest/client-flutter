@@ -15,12 +15,16 @@ _$PlaceDataImpl _$$PlaceDataImplFromJson(Map<String, dynamic> json) =>
       longitude: (json['longitude'] as num).toDouble(),
       stayTime: _durationFromJson((json['stayTime'] as num?)?.toInt()),
       visitTime: _dateTimeFromJson(json['visitTime'] as String?),
+      createdTime: _dateTimeFromJson(json['createdTime'] as String?),
       description: json['description'] as String?,
       phoneNumber: json['phoneNumber'] as String?,
       homepage: json['homepage'] as String?,
-      tag: json['tag'] as String?,
+      tags:
+          (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+              const [],
       imageUrl: json['imageUrl'] as String?,
       thumbnailUrl: json['thumbnailUrl'] as String?,
+      isProvided: json['isProvided'] as bool? ?? false,
       iconColor: _colorFromJson((json['iconColor'] as num?)?.toInt()),
     );
 
@@ -33,11 +37,13 @@ Map<String, dynamic> _$$PlaceDataImplToJson(_$PlaceDataImpl instance) =>
       'longitude': instance.longitude,
       'stayTime': _durationToJson(instance.stayTime),
       'visitTime': _dateTimeToJson(instance.visitTime),
+      'createdTime': _dateTimeToJson(instance.createdTime),
       'description': instance.description,
       'phoneNumber': instance.phoneNumber,
       'homepage': instance.homepage,
-      'tag': instance.tag,
+      'tags': instance.tags,
       'imageUrl': instance.imageUrl,
       'thumbnailUrl': instance.thumbnailUrl,
+      'isProvided': instance.isProvided,
       'iconColor': _colorToJson(instance.iconColor),
     };

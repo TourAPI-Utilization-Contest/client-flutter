@@ -951,7 +951,7 @@ class DailyItineraryPlaceItem extends StatelessWidget {
                           : timeFormat4.format(placeData.visitTime!),
                       style: myTextStyle(
                         fontSize: 9,
-                        color: const Color(0xFF0BB2D1),
+                        color: cPrimaryDark,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -963,7 +963,7 @@ class DailyItineraryPlaceItem extends StatelessWidget {
                           : '관광 시간 미정',
                       style: myTextStyle(
                         fontSize: 9,
-                        color: const Color(0xFF0BB2D1),
+                        color: cPrimaryDark,
                         fontWeight: FontWeight.w400,
                       ),
                     ),

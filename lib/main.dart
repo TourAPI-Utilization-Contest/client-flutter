@@ -1,3 +1,5 @@
+import 'package:tradule/features/search/screen.dart';
+
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -88,6 +90,8 @@ class Tradule extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/setting': (context) => SettingScreen(),
         '/signup': (context) => SignUpScreen(),
+        '/search_place': (context) => SearchScreen(),
+        // '/add_place': (context) => AddPlaceScreen(),
       },
     );
   }

@@ -6,4 +6,5 @@ const Color cGray3 = Color(0xFFABB0BC);
 const Color cGray4 = Color(0xFFECECEC);
 const Color cDark = Color(0xFF4C5364);
 const Color cAqua = Color(0xFF9CEFFF);
-const Color cPrimaryColor = Color(0xFF0ED2F7);
+const Color cPrimary = Color(0xFF0ED2F7);
+const Color cPrimaryDark = Color(0xFF0BB2D1);

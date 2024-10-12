@@ -29,12 +29,15 @@ mixin _$PlaceData {
   Duration? get stayTime => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime? get visitTime => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+  DateTime? get createdTime => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
   String? get phoneNumber => throw _privateConstructorUsedError;
-  String? get homepage => throw _privateConstructorUsedError;
-  String? get tag => throw _privateConstructorUsedError;
+  String? get homepage => throw _privateConstructorUsedError; // String? tag,
+  List<String> get tags => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
   String? get thumbnailUrl => throw _privateConstructorUsedError;
+  bool get isProvided => throw _privateConstructorUsedError;
   @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   Color? get iconColor => throw _privateConstructorUsedError;
 
@@ -63,12 +66,15 @@ abstract class $PlaceDataCopyWith<$Res> {
       Duration? stayTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime? visitTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      DateTime? createdTime,
       String? description,
       String? phoneNumber,
       String? homepage,
-      String? tag,
+      List<String> tags,
       String? imageUrl,
       String? thumbnailUrl,
+      bool isProvided,
       @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
       Color? iconColor});
 }
@@ -95,12 +101,14 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
     Object? longitude = null,
     Object? stayTime = freezed,
     Object? visitTime = freezed,
+    Object? createdTime = freezed,
     Object? description = freezed,
     Object? phoneNumber = freezed,
     Object? homepage = freezed,
-    Object? tag = freezed,
+    Object? tags = null,
     Object? imageUrl = freezed,
     Object? thumbnailUrl = freezed,
+    Object? isProvided = null,
     Object? iconColor = freezed,
   }) {
     return _then(_value.copyWith(
@@ -132,6 +140,10 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
           ? _value.visitTime
           : visitTime // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      createdTime: freezed == createdTime
+          ? _value.createdTime
+          : createdTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
@@ -144,10 +156,10 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
           ? _value.homepage
           : homepage // ignore: cast_nullable_to_non_nullable
               as String?,
-      tag: freezed == tag
-          ? _value.tag
-          : tag // ignore: cast_nullable_to_non_nullable
-              as String?,
+      tags: null == tags
+          ? _value.tags
+          : tags // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -156,6 +168,10 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
           ? _value.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      isProvided: null == isProvided
+          ? _value.isProvided
+          : isProvided // ignore: cast_nullable_to_non_nullable
+              as bool,
       iconColor: freezed == iconColor
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
@@ -182,12 +198,15 @@ abstract class _$$PlaceDataImplCopyWith<$Res>
       Duration? stayTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime? visitTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      DateTime? createdTime,
       String? description,
       String? phoneNumber,
       String? homepage,
-      String? tag,
+      List<String> tags,
       String? imageUrl,
       String? thumbnailUrl,
+      bool isProvided,
       @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
       Color? iconColor});
 }
@@ -212,12 +231,14 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
     Object? longitude = null,
     Object? stayTime = freezed,
     Object? visitTime = freezed,
+    Object? createdTime = freezed,
     Object? description = freezed,
     Object? phoneNumber = freezed,
     Object? homepage = freezed,
-    Object? tag = freezed,
+    Object? tags = null,
     Object? imageUrl = freezed,
     Object? thumbnailUrl = freezed,
+    Object? isProvided = null,
     Object? iconColor = freezed,
   }) {
     return _then(_$PlaceDataImpl(
@@ -249,6 +270,10 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
           ? _value.visitTime
           : visitTime // ignore: cast_nullable_to_non_nullable
               as DateTime?,
+      createdTime: freezed == createdTime
+          ? _value.createdTime
+          : createdTime // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       description: freezed == description
           ? _value.description
           : description // ignore: cast_nullable_to_non_nullable
@@ -261,10 +286,10 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
           ? _value.homepage
           : homepage // ignore: cast_nullable_to_non_nullable
               as String?,
-      tag: freezed == tag
-          ? _value.tag
-          : tag // ignore: cast_nullable_to_non_nullable
-              as String?,
+      tags: null == tags
+          ? _value._tags
+          : tags // ignore: cast_nullable_to_non_nullable
+              as List<String>,
       imageUrl: freezed == imageUrl
           ? _value.imageUrl
           : imageUrl // ignore: cast_nullable_to_non_nullable
@@ -273,6 +298,10 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
           ? _value.thumbnailUrl
           : thumbnailUrl // ignore: cast_nullable_to_non_nullable
               as String?,
+      isProvided: null == isProvided
+          ? _value.isProvided
+          : isProvided // ignore: cast_nullable_to_non_nullable
+              as bool,
       iconColor: freezed == iconColor
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
@@ -294,13 +323,17 @@ class _$PlaceDataImpl implements _PlaceData {
       this.stayTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       this.visitTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      this.createdTime,
       this.description,
       this.phoneNumber,
       this.homepage,
-      this.tag,
+      final List<String> tags = const [],
       this.imageUrl,
       this.thumbnailUrl,
-      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) this.iconColor});
+      this.isProvided = false,
+      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) this.iconColor})
+      : _tags = tags;
 
   factory _$PlaceDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$PlaceDataImplFromJson(json);
@@ -323,24 +356,39 @@ class _$PlaceDataImpl implements _PlaceData {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime? visitTime;
   @override
+  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+  final DateTime? createdTime;
+  @override
   final String? description;
   @override
   final String? phoneNumber;
   @override
   final String? homepage;
+// String? tag,
+  final List<String> _tags;
+// String? tag,
   @override
-  final String? tag;
+  @JsonKey()
+  List<String> get tags {
+    if (_tags is EqualUnmodifiableListView) return _tags;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_tags);
+  }
+
   @override
   final String? imageUrl;
   @override
   final String? thumbnailUrl;
+  @override
+  @JsonKey()
+  final bool isProvided;
   @override
   @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   final Color? iconColor;
 
   @override
   String toString() {
-    return 'PlaceData(id: $id, title: $title, address: $address, latitude: $latitude, longitude: $longitude, stayTime: $stayTime, visitTime: $visitTime, description: $description, phoneNumber: $phoneNumber, homepage: $homepage, tag: $tag, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, iconColor: $iconColor)';
+    return 'PlaceData(id: $id, title: $title, address: $address, latitude: $latitude, longitude: $longitude, stayTime: $stayTime, visitTime: $visitTime, createdTime: $createdTime, description: $description, phoneNumber: $phoneNumber, homepage: $homepage, tags: $tags, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, isProvided: $isProvided, iconColor: $iconColor)';
   }
 
   @override
@@ -359,18 +407,23 @@ class _$PlaceDataImpl implements _PlaceData {
                 other.stayTime == stayTime) &&
             (identical(other.visitTime, visitTime) ||
                 other.visitTime == visitTime) &&
+            (identical(other.createdTime, createdTime) ||
+                other.createdTime == createdTime) &&
             (identical(other.description, description) ||
                 other.description == description) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
             (identical(other.homepage, homepage) ||
                 other.homepage == homepage) &&
-            (identical(other.tag, tag) || other.tag == tag) &&
+            const DeepCollectionEquality().equals(other._tags, _tags) &&
             (identical(other.imageUrl, imageUrl) ||
                 other.imageUrl == imageUrl) &&
             (identical(other.thumbnailUrl, thumbnailUrl) ||
                 other.thumbnailUrl == thumbnailUrl) &&
-            const DeepCollectionEquality().equals(other.iconColor, iconColor));
+            (identical(other.isProvided, isProvided) ||
+                other.isProvided == isProvided) &&
+            (identical(other.iconColor, iconColor) ||
+                other.iconColor == iconColor));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -384,13 +437,15 @@ class _$PlaceDataImpl implements _PlaceData {
       longitude,
       stayTime,
       visitTime,
+      createdTime,
       description,
       phoneNumber,
       homepage,
-      tag,
+      const DeepCollectionEquality().hash(_tags),
       imageUrl,
       thumbnailUrl,
-      const DeepCollectionEquality().hash(iconColor));
+      isProvided,
+      iconColor);
 
   /// Create a copy of PlaceData
   /// with the given fields replaced by the non-null parameter values.
@@ -419,12 +474,15 @@ abstract class _PlaceData implements PlaceData {
       final Duration? stayTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       final DateTime? visitTime,
+      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      final DateTime? createdTime,
       final String? description,
       final String? phoneNumber,
       final String? homepage,
-      final String? tag,
+      final List<String> tags,
       final String? imageUrl,
       final String? thumbnailUrl,
+      final bool isProvided,
       @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
       final Color? iconColor}) = _$PlaceDataImpl;
 
@@ -448,17 +506,22 @@ abstract class _PlaceData implements PlaceData {
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime? get visitTime;
   @override
+  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+  DateTime? get createdTime;
+  @override
   String? get description;
   @override
   String? get phoneNumber;
   @override
-  String? get homepage;
+  String? get homepage; // String? tag,
   @override
-  String? get tag;
+  List<String> get tags;
   @override
   String? get imageUrl;
   @override
   String? get thumbnailUrl;
+  @override
+  bool get isProvided;
   @override
   @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   Color? get iconColor;

@@ -270,6 +270,11 @@ class ServerWrapper {
   }
 
   static Future<LoginResult> autoLoginKakao() async {
+    if (TargetPlatform.macOS == defaultTargetPlatform ||
+        TargetPlatform.windows == defaultTargetPlatform ||
+        TargetPlatform.linux == defaultTargetPlatform) {
+      return LoginResult(false, message: '카카오톡 로그인은 모바일에서만 가능합니다.');
+    }
     var token = await TokenManagerProvider.instance.manager.getToken();
     if (token != null) {
       _accessToken = token.accessToken;

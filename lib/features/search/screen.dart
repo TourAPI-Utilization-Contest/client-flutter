@@ -339,6 +339,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 imageUrl: item["firstimage"],
                 thumbnailUrl: item["firstimage2"],
                 iconColor: const Color(0xFF9CEFFF),
+                isProvided: true,
               ),
             ),
           );

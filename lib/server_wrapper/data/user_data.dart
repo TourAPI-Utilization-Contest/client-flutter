@@ -55,7 +55,10 @@ class UserCubit extends Cubit<UserData?> {
 
   void addPlace(PlaceData place) {
     if (state != null) {
-      emit(state!.copyWith(places: {...state!.places, place.id: place}));
+      emit(state!.copyWith(places: {
+        ...state!.places,
+        place.id: place.copyWith(createdTime: DateTime.now())
+      }));
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:tradule/common/itinerary_card.dart';
+import 'package:tradule/common/sort_widget.dart';
 import 'package:tradule/features/itinerary/screen_legacy.dart';
 import 'package:tradule/features/my_place/screen.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
@@ -343,10 +344,11 @@ class _MainPageState extends State<MainPage>
                             const Color.fromRGBO(255, 255, 255, 0.8),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
+                          vertical: 12,
                         ),
                         // fixedSize: const Size(46, 21),
                         // maximumSize: const Size(46, 21),
-                        minimumSize: const Size(46, 21),
+                        minimumSize: const Size(46, 0),
                         textStyle: myTextStyle(
                           height: 1.2,
                           color: Theme.of(context).colorScheme.primary,
@@ -424,22 +426,11 @@ class _MainPageState extends State<MainPage>
                         ],
                       ),
                     ),
-                    trailing: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icon/jam_arrows_v.svg',
-                        ),
-                        Text(
-                          '날짜순',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 11,
-                            fontFamily: 'NotoSansKR',
-                            fontVariations: const [FontVariation('wght', 400)],
-                          ),
-                        ),
-                      ],
+                    trailing: SortWidget(
+                      sortTypes: ['수정순', '날짜순', '이름순'],
+                      changeSortType: (index, ascending) async {
+                        setState(() {});
+                      },
                     ),
                     content: BlocProvider.value(
                       value: ServerWrapper.itineraryCubitMapCubit,
@@ -507,7 +498,8 @@ class _MainPageState extends State<MainPage>
       floatingActionButton: Tooltip(
         message: '새 일정 만들기',
         child: FloatingActionButton(
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: cPrimary.withAlpha(130),
+          hoverColor: cPrimary.withAlpha(150),
           shape: const CircleBorder(),
           elevation: 0,
           hoverElevation: 0,

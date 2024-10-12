@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'color.dart';
 import 'my_text_style.dart';
 
 class TagFilterButton extends StatelessWidget {
   final String text;
+  // final Widget child;
+  // final Widget? icon;
+  final String? iconPath;
+  final String? iconTooltip;
+  final VoidCallback? iconOnPressed;
   final bool isSelected;
   final VoidCallback? onPressed;
   final String? badgeText;
 
   const TagFilterButton({
     required this.text,
+    // required this.child,
     required this.isSelected,
+    // this.icon,
+    this.iconPath,
+    this.iconTooltip,
+    this.iconOnPressed,
     this.onPressed,
     this.badgeText,
   });
@@ -25,57 +36,101 @@ class TagFilterButton extends StatelessWidget {
         TextButton(
           onPressed: onPressed,
           style: ButtonStyle(
-            side: MaterialStateProperty.all(
+            padding: iconPath == null
+                ? null
+                : WidgetStatePropertyAll(
+                    EdgeInsets.only(top: 6, bottom: 6, left: 12, right: 6),
+                  ),
+            minimumSize: iconPath == null
+                ? null
+                : WidgetStatePropertyAll(
+                    Size.zero,
+                  ),
+            side: WidgetStatePropertyAll(
               BorderSide(
                 width: 1,
-                color: isSelected ? cPrimaryColor : cGray,
+                color: isSelected ? cPrimary : cGray,
               ),
             ),
-            foregroundColor: MaterialStateProperty.all(
+            foregroundColor: WidgetStatePropertyAll(
               isSelected ? cDark : cGray,
             ),
           ),
-          child: Text(
-            text,
-            style: myTextStyle(
-              fontSize: 15,
-            ),
+          // child: Text(
+          //   text,
+          //   style: myTextStyle(
+          //     fontSize: 15,
+          //   ),
+          // ),
+          child: Row(
+            children: [
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+              if (iconPath != null) ...[
+                Tooltip(
+                  message: iconTooltip ?? '',
+                  child: IconButton(
+                    // onPressed: () {
+                    //   Navigator.pushNamed(context, '/search');
+                    // },
+                    onPressed: iconOnPressed,
+                    style: ButtonStyle(
+                      padding: WidgetStatePropertyAll(EdgeInsets.all(8)),
+                      minimumSize: WidgetStatePropertyAll(
+                        Size.zero,
+                      ),
+                      maximumSize: WidgetStatePropertyAll(
+                        Size(32, 32),
+                      ),
+                    ),
+                    icon: SvgPicture.asset(
+                      iconPath!,
+                      color: isSelected ? cPrimary : cGray,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
         ),
         if (badgeText != null)
           Positioned(
-            right: 0,
-            top: 0,
-            width: 10,
-            height: 10,
+            right: 2,
+            top: 4,
+            width: 0,
+            height: 0,
             // 클릭 이벤트 무시
             child: IgnorePointer(
               child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
                 children: [
-                  SizedBox(
+                  Positioned(
                     width: 100,
                     height: 100,
-                    child: Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isSelected ? cPrimaryColor : cGray,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0) +
-                                const EdgeInsets.only(bottom: 2),
-                            child: Text(
-                              badgeText!,
-                              style: myTextStyle(
-                                color: Colors.white,
-                                height: 1,
-                                fontSize: 12,
-                              ),
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isSelected ? cPrimary : cGray,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0) +
+                              const EdgeInsets.only(bottom: 1.2),
+                          child: Text(
+                            badgeText!,
+                            style: myTextStyle(
+                              color: Colors.white,
+                              height: 0.8,
+                              fontSize: 10,
                             ),
                           ),
                         ),

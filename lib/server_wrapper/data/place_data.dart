@@ -27,12 +27,16 @@ class PlaceData with _$PlaceData {
     Duration? stayTime,
     @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
     DateTime? visitTime,
+    @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+    DateTime? createdTime,
     String? description,
     String? phoneNumber,
     String? homepage,
-    String? tag,
+    // String? tag,
+    @Default([]) List<String> tags,
     String? imageUrl,
     String? thumbnailUrl,
+    @Default(false) bool isProvided,
     @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) Color? iconColor,
   }) = _PlaceData;
 
