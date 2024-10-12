@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'color.dart';
@@ -145,7 +146,7 @@ class MyTextFormField extends StatefulWidget {
   final String? Function(String?)? validator;
   final String? suffixToolTip;
   final void Function()? suffixOnPressed;
-  final bool obscureText;
+  final bool passwordMode;
   final bool enabled;
 
   MyTextFormField({
@@ -162,7 +163,7 @@ class MyTextFormField extends StatefulWidget {
     this.validator,
     this.suffixToolTip,
     this.suffixOnPressed,
-    this.obscureText = false,
+    this.passwordMode = false,
     this.enabled = true,
     // this.hintText = ''
   });
@@ -184,7 +185,18 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       autofocus: widget.autoFocus,
       validator: widget.validator,
       enabled: widget.enabled,
-      obscureText: widget.obscureText,
+      obscureText: widget.passwordMode,
+      enableSuggestions: !widget.passwordMode,
+      autocorrect: !widget.passwordMode,
+      keyboardType: widget.passwordMode
+          ? TextInputType.visiblePassword
+          : TextInputType.text,
+      inputFormatters: widget.passwordMode
+          ? [
+              FilteringTextInputFormatter.allow(
+                  RegExp("[a-zA-Z0-9!@#\$%^&*()_+-=~`|/<>?\\\\]{0,}"))
+            ]
+          : null,
       onTap: () {
         widget.onTap?.call();
         setState(() {});

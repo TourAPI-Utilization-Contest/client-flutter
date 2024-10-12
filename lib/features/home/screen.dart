@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:tradule/common/global_value.dart';
 import 'package:tradule/common/itinerary_card.dart';
 import 'package:tradule/common/sort_widget.dart';
 import 'package:tradule/features/itinerary/screen_legacy.dart';
@@ -31,21 +32,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  TabController? _tabController;
+  // TabController? _tabController;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: 3,
-      vsync: this,
-      initialIndex: 1,
-    );
+    // mainTabController = TabController(
+    //   length: 3,
+    //   vsync: this,
+    //   initialIndex: 1,
+    // );
   }
 
   @override
   void dispose() {
-    _tabController?.dispose();
+    mainTabController?.dispose();
     super.dispose();
   }
 
@@ -54,64 +55,81 @@ class _HomePageState extends State<HomePage>
     return BlocProvider<UserCubit>.value(
       value: ServerWrapper.userCubit,
       child: BlocBuilder<UserCubit, UserData?>(
-        builder: (context, userData) => Scaffold(
-          body: TabBarView(
-            physics: const NeverScrollableScrollPhysics(),
-            controller: _tabController,
-            children: [
-              // Center(child: Text('Page 1')),
-              // MapWithBottomSheet(),
-              // legacy.CustomBottomSheetMap(),
-              MyPlaceScreen(),
-              MainPage(),
-              UserScreen(),
-              // LoginScreen(),
-              // ServerWrapper.isLogin() ? UserScreen() : LoginScreen(),
-            ],
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _tabController?.index ?? 0,
-            onTap: (index) {
-              if ((index == 2 || index == 0) && !ServerWrapper.isLogin()) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(),
-                  ),
-                );
-                return;
-              }
-              _tabController?.animateTo(index);
+        builder: (context, userData) {
+          // if (userData == null) {
+          //   return Scaffold(
+          //     body: Center(
+          //       child: CircularProgressIndicator(),
+          //     ),
+          //   );
+          // }
+          mainTabController ??= TabController(
+            length: 3,
+            vsync: this,
+            initialIndex: 1,
+          )..addListener(() {
               setState(() {});
-            },
-            type: BottomNavigationBarType.fixed,
-            enableFeedback: false,
-            iconSize: 30.0,
-            unselectedItemColor: cGray3,
-            selectedItemColor: Theme.of(context).colorScheme.primary,
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                // icon: Icon(Icons.location_on_outlined),
-                // activeIcon: Icon(Icons.location_on),
-                icon: bottomNavigationBarItemIcon('assets/icon/jam_heart.svg'),
-                label: '내 장소',
-              ),
-              BottomNavigationBarItem(
-                // icon: Icon(Icons.home_outlined),
-                // activeIcon: Icon(Icons.home),
-                icon: bottomNavigationBarItemIcon('assets/icon/jam_home.svg'),
-                label: '홈 화면',
-              ),
-              BottomNavigationBarItem(
-                // icon: const Icon(Icons.person_outline),
-                // activeIcon: const Icon(Icons.person),
-                icon: bottomNavigationBarItemIcon('assets/icon/jam_user.svg'),
-                // label: ServerWrapper.isLogin() ? '내 정보' : '로그인',
-                label: '내 정보',
-              ),
-            ],
-          ),
-        ),
+            });
+          return Scaffold(
+            body: TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
+              controller: mainTabController,
+              children: [
+                // Center(child: Text('Page 1')),
+                // MapWithBottomSheet(),
+                // legacy.CustomBottomSheetMap(),
+                MyPlaceScreen(),
+                MainPage(),
+                UserScreen(),
+                // LoginScreen(),
+                // ServerWrapper.isLogin() ? UserScreen() : LoginScreen(),
+              ],
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              currentIndex: mainTabController?.index ?? 0,
+              onTap: (index) {
+                if ((index == 2 || index == 0) && !ServerWrapper.isLogin()) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(),
+                    ),
+                  );
+                  return;
+                }
+                mainTabController?.animateTo(index);
+                setState(() {});
+              },
+              type: BottomNavigationBarType.fixed,
+              enableFeedback: false,
+              iconSize: 30.0,
+              unselectedItemColor: cGray3,
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  // icon: Icon(Icons.location_on_outlined),
+                  // activeIcon: Icon(Icons.location_on),
+                  icon:
+                      bottomNavigationBarItemIcon('assets/icon/jam_heart.svg'),
+                  label: '내 장소',
+                ),
+                BottomNavigationBarItem(
+                  // icon: Icon(Icons.home_outlined),
+                  // activeIcon: Icon(Icons.home),
+                  icon: bottomNavigationBarItemIcon('assets/icon/jam_home.svg'),
+                  label: '홈 화면',
+                ),
+                BottomNavigationBarItem(
+                  // icon: const Icon(Icons.person_outline),
+                  // activeIcon: const Icon(Icons.person),
+                  icon: bottomNavigationBarItemIcon('assets/icon/jam_user.svg'),
+                  // label: ServerWrapper.isLogin() ? '내 정보' : '로그인',
+                  label: '내 정보',
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -431,21 +449,26 @@ class _MainPageState extends State<MainPage>
                       changeSortType: (index, ascending) async {
                         setState(() {});
                       },
+                      ascending: false,
                     ),
-                    content: BlocProvider.value(
-                      value: ServerWrapper.itineraryCubitMapCubit,
-                      child: BlocBuilder<ItineraryCubitMapCubit,
-                          Map<int, ItineraryCubit>>(
-                        builder: (context, itineraryCubitMap) {
-                          return Column(
-                            children: [
-                              ...itineraryCubitMap.map(
-                                (itineraryId, itineraryCubit) {
-                                  return MapEntry(
-                                    itineraryId,
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 26),
-                                      child: ItineraryCard(
+                    content: Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: BlocProvider.value(
+                        value: ServerWrapper.itineraryCubitMapCubit,
+                        child: BlocBuilder<ItineraryCubitMapCubit,
+                            Map<int, ItineraryCubit>>(
+                          builder: (context, itineraryCubitMap) {
+                            var sortedItineraryCubitList =
+                                itineraryCubitMap.values.toList();
+
+                            return Column(
+                              spacing: 20,
+                              children: [
+                                ...itineraryCubitMap.map(
+                                  (itineraryId, itineraryCubit) {
+                                    return MapEntry(
+                                      itineraryId,
+                                      ItineraryCard(
                                         itineraryCubit: itineraryCubit,
                                         onBodyPressed: () {
                                           Navigator.push(
@@ -474,18 +497,29 @@ class _MainPageState extends State<MainPage>
                                           );
                                         },
                                       ),
-                                    ),
-                                  );
-                                },
-                              ).values,
-                              if (_isLoading)
+                                    );
+                                  },
+                                ).values,
                                 Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: CircularProgressIndicator(),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
+                                  child: Text(
+                                    '더 이상 일정이 없어요!',
+                                    style: myTextStyle(
+                                      color: cPrimaryDark,
+                                      fontSize: 14,
+                                    ),
+                                  ),
                                 ),
-                            ],
-                          );
-                        },
+                                if (_isLoading)
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: CircularProgressIndicator(),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ),
@@ -519,6 +553,26 @@ class _MainPageState extends State<MainPage>
         ),
       ),
     );
+  }
+
+  void itineraryCubitSort(List<ItineraryCubit> itineraryCubitList) {
+    // switch (ServerWrapper.itinerarySortType) {
+    //   case ItinerarySortType.modified:
+    //     itineraryCubitList.sort((a, b) {
+    //       return b.modifiedTime.compareTo(a.modifiedTime);
+    //     });
+    //     break;
+    //   case ItinerarySortType.date:
+    //     itineraryCubitList.sort((a, b) {
+    //       return b.startTime.compareTo(a.startTime);
+    //     });
+    //     break;
+    //   case ItinerarySortType.name:
+    //     itineraryCubitList.sort((a, b) {
+    //       return a.name.compareTo(b.name);
+    //     });
+    //     break;
+    // }
   }
 
   @override

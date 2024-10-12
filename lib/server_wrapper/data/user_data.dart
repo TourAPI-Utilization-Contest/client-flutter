@@ -68,6 +68,12 @@ class UserCubit extends Cubit<UserData?> {
     }
   }
 
+  void updatePassword(String value) {
+    // if (state != null) {
+    //   emit(state!.copyWith(password: value));
+    // }
+  }
+
   bool isPlaceExist(int placeId) {
     if (state != null) {
       return state!.places.containsKey(placeId);

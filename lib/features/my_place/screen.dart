@@ -53,6 +53,7 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
+        scrolledUnderElevation: 0,
         title: const Text('내 장소'),
         // scrollController: _scrollController,
         // clipper: const InvertedCornerClipper(arcRadius: 10),
@@ -77,7 +78,7 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
 
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 14,
+              spacing: 20,
               children: <Widget>[
                 MyTextField(
                   controller: _searchController,
@@ -91,106 +92,83 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
                     setState(() {});
                   },
                 ),
-                Row(
-                  // spacing: 8,
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        clipBehavior: Clip.none,
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          spacing: 8,
-                          children: <Widget>[
-                            TagFilterButton(
-                              text: '전체',
-                              badgeText: (_providedPlaceCount + _myPlaceCount)
-                                  .toString(),
-                              isSelected: _selectedAllPlace,
-                              onPressed: () {
-                                setState(() {
-                                  _selectedAllPlace = true;
-                                  _selectedProvidedPlace = false;
-                                  _selectedMyPlace = false;
-                                });
-                              },
-                            ),
-                            TagFilterButton(
-                              text: '공개 장소',
-                              iconPath: 'assets/icon/jam_search.svg',
-                              iconTooltip: '장소 검색',
-                              iconOnPressed: () {
-                                Navigator.pushNamed(context, '/search_place');
-                              },
-                              badgeText: _providedPlaceCount.toString(),
-                              isSelected: _selectedProvidedPlace,
-                              onPressed: () {
-                                setState(() {
-                                  _selectedAllPlace = false;
-                                  _selectedProvidedPlace = true;
-                                  _selectedMyPlace = false;
-                                });
-                              },
-                            ),
-                            TagFilterButton(
-                              text: '나만의 장소',
-                              iconPath: 'assets/icon/jam_plus.svg',
-                              iconOnPressed: () {
-                                Navigator.pushNamed(context, '/add_place');
-                              },
-                              iconTooltip: '나만의 장소 추가',
-                              badgeText: _myPlaceCount.toString(),
-                              isSelected: _selectedMyPlace,
-                              onPressed: () {
-                                setState(() {
-                                  _selectedAllPlace = false;
-                                  _selectedProvidedPlace = false;
-                                  _selectedMyPlace = true;
-                                });
-                              },
-                            ),
-                          ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Row(
+                    // spacing: 8,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          clipBehavior: Clip.none,
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            spacing: 8,
+                            children: <Widget>[
+                              TagFilterButton(
+                                text: '전체',
+                                badgeText: (_providedPlaceCount + _myPlaceCount)
+                                    .toString(),
+                                isSelected: _selectedAllPlace,
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedAllPlace = true;
+                                    _selectedProvidedPlace = false;
+                                    _selectedMyPlace = false;
+                                  });
+                                },
+                              ),
+                              TagFilterButton(
+                                text: '공개 장소',
+                                iconPath: 'assets/icon/search.svg',
+                                iconTooltip: '장소 검색',
+                                iconOnPressed: () {
+                                  Navigator.pushNamed(context, '/search_place');
+                                },
+                                badgeText: _providedPlaceCount.toString(),
+                                isSelected: _selectedProvidedPlace,
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedAllPlace = false;
+                                    _selectedProvidedPlace = true;
+                                    _selectedMyPlace = false;
+                                  });
+                                },
+                              ),
+                              TagFilterButton(
+                                text: '나만의 장소',
+                                iconPath: 'assets/icon/jam_plus.svg',
+                                iconOnPressed: () {
+                                  Navigator.pushNamed(context, '/add_place');
+                                },
+                                iconTooltip: '나만의 장소 추가',
+                                badgeText: _myPlaceCount.toString(),
+                                isSelected: _selectedMyPlace,
+                                onPressed: () {
+                                  setState(() {
+                                    _selectedAllPlace = false;
+                                    _selectedProvidedPlace = false;
+                                    _selectedMyPlace = true;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    SortWidget(
-                      sortTypes: _sortTypes,
-                      changeSortType: (index, ascending) {
-                        _lastSortIndex = index;
-                        _lastAscending = ascending;
-                        // _sortPlace(index, ascending);
-                        setState(() {});
-                      },
-                      ascending: _initialAscending,
-                    ),
-                  ],
+                      SortWidget(
+                        sortTypes: _sortTypes,
+                        changeSortType: (index, ascending) {
+                          _lastSortIndex = index;
+                          _lastAscending = ascending;
+                          // _sortPlace(index, ascending);
+                          setState(() {});
+                        },
+                        ascending: _initialAscending,
+                      ),
+                    ],
+                  ),
                 ),
-                if (_searchedPlaceList.isEmpty)
-                  if (_searchController.text.isEmpty)
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          '아직 추가한 장소가 없어요!',
-                          style: myTextStyle(
-                            color: cPrimaryDark,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                if (_searchedPlaceList.isEmpty)
-                  if (_searchController.text.isNotEmpty)
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          '검색 결과가 없어요!',
-                          style: myTextStyle(
-                            color: cPrimaryDark,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
                 Expanded(
                   child: SingleChildScrollFadeView(
                     child: Padding(
@@ -206,6 +184,43 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
                               PlaceCard(
                                 key: ValueKey(place.id),
                                 placeData: place,
+                              ),
+                          if (_searchedPlaceList.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              child: Text(
+                                '더 이상 장소가 없어요!',
+                                style: myTextStyle(
+                                  color: cPrimaryDark,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          if (_searchedPlaceList.isEmpty)
+                            if (_searchController.text.isEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                child: Text(
+                                  '아직 추가한 장소가 없어요!',
+                                  style: myTextStyle(
+                                    color: cPrimaryDark,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                          if (_searchedPlaceList.isEmpty)
+                            if (_searchController.text.isNotEmpty)
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                child: Text(
+                                  '검색 결과가 없어요!',
+                                  style: myTextStyle(
+                                    color: cPrimaryDark,
+                                    fontSize: 14,
+                                  ),
+                                ),
                               ),
                         ],
                       ),
@@ -256,7 +271,6 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
   }
 
   void _sortPlace(int index, bool ascending) {
-    print('sortPlace: index: $index, ascending: $ascending');
     _lastAscending = ascending;
     _lastSortIndex = index;
     switch (index) {

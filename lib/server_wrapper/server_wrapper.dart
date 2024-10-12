@@ -22,7 +22,7 @@ class LoginResult {
 }
 
 class ServerWrapper {
-  static bool _testAccount = false;
+  static bool _offlineAccount = false;
   static int _loginKind = 0; // 1: ID/PW, 2: Kakao
   static UserCubit userCubit = UserCubit();
   static String _accessToken = '';
@@ -34,7 +34,7 @@ class ServerWrapper {
 
   static Future<LoginResult> loginIdPw(String id, String pw) async {
     if (id == 'test@test' && pw == '1234') {
-      _testAccount = true;
+      _offlineAccount = true;
       _loginKind = 1;
       _testAccountLogin();
       return LoginResult(true);
@@ -49,7 +49,7 @@ class ServerWrapper {
             await auth.currentUser!.sendEmailVerification();
             return LoginResult(false, message: '이메일 인증을 완료해주세요.');
           }
-          _testAccount = false;
+          _offlineAccount = false;
           _loginKind = 1;
           var loginUrl = Uri.parse('${serverUrl}api/oauth/login-test');
           var response = await http.post(
@@ -279,7 +279,7 @@ class ServerWrapper {
     if (token != null) {
       _accessToken = token.accessToken;
       _refreshToken = token.refreshToken!;
-      _testAccount = false;
+      _offlineAccount = false;
       _loginKind = 2;
       return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);
     }
@@ -332,7 +332,7 @@ class ServerWrapper {
       _accessToken = token.accessToken;
       _refreshToken = token.refreshToken!;
 
-      _testAccount = false;
+      _offlineAccount = false;
       _loginKind = 2;
       return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);
     } catch (error) {
@@ -348,8 +348,8 @@ class ServerWrapper {
     return userCubit.state != null;
   }
 
-  static bool isTestAccount() {
-    return _testAccount;
+  static bool isOfflineAccount() {
+    return _offlineAccount;
   }
 
   static int getLoginKind() {
@@ -364,7 +364,7 @@ class ServerWrapper {
     } else if (_loginKind == 1) {
       FirebaseAuth.instance.signOut();
     }
-    _testAccount = false;
+    _offlineAccount = false;
     _loginKind = 0;
     userCubit.setUser(null);
     itineraryCubitMapCubit.setItineraryCubitMap({});
@@ -392,6 +392,7 @@ class ServerWrapper {
     String refreshToken = '',
     String memberId = '',
   }) async {
+    if (_offlineAccount) return LoginResult(true);
     _accessToken = accessToken;
     _refreshToken = refreshToken;
     var userUrl = Uri.parse('${serverUrl}api/oauth/user');
@@ -421,6 +422,7 @@ class ServerWrapper {
   }
 
   static Future<bool> getScheduleWithClear() async {
+    if (_offlineAccount) return true;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
     var response = await http.post(
       scheduleUrl,
@@ -459,6 +461,7 @@ class ServerWrapper {
 
   static Future<bool> getScheduleDetailWithClear(
       ItineraryCubit itinerary) async {
+    if (_offlineAccount) return true;
     var scheduleUrl = Uri.parse(
         '${serverUrl}api/schedule/${itinerary.state.id}?contains-user=false');
     var response = await http.post(
@@ -504,6 +507,7 @@ class ServerWrapper {
   }
 
   static Future<bool> postSchedule(ItineraryCubit itineraryCubit) async {
+    if (_offlineAccount) return true;
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
     var response = await http.post(
@@ -538,6 +542,7 @@ class ServerWrapper {
 
   static Future<bool> postScheduleDetail(
       DailyItineraryCubit dailyItineraryCubit) async {
+    if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
         '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
@@ -567,6 +572,7 @@ class ServerWrapper {
   }
 
   static Future<bool> deleteSchedule(ItineraryCubit itineraryCubit) async {
+    if (_offlineAccount) return true;
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule/${itinerary.id}');
     var response = await http.post(
@@ -593,6 +599,7 @@ class ServerWrapper {
 
   static Future<bool> deleteScheduleDetail(
       DailyItineraryCubit dailyItineraryCubit) async {
+    if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
         '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
@@ -619,6 +626,7 @@ class ServerWrapper {
   }
 
   static Future<bool> putSchedule(ItineraryCubit itineraryCubit) async {
+    if (_offlineAccount) return true;
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule/${itinerary.id}');
     var response = await http.post(
@@ -653,6 +661,7 @@ class ServerWrapper {
 
   Future<bool> putScheduleDetail(
       DailyItineraryCubit dailyItineraryCubit) async {
+    if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
         '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
