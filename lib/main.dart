@@ -18,8 +18,8 @@ import 'theme.dart';
 import 'package:tradule/provider/auth_provider.dart';
 import 'package:tradule/features/setting/screen.dart';
 import 'package:tradule/features/home/screen.dart';
-// import 'package:tradule/features/login/screen_legacy.dart';
 import 'package:tradule/features/login/screen.dart';
+import 'package:tradule/features/login/sign_up.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +46,12 @@ void main() async {
     javaScriptAppKey: kakaoJavascriptKey,
   );
 
-  if (kDebugMode) {
+  var loginResult = await ServerWrapper.autoLoginKakao();
+
+  // 자동 로그인
+  if (loginResult.success) {
+    ServerWrapper.getScheduleWithClear();
+  } else if (kDebugMode) {
     //디버그라면
     ServerWrapper.loginIdPw('test@test', '1234');
   }
@@ -82,6 +87,7 @@ class Tradule extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/login': (context) => LoginScreen(),
         '/setting': (context) => SettingScreen(),
+        '/signup': (context) => SignUpScreen(),
       },
     );
   }

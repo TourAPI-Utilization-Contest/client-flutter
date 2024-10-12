@@ -46,26 +46,43 @@ class TagFilterButton extends StatelessWidget {
           Positioned(
             right: 0,
             top: 0,
-            child: Center(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: isSelected ? cPrimaryColor : cGray,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(2.0) +
-                      const EdgeInsets.only(bottom: 2),
-                  child: Text(
-                    badgeText!,
-                    style: myTextStyle(
-                      color: Colors.white,
-                      height: 1,
-                      fontSize: 12,
+            width: 10,
+            height: 10,
+            // 클릭 이벤트 무시
+            child: IgnorePointer(
+              child: Stack(
+                children: [
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: isSelected ? cPrimaryColor : cGray,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(2.0) +
+                                const EdgeInsets.only(bottom: 2),
+                            child: Text(
+                              badgeText!,
+                              style: myTextStyle(
+                                color: Colors.white,
+                                height: 1,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ),

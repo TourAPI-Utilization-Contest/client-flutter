@@ -27,6 +27,7 @@ class ServerWrapper {
   static UserCubit userCubit = UserCubit();
   static String _accessToken = '';
   static String _refreshToken = '';
+  static String _code = '';
   // static Map<String, ItineraryCubit> itineraryCubitMap = {}; // key: itineraryId
   static ItineraryCubitMapCubit itineraryCubitMapCubit =
       ItineraryCubitMapCubit();
@@ -268,14 +269,26 @@ class ServerWrapper {
         .encode(itineraryCubitMapCubit.state[itineraryIds[0]]!.state.toJson()));
   }
 
+  static Future<LoginResult> autoLoginKakao() async {
+    var token = await TokenManagerProvider.instance.manager.getToken();
+    if (token != null) {
+      _accessToken = token.accessToken;
+      _refreshToken = token.refreshToken!;
+      _testAccount = false;
+      _loginKind = 2;
+      return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);
+    }
+    return LoginResult(false, message: '카카오톡 로그인에 실패하였습니다.');
+  }
+
   static Future<LoginResult> loginKakao() async {
     final AuthCodeClient client = AuthCodeClient.instance;
     try {
       final api = UserApi.instance;
-      api.loginWithKakaoAccount();
+      // api.loginWithKakaoAccount();
       String redirectUri =
           'http://ec2-3-104-73-228.ap-southeast-2.compute.amazonaws.com:8080/api/oauth/authenticate';
-      String code = await (await isKakaoTalkInstalled()
+      _code = await (await isKakaoTalkInstalled()
           ? client.authorizeWithTalk(
               redirectUri: redirectUri,
               webPopupLogin: true,
@@ -284,13 +297,36 @@ class ServerWrapper {
               redirectUri: redirectUri,
               webPopupLogin: true,
             ));
-      final token = await AuthApi.instance.issueAccessToken(
-        authCode: code,
-        redirectUri: redirectUri,
+      // final token = await AuthApi.instance.issueAccessToken(
+      //   authCode: _code,
+      //   redirectUri: redirectUri,
+      // );
+      final tokenResponseLow = await http.post(
+        Uri.parse('${serverUrl}api/oauth/authenticate?code=$_code'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'method': 'GET',
+        }),
       );
-      TokenManagerProvider.instance.manager.setToken(token);
+      var tokenResponseLowJson = json.decode(tokenResponseLow.body);
+      print(tokenResponseLowJson);
+      // OAuthToken()
+      var tokenResponse = AccessTokenResponse(
+        tokenResponseLowJson['accessToken'],
+        7199,
+        tokenResponseLowJson['refreshToken'],
+        null,
+        null,
+        "bearer",
+      );
+      var token = OAuthToken.fromResponse(tokenResponse);
+      // token = OAuthToken.fromJson(json)
+      await TokenManagerProvider.instance.manager.setToken(token);
       _accessToken = token.accessToken;
       _refreshToken = token.refreshToken!;
+
       _testAccount = false;
       _loginKind = 2;
       return _getUser(accessToken: _accessToken, refreshToken: _refreshToken);

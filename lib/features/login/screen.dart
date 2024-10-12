@@ -246,6 +246,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         TextButton(
                           onPressed: () {
                             print('회원가입 버튼 클릭');
+                            Navigator.pushNamed(context, '/signup');
                           },
                           child: Text(
                             'sign up',

@@ -18,9 +18,11 @@ class MyPlaceScreen extends StatefulWidget {
 class _MyPlaceScreenState extends State<MyPlaceScreen> {
   // final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
+  bool _selectedAllPlace = true;
   bool _selectedProvidedPlace = false;
   bool _selectedMyPlace = false;
-  bool _selectedAllPlace = false;
+  int _providedPlaceCount = 0;
+  int _myPlaceCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class _MyPlaceScreenState extends State<MyPlaceScreen> {
                 children: <Widget>[
                   TagFilterButton(
                     text: '전체',
-                    badgeText: '10',
+                    badgeText: (_providedPlaceCount + _myPlaceCount).toString(),
                     isSelected: _selectedAllPlace,
                     onPressed: () {
                       setState(() {
@@ -61,6 +63,7 @@ class _MyPlaceScreenState extends State<MyPlaceScreen> {
                   ),
                   TagFilterButton(
                     text: '관심 장소',
+                    badgeText: _providedPlaceCount.toString(),
                     isSelected: _selectedProvidedPlace,
                     onPressed: () {
                       setState(() {
@@ -74,6 +77,7 @@ class _MyPlaceScreenState extends State<MyPlaceScreen> {
                   ),
                   TagFilterButton(
                     text: '내 장소',
+                    badgeText: _myPlaceCount.toString(),
                     isSelected: _selectedMyPlace,
                     onPressed: () {
                       setState(() {
