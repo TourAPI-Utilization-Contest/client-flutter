@@ -102,8 +102,22 @@ class DailyItineraryCubit extends Cubit<DailyItineraryData> {
   }
 
   void removePlace(PlaceCubit place) {
-    emit(state.copyWith(
-        placeList: state.placeList.where((p) => p != place).toList()));
+    // emit(state.copyWith(
+    //     placeList: state.placeList.where((p) => p != place).toList()));
+    var index = state.placeList.indexOf(place);
+    if (index == -1) return;
+    var newPlaces = List<PlaceCubit>.from(state.placeList);
+    newPlaces.removeAt(index);
+    var newMovements = List<MovementCubit>.from(state.movementList);
+    if (index < newMovements.length) {
+      newMovements.removeAt(index);
+    } else if (0 < index) {
+      newMovements.removeAt(index - 1);
+    }
+    if (0 < index && index <= newMovements.length) {
+      newMovements[index - 1] = MovementCubit(MovementData.initial());
+    }
+    emit(state.copyWith(placeList: newPlaces, movementList: newMovements));
   }
 
   void updatePlace(PlaceCubit place) {

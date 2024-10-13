@@ -54,6 +54,7 @@ dependencies:
   dashed_line: ^0.1.0+3
   flutter_polyline_points: ^2.1.0
   latlong2: ^0.9.1
+  fluttertoast: ^8.2.8
 #  avs_svg_provider: ^1.0.1
 #  google_maps_routes: ^1.1.2
 

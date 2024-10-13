@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:tradule/common/color.dart';
+import 'package:tradule/common/context_menu.dart';
 import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/common/single_child_scroll_fade_view.dart';
 import 'package:tradule/google_map_routes/google_map_routes.dart';
@@ -285,9 +286,9 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                         //   // context.watch<DailyItineraryCubit>().state;
                         // }
                         return GoogleMap(
-                          onLongPress: (LatLng latLng) {
-                            print('Map long pressed: $latLng');
-                          },
+                          // onLongPress: (LatLng latLng) {
+                          //   print('Map long pressed: $latLng');
+                          // },
                           key: _mapKey,
                           webGestureHandling: WebGestureHandling.greedy,
                           onMapCreated: (GoogleMapController controller) {
@@ -921,13 +922,15 @@ class _Header extends StatelessWidget {
             right: 10,
             top: 10,
             child: TextButton(
-              onPressed: () {},
+              onPressed: autoArrange,
               child: Text("일정 순서 자동 재배치"),
             ),
           ),
       ],
     );
   }
+
+  void autoArrange() {}
 }
 
 class _Body extends StatefulWidget {
@@ -972,8 +975,11 @@ class _BodyState extends State<_Body> with TickerProviderStateMixin {
           ),
 
           //하루 일정
-          for (var dailyItineraryCubit in itinerary.dailyItineraryCubitList)
-            DailyItineraryEditor(dailyItineraryCubit: dailyItineraryCubit),
+          for (var i = 0; i < itinerary.dailyItineraryCubitList.length; i++)
+            DailyItineraryEditor(
+              dailyItineraryCubit: itinerary.dailyItineraryCubitList[i],
+              tabIndex: i + 1,
+            ),
         ],
       ),
     );
@@ -1061,6 +1067,7 @@ class _ItineraryAllViewState extends State<ItineraryAllView>
               i++) {
             list.add(DailyItineraryEditor(
               dailyItineraryCubit: itineraryData.dailyItineraryCubitList[i],
+              tabIndex: i + 1,
               viewMode: true,
             ));
           }
@@ -1080,11 +1087,13 @@ class _ItineraryAllViewState extends State<ItineraryAllView>
 
 class DailyItineraryEditor extends StatefulWidget {
   final DailyItineraryCubit dailyItineraryCubit;
+  final int tabIndex;
   final bool viewMode;
 
   const DailyItineraryEditor({
     super.key,
     required this.dailyItineraryCubit,
+    required this.tabIndex,
     this.viewMode = false,
   });
 
@@ -1107,6 +1116,7 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
             key: Key('${i * 2}'),
             viewMode: widget.viewMode,
             index: i * 2,
+            tabIndex: widget.tabIndex,
             place: true,
             first: i == 0,
             last: i == dailyItineraryData.placeList.length - 1,
@@ -1122,6 +1132,7 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
             key: Key('${i * 2 + 1}'),
             viewMode: widget.viewMode,
             index: i * 2 + 1,
+            tabIndex: widget.tabIndex,
             place: false,
             movementCubit: dailyItineraryData.movementList[i],
           ));
@@ -1153,11 +1164,13 @@ class DailyItineraryItem extends StatefulWidget {
   final bool last;
   final bool dotLine;
   final int index;
+  final int tabIndex;
   final bool viewMode;
 
   const DailyItineraryItem({
     super.key,
     required this.index,
+    required this.tabIndex,
     this.placeCubit,
     this.movementCubit,
     this.place = false,
@@ -1175,6 +1188,7 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
   final Size jamChevronUpDownSize = const Size(20, 20);
   bool _expanded = false;
   bool _checked = true;
+  Offset? _tapPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -1211,219 +1225,248 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
                 color: cPrimary,
               ),
             ),
-          ListTile(
-            minTileHeight: 30,
-            onTap: () {
-              if (!widget.place) {
-                _expanded = !_expanded;
-                setState(() {});
-              } else {
-                _checked = !_checked;
-                setState(() {});
-              }
+          GestureDetector(
+            onTapDown: (details) {
+              _tapPosition = details.globalPosition;
             },
-            onLongPress: () {
-              if (widget.place) {
-                //장소 수정
-                Navigator.pushNamed(context, '/search_place');
-              } else {
-                //이동수단 수정
-                Navigator.pushNamed(context, '/search_place');
-              }
-            },
-            contentPadding: EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 8,
-            ),
-            // title: Text(placeData.title),
-            title: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    // TweenAnimationBuilder(
-                    //   tween: Tween<double>(begin: 0, end: _checked ? 1 : 0),
-                    //   duration: const Duration(milliseconds: 200),
-                    //   builder: (context, value, child) {
-                    //     return Opacity(
-                    //       opacity: value, // Tween에 따라 투명도 조정
-                    //       child: SvgPicture.asset(
-                    //         _checked
-                    //             ? "assets/icon/check_on.svg"
-                    //             : "assets/icon/check_off.svg",
-                    //         colorFilter: widget.place
-                    //             ? null
-                    //             : const ColorFilter.mode(
-                    //                 Colors.transparent,
-                    //                 BlendMode.srcIn,
-                    //               ),
-                    //       ),
-                    //     );
-                    //   },
-                    // ),
-                    AnimatedSwitcher(
-                      duration: Duration(milliseconds: 300), // 전환 애니메이션 지속 시간
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) {
-                        return FadeTransition(opacity: animation, child: child);
-                      },
-                      child: SvgPicture.asset(
-                        // 상태에 따라 다른 SVG를 보여줌
-                        _checked
-                            ? "assets/icon/check_on.svg"
-                            : "assets/icon/check_off.svg",
-                        key: ValueKey<bool>(
-                            _checked), // 상태 변경 시 애니메이션을 트리거하는 key
-                        colorFilter: widget.place
-                            ? null
-                            : const ColorFilter.mode(
-                                Colors.transparent, BlendMode.srcIn),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Stack(
-                      children: [
-                        widget.place
-                            ? SvgPicture.asset(
-                                "assets/icon/cc.svg",
-                                width: 35,
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 1),
-                                child: TweenAnimationBuilder(
-                                  tween: Tween<double>(
-                                      begin: 0, end: _expanded ? pi / 2 : 0),
-                                  duration: const Duration(milliseconds: 200),
-                                  builder: (context, double angle, child) {
-                                    return Transform.rotate(
-                                      angle: angle,
-                                      child: SvgPicture.asset(
-                                          "assets/icon/cc2.svg",
-                                          width: 27),
-                                    );
-                                  },
-                                ),
-                              ),
-                        if (widget.place)
-                          Positioned.fill(
-                            child: Center(
-                              child: Text(
-                                "${(widget.index / 2 + 1).truncate()}",
-                                style: myTextStyle(
-                                  fontSize: 9,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
+            child: ListTile(
+              minTileHeight: 30,
+              onTap: () {
+                if (!widget.place) {
+                  _expanded = !_expanded;
+                  setState(() {});
+                } else {
+                  _checked = !_checked;
+                  setState(() {});
+                }
+              },
+              onLongPress: widget.place
+                  ? () async {
+                      var r = await showContextMenu(
+                        context,
+                        [
+                          ContextMenuItem(
+                            text: '삭제',
+                            icon: Icons.delete,
+                            color: Colors.red,
+                            value: 1,
                           ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 10),
-                if (widget.place)
-                  DailyItineraryPlaceItem(
-                    placeCubit: widget.placeCubit!,
-                    index: widget.index,
-                    place: widget.place,
-                    first: widget.first,
-                    last: widget.last,
-                    dotLine: widget.dotLine,
-                  ),
-                if (!widget.place)
-                  DailyItineraryMovementItem(
-                    movementCubit: widget.movementCubit!,
-                    index: widget.index,
-                    first: widget.first,
-                    last: widget.last,
-                    dotLine: widget.dotLine,
-                    expanded: _expanded,
-                  ),
-              ],
-            ),
-            trailing: widget.place
-                ? ReorderableDragStartListener(
-                    index: widget.index,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Visibility(
-                          visible: !widget.first,
-                          child: TextButton(
-                            style: ButtonStyle(
-                              padding: WidgetStateProperty.all(EdgeInsets.zero),
-                              minimumSize:
-                                  WidgetStateProperty.all(jamChevronUpDownSize),
-                              fixedSize:
-                                  WidgetStateProperty.all(jamChevronUpDownSize),
-                            ),
-                            child: SvgPicture.asset(
-                              "assets/icon/jam_chevron_up.svg",
-                              fit: BoxFit.contain,
-                              width: jamChevronUpDownSize.width,
-                              height: jamChevronUpDownSize.height,
-                            ),
-                            onPressed: () {
-                              //위로
-                              context.read<DailyItineraryCubit>().reorderPlaces(
-                                    widget.index ~/ 2,
-                                    widget.index ~/ 2 - 1,
-                                  );
-                              _refreshRouteWithServer(
-                                context.read<GoogleMapCubit>(),
-                                context.read<ItineraryCubit>().state,
-                                context
-                                    .read<TabControllerCubit>()
-                                    .state
-                                    .tabController
-                                    .index,
-                              );
-                            },
-                          ),
+                        ],
+                        _tapPosition!,
+                      );
+                      if (r == 1) {
+                        context
+                            .read<DailyItineraryCubit>()
+                            .removePlace(widget.placeCubit!);
+                        _refreshRouteWithServer(
+                          context.read<GoogleMapCubit>(),
+                          context.read<ItineraryCubit>().state,
+                          widget.tabIndex,
+                        );
+                      }
+                    }
+                  : null,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 8,
+              ),
+              // title: Text(placeData.title),
+              title: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      // TweenAnimationBuilder(
+                      //   tween: Tween<double>(begin: 0, end: _checked ? 1 : 0),
+                      //   duration: const Duration(milliseconds: 200),
+                      //   builder: (context, value, child) {
+                      //     return Opacity(
+                      //       opacity: value, // Tween에 따라 투명도 조정
+                      //       child: SvgPicture.asset(
+                      //         _checked
+                      //             ? "assets/icon/check_on.svg"
+                      //             : "assets/icon/check_off.svg",
+                      //         colorFilter: widget.place
+                      //             ? null
+                      //             : const ColorFilter.mode(
+                      //                 Colors.transparent,
+                      //                 BlendMode.srcIn,
+                      //               ),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300), // 전환 애니메이션 지속 시간
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                              opacity: animation, child: child);
+                        },
+                        child: SvgPicture.asset(
+                          // 상태에 따라 다른 SVG를 보여줌
+                          _checked
+                              ? "assets/icon/check_on.svg"
+                              : "assets/icon/check_off.svg",
+                          key: ValueKey<bool>(
+                              _checked), // 상태 변경 시 애니메이션을 트리거하는 key
+                          colorFilter: widget.place
+                              ? null
+                              : const ColorFilter.mode(
+                                  Colors.transparent, BlendMode.srcIn),
                         ),
-                        Visibility(
-                          visible: !widget.last,
-                          child: TextButton(
-                            style: ButtonStyle(
-                              padding: WidgetStateProperty.all(EdgeInsets.zero),
-                              minimumSize:
-                                  WidgetStateProperty.all(jamChevronUpDownSize),
-                              fixedSize:
-                                  WidgetStateProperty.all(jamChevronUpDownSize),
+                      ),
+                      const SizedBox(width: 10),
+                      Stack(
+                        children: [
+                          widget.place
+                              ? SvgPicture.asset(
+                                  "assets/icon/cc.svg",
+                                  width: 35,
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 1),
+                                  child: TweenAnimationBuilder(
+                                    tween: Tween<double>(
+                                        begin: 0, end: _expanded ? pi / 2 : 0),
+                                    duration: const Duration(milliseconds: 200),
+                                    builder: (context, double angle, child) {
+                                      return Transform.rotate(
+                                        angle: angle,
+                                        child: SvgPicture.asset(
+                                            "assets/icon/cc2.svg",
+                                            width: 27),
+                                      );
+                                    },
+                                  ),
+                                ),
+                          if (widget.place)
+                            Positioned.fill(
+                              child: Center(
+                                child: Text(
+                                  "${(widget.index / 2 + 1).truncate()}",
+                                  style: myTextStyle(
+                                    fontSize: 9,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             ),
-                            onPressed: () {
-                              //아래로(reorderPlaces)
-                              context.read<DailyItineraryCubit>().reorderPlaces(
-                                    widget.index ~/ 2,
-                                    widget.index ~/ 2 + 1,
-                                  );
-                              _refreshRouteWithServer(
-                                context.read<GoogleMapCubit>(),
-                                context.read<ItineraryCubit>().state,
-                                context
-                                    .read<TabControllerCubit>()
-                                    .state
-                                    .tabController
-                                    .index,
-                              );
-                            },
-                            child: Transform.flip(
-                              flipY: true,
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 10),
+                  if (widget.place)
+                    DailyItineraryPlaceItem(
+                      placeCubit: widget.placeCubit!,
+                      index: widget.index,
+                      place: widget.place,
+                      first: widget.first,
+                      last: widget.last,
+                      dotLine: widget.dotLine,
+                    ),
+                  if (!widget.place)
+                    DailyItineraryMovementItem(
+                      movementCubit: widget.movementCubit!,
+                      index: widget.index,
+                      first: widget.first,
+                      last: widget.last,
+                      dotLine: widget.dotLine,
+                      expanded: _expanded,
+                    ),
+                ],
+              ),
+              trailing: widget.place
+                  ? ReorderableDragStartListener(
+                      index: widget.index,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Visibility(
+                            visible: !widget.first,
+                            child: TextButton(
+                              style: ButtonStyle(
+                                padding:
+                                    WidgetStateProperty.all(EdgeInsets.zero),
+                                minimumSize: WidgetStateProperty.all(
+                                    jamChevronUpDownSize),
+                                fixedSize: WidgetStateProperty.all(
+                                    jamChevronUpDownSize),
+                              ),
                               child: SvgPicture.asset(
                                 "assets/icon/jam_chevron_up.svg",
                                 fit: BoxFit.contain,
                                 width: jamChevronUpDownSize.width,
                                 height: jamChevronUpDownSize.height,
                               ),
+                              onPressed: () {
+                                //위로
+                                context
+                                    .read<DailyItineraryCubit>()
+                                    .reorderPlaces(
+                                      widget.index ~/ 2,
+                                      widget.index ~/ 2 - 1,
+                                    );
+                                _refreshRouteWithServer(
+                                  context.read<GoogleMapCubit>(),
+                                  context.read<ItineraryCubit>().state,
+                                  context
+                                      .read<TabControllerCubit>()
+                                      .state
+                                      .tabController
+                                      .index,
+                                );
+                              },
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  )
-                : null,
+                          Visibility(
+                            visible: !widget.last,
+                            child: TextButton(
+                              style: ButtonStyle(
+                                padding:
+                                    WidgetStateProperty.all(EdgeInsets.zero),
+                                minimumSize: WidgetStateProperty.all(
+                                    jamChevronUpDownSize),
+                                fixedSize: WidgetStateProperty.all(
+                                    jamChevronUpDownSize),
+                              ),
+                              onPressed: () {
+                                //아래로(reorderPlaces)
+                                context
+                                    .read<DailyItineraryCubit>()
+                                    .reorderPlaces(
+                                      widget.index ~/ 2,
+                                      widget.index ~/ 2 + 1,
+                                    );
+                                _refreshRouteWithServer(
+                                  context.read<GoogleMapCubit>(),
+                                  context.read<ItineraryCubit>().state,
+                                  context
+                                      .read<TabControllerCubit>()
+                                      .state
+                                      .tabController
+                                      .index,
+                                );
+                              },
+                              child: Transform.flip(
+                                flipY: true,
+                                child: SvgPicture.asset(
+                                  "assets/icon/jam_chevron_up.svg",
+                                  fit: BoxFit.contain,
+                                  width: jamChevronUpDownSize.width,
+                                  height: jamChevronUpDownSize.height,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : null,
+            ),
           ),
         ],
       ),
@@ -1484,7 +1527,28 @@ class DailyItineraryPlaceItem extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 5),
-                    SvgPicture.asset("assets/icon/jam_pencil_f.svg"),
+                    IconButton(
+                      icon: SvgPicture.asset(
+                        'assets/icon/jam_pencil_f.svg',
+                        width: 20,
+                      ),
+                      onPressed: () async {
+                        //수정
+                        await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return PlaceEditDialog(
+                              placeCubit: placeCubit,
+                            );
+                          },
+                        );
+                      },
+                      padding: const EdgeInsets.all(4),
+                      constraints: const BoxConstraints(
+                        minWidth: 0,
+                        minHeight: 0,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 3),
@@ -1532,6 +1596,145 @@ class DailyItineraryPlaceItem extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class PlaceEditDialog extends StatefulWidget {
+  final PlaceCubit placeCubit;
+  const PlaceEditDialog({
+    required this.placeCubit,
+    super.key,
+  });
+
+  @override
+  _PlaceEditDialogState createState() => _PlaceEditDialogState();
+}
+
+class _PlaceEditDialogState extends State<PlaceEditDialog> {
+  late TextEditingController _titleController;
+  late TextEditingController _addressController;
+  late DateTime _visitTime;
+  late Duration _stayTime;
+
+  @override
+  void initState() {
+    super.initState();
+    var placeData = widget.placeCubit.state;
+    _titleController = TextEditingController(text: placeData.title);
+    _addressController = TextEditingController(text: placeData.address);
+    _visitTime = placeData.visitTime ?? DateTime.now();
+    _stayTime = placeData.stayTime ?? Duration.zero;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      title: Text('장소 수정'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _titleController,
+            decoration: InputDecoration(
+              labelText: '장소명',
+            ),
+          ),
+          TextField(
+            controller: _addressController,
+            decoration: InputDecoration(
+              labelText: '주소',
+            ),
+          ),
+          Row(
+            children: [
+              Text('방문 시간: '),
+              TextButton(
+                onPressed: () async {
+                  var time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(_visitTime),
+                    cancelText: '취소',
+                    confirmText: '확인',
+                    helpText: '방문 시간 선택',
+                  );
+                  if (time != null) {
+                    setState(() {
+                      _visitTime = DateTime(
+                        _visitTime.year,
+                        _visitTime.month,
+                        _visitTime.day,
+                        time.hour,
+                        time.minute,
+                      );
+                    });
+                  }
+                },
+                child: Text(
+                  DateFormat('HH:mm').format(_visitTime),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text('관광 시간: '),
+              TextButton(
+                onPressed: () async {
+                  var time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(
+                      DateTime(1970, 1, 1, _stayTime.inHours,
+                          _stayTime.inMinutes % 60),
+                    ),
+                    cancelText: '취소',
+                    confirmText: '확인',
+                    helpText: '관광 시간 선택',
+                  );
+                  if (time != null) {
+                    setState(() {
+                      _stayTime = Duration(
+                        hours: time.hour,
+                        minutes: time.minute,
+                      );
+                    });
+                  }
+                },
+                child: Text(
+                  '${_stayTime.inHours}시간 ${_stayTime.inMinutes % 60}분',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            widget.placeCubit.update(
+              widget.placeCubit.state.copyWith(
+                title: _titleController.text,
+                address: _addressController.text,
+                visitTime: _visitTime,
+                stayTime: _stayTime,
+              ),
+            );
+            ServerWrapper.putScheduleDetail(
+              context.read<ItineraryCubit>().state.id,
+              context.read<DailyItineraryCubit>(),
+            );
+            Navigator.of(context).pop();
+          },
+          child: Text('확인'),
+        ),
+      ],
     );
   }
 }
