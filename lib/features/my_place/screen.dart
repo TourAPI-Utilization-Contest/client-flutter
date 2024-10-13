@@ -421,51 +421,106 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
                                 controller: _descriptionController,
                                 hintText: '장소 설명',
                               ),
+                              // 위경도 표시
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: MyTextFormField(
+                                      key: Key('latitude'),
+                                      controller: TextEditingController(
+                                          text: _markerPosition.latitude
+                                              .toString()),
+                                      hintText: '위도',
+                                      // keyboardType: TextInputType.number,
+                                      onChanged: (value) {
+                                        _markerPosition = LatLng(
+                                          double.parse(value),
+                                          _markerPosition.longitude,
+                                        );
+                                        // setState(() {});
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: MyTextFormField(
+                                      key: Key('longitude'),
+                                      controller: TextEditingController(
+                                          text: _markerPosition.longitude
+                                              .toString()),
+                                      hintText: '경도',
+                                      // keyboardType: TextInputType.number,
+                                      onChanged: (value) {
+                                        _markerPosition = LatLng(
+                                          _markerPosition.latitude,
+                                          double.parse(value),
+                                        );
+                                        // setState(() {});
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
                               //구글 지도
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Stack(
+                                child: Column(
                                   children: [
-                                    Container(
-                                      height: 300,
-                                      child: GoogleMap(
-                                        gestureRecognizers: {
-                                          Factory<OneSequenceGestureRecognizer>(
-                                              () => EagerGestureRecognizer())
-                                        },
-                                        initialCameraPosition:
-                                            const CameraPosition(
-                                          target:
-                                              LatLng(37.5662952, 126.9779451),
-                                          zoom: 12,
-                                        ),
-                                        markers: {
-                                          Marker(
-                                            markerId: const MarkerId('1'),
-                                            position: const LatLng(
-                                                37.5662952, 126.9779451),
-                                            icon: _markerIcon,
-                                            draggable: true,
-                                            onDrag: (LatLng latLng) {
-                                              _markerPosition = latLng;
+                                    Stack(
+                                      children: [
+                                        Container(
+                                          height: 300,
+                                          child: GoogleMap(
+                                            gestureRecognizers: {
+                                              Factory<OneSequenceGestureRecognizer>(
+                                                  () =>
+                                                      EagerGestureRecognizer())
+                                            },
+                                            initialCameraPosition:
+                                                const CameraPosition(
+                                              target: LatLng(
+                                                  37.5662952, 126.9779451),
+                                              zoom: 12,
+                                            ),
+                                            markers: {
+                                              Marker(
+                                                markerId: const MarkerId('1'),
+                                                position: const LatLng(
+                                                    37.5662952, 126.9779451),
+                                                icon: _markerIcon,
+                                                draggable: true,
+                                                onDrag: (LatLng latLng) {
+                                                  _markerPosition = latLng;
+                                                  setState(() {});
+                                                },
+                                              ),
                                             },
                                           ),
-                                        },
-                                      ),
+                                        ),
+                                        //장소 검색
+                                        Positioned(
+                                          top: 10,
+                                          left: 10,
+                                          right: 10,
+                                          child: MyTextField(
+                                            controller: TextEditingController(),
+                                            hintText: '장소 검색',
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    //장소 검색
-                                    Positioned(
-                                      top: 10,
-                                      left: 10,
-                                      right: 10,
-                                      child: MyTextField(
-                                        controller: TextEditingController(),
-                                        hintText: '장소 검색',
+                                    Text(
+                                      '핀을 드래그하여 이동할 수 있어요!',
+                                      style: myTextStyle(
+                                        color: cPrimary,
+                                        fontSize: 14,
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
                                   ],
                                 ),
                               ),
+
                               MyTextFormField(
                                 controller: _tagController,
                                 hintText: '태그 추가',
@@ -528,13 +583,14 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
                               description: _descriptionController.text,
                               latitude: _markerPosition.latitude,
                               longitude: _markerPosition.longitude,
-                              address: '',
+                              address: '주소 없음',
                               tags: _tags,
                               isProvided: false,
                               createdTime: DateTime.now(),
                             );
-                            // ServerWrapper.addMyPlace(placeData);
-                            // Navigator.pop(context);
+                            ServerWrapper.userCubit.addPlace(placeData);
+                            ServerWrapper.putMyPlaceList();
+                            Navigator.pop(context);
                           },
                           child: const Text('추가'),
                         ),
