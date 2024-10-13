@@ -706,7 +706,7 @@ class _DailyItineraryEditorState extends State<DailyItineraryEditor>
   bool get wantKeepAlive => true;
 }
 
-class DailyItineraryItem extends StatelessWidget {
+class DailyItineraryItem extends StatefulWidget {
   final PlaceCubit? placeCubit;
   final MovementCubit? movementCubit;
   final bool place;
@@ -714,7 +714,7 @@ class DailyItineraryItem extends StatelessWidget {
   final bool last;
   final bool dotLine;
   final int index;
-  final Size jamChevronUpDownSize = const Size(20, 20);
+
   const DailyItineraryItem({
     required this.index,
     this.placeCubit,
@@ -725,6 +725,14 @@ class DailyItineraryItem extends StatelessWidget {
     this.dotLine = false,
     super.key,
   });
+
+  @override
+  State<DailyItineraryItem> createState() => _DailyItineraryItemState();
+}
+
+class _DailyItineraryItemState extends State<DailyItineraryItem> {
+  final Size jamChevronUpDownSize = const Size(20, 20);
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -744,24 +752,53 @@ class DailyItineraryItem extends StatelessWidget {
     }
 
     return Material(
-      child: ListTile(
-        onTap: () {
-          print('onTap: $index');
-        },
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 8,
-        ),
-        // title: Text(placeData.title),
-        title: Row(
-          children: [
-            Stack(
+      clipBehavior: Clip.none,
+      color: Colors.transparent,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          //선 그리기
+          // if (widget.dotLine)
+          Positioned(
+            left: 59,
+            top: 43,
+            bottom: widget.place ? -18 : -30,
+            width: 1.5,
+            child: Container(
+              // width: 20,
+              color: cPrimary,
+              // decoration: BoxDecoration(
+              //   border: Border(
+              //     left: BorderSide(
+              //       color: cPrimary,
+              //       width: 1.5,
+              //     ),
+              //   ),
+              // ),
+            ),
+          ),
+          ListTile(
+            minTileHeight: 30,
+            onTap: () {
+              if (!widget.place) {
+                print('onTap->movement');
+                _expanded = !_expanded;
+                setState(() {});
+              }
+            },
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 8,
+            ),
+            // title: Text(placeData.title),
+            title: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     SvgPicture.asset(
                       "assets/icon/check_on.svg",
-                      colorFilter: place
+                      colorFilter: widget.place
                           ? null
                           : const ColorFilter.mode(
                               Colors.transparent, BlendMode.srcIn),
@@ -769,20 +806,22 @@ class DailyItineraryItem extends StatelessWidget {
                     const SizedBox(width: 10),
                     Stack(
                       children: [
-                        // SvgPicture.asset(
-                        //     place ? "assets/icon/cc.svg" : "assets/icon/cc2.svg"),
-                        place
-                            ? SvgPicture.asset("assets/icon/cc.svg")
+                        widget.place
+                            ? SvgPicture.asset(
+                                "assets/icon/cc.svg",
+                                width: 35,
+                              )
                             : Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                child: SvgPicture.asset("assets/icon/cc2.svg"),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 1),
+                                child: SvgPicture.asset("assets/icon/cc2.svg",
+                                    width: 27),
                               ),
-                        if (place)
+                        if (widget.place)
                           Positioned.fill(
                             child: Center(
                               child: Text(
-                                "${(index / 2 + 1).truncate()}",
+                                "${(widget.index / 2 + 1).truncate()}",
                                 style: myTextStyle(
                                   fontSize: 9,
                                   color: Colors.white,
@@ -795,91 +834,92 @@ class DailyItineraryItem extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(width: 10),
+                if (widget.place)
+                  DailyItineraryPlaceItem(
+                    placeCubit: widget.placeCubit!,
+                    index: widget.index,
+                    place: widget.place,
+                    first: widget.first,
+                    last: widget.last,
+                    dotLine: widget.dotLine,
+                  ),
+                if (!widget.place)
+                  DailyItineraryMovementItem(
+                    movementCubit: widget.movementCubit!,
+                    index: widget.index,
+                    first: widget.first,
+                    last: widget.last,
+                    dotLine: widget.dotLine,
+                    expanded: _expanded,
+                  ),
               ],
             ),
-            const SizedBox(width: 10),
-            if (place)
-              DailyItineraryPlaceItem(
-                placeCubit: placeCubit!,
-                index: index,
-                place: place,
-                first: first,
-                last: last,
-                dotLine: dotLine,
-              ),
-            if (!place)
-              DailyItineraryMovementItem(
-                movementCubit: movementCubit!,
-                index: index,
-                first: first,
-                last: last,
-                dotLine: dotLine,
-              ),
-          ],
-        ),
-        trailing: place
-            ? ReorderableDragStartListener(
-                index: index,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Visibility(
-                      visible: !first,
-                      child: TextButton(
-                        style: ButtonStyle(
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                          minimumSize:
-                              WidgetStateProperty.all(jamChevronUpDownSize),
-                          fixedSize:
-                              WidgetStateProperty.all(jamChevronUpDownSize),
-                        ),
-                        child: SvgPicture.asset(
-                          "assets/icon/jam_chevron_up.svg",
-                          fit: BoxFit.contain,
-                          width: jamChevronUpDownSize.width,
-                          height: jamChevronUpDownSize.height,
-                        ),
-                        onPressed: () {
-                          //위로
-                          context.read<DailyItineraryCubit>().reorderPlaces(
-                                index ~/ 2,
-                                index ~/ 2 - 1,
-                              );
-                        },
-                      ),
-                    ),
-                    Visibility(
-                      visible: !last,
-                      child: TextButton(
-                        style: ButtonStyle(
-                          padding: WidgetStateProperty.all(EdgeInsets.zero),
-                          minimumSize:
-                              WidgetStateProperty.all(jamChevronUpDownSize),
-                          fixedSize:
-                              WidgetStateProperty.all(jamChevronUpDownSize),
-                        ),
-                        onPressed: () {
-                          //아래로(reorderPlaces)
-                          context.read<DailyItineraryCubit>().reorderPlaces(
-                                index ~/ 2,
-                                index ~/ 2 + 1,
-                              );
-                        },
-                        child: Transform.flip(
-                          flipY: true,
-                          child: SvgPicture.asset(
-                            "assets/icon/jam_chevron_up.svg",
-                            fit: BoxFit.contain,
-                            width: jamChevronUpDownSize.width,
-                            height: jamChevronUpDownSize.height,
+            trailing: widget.place
+                ? ReorderableDragStartListener(
+                    index: widget.index,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Visibility(
+                          visible: !widget.first,
+                          child: TextButton(
+                            style: ButtonStyle(
+                              padding: WidgetStateProperty.all(EdgeInsets.zero),
+                              minimumSize:
+                                  WidgetStateProperty.all(jamChevronUpDownSize),
+                              fixedSize:
+                                  WidgetStateProperty.all(jamChevronUpDownSize),
+                            ),
+                            child: SvgPicture.asset(
+                              "assets/icon/jam_chevron_up.svg",
+                              fit: BoxFit.contain,
+                              width: jamChevronUpDownSize.width,
+                              height: jamChevronUpDownSize.height,
+                            ),
+                            onPressed: () {
+                              //위로
+                              context.read<DailyItineraryCubit>().reorderPlaces(
+                                    widget.index ~/ 2,
+                                    widget.index ~/ 2 - 1,
+                                  );
+                            },
                           ),
                         ),
-                      ),
+                        Visibility(
+                          visible: !widget.last,
+                          child: TextButton(
+                            style: ButtonStyle(
+                              padding: WidgetStateProperty.all(EdgeInsets.zero),
+                              minimumSize:
+                                  WidgetStateProperty.all(jamChevronUpDownSize),
+                              fixedSize:
+                                  WidgetStateProperty.all(jamChevronUpDownSize),
+                            ),
+                            onPressed: () {
+                              //아래로(reorderPlaces)
+                              context.read<DailyItineraryCubit>().reorderPlaces(
+                                    widget.index ~/ 2,
+                                    widget.index ~/ 2 + 1,
+                                  );
+                            },
+                            child: Transform.flip(
+                              flipY: true,
+                              child: SvgPicture.asset(
+                                "assets/icon/jam_chevron_up.svg",
+                                fit: BoxFit.contain,
+                                width: jamChevronUpDownSize.width,
+                                height: jamChevronUpDownSize.height,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )
-            : null,
+                  )
+                : null,
+          ),
+        ],
       ),
     );
   }
@@ -996,12 +1036,14 @@ class DailyItineraryMovementItem extends StatelessWidget {
   final bool last;
   final bool dotLine;
   final int index;
+  final bool expanded;
   const DailyItineraryMovementItem({
     required this.movementCubit,
     required this.index,
     this.first = false,
     this.last = false,
     this.dotLine = false,
+    required this.expanded,
     super.key,
   });
 
@@ -1026,44 +1068,181 @@ class DailyItineraryMovementItem extends StatelessWidget {
             }
           }
 
-          return Row(
+          var distance = (movementData.distance < 1000)
+              ? "${movementData.distance.toInt()}m"
+              : ((movementData.distance < 10000)
+                  ? "${(movementData.distance / 1000).toStringAsFixed(2)}km"
+                  : "${(movementData.distance / 1000).toStringAsFixed(1)}km");
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                TimeFormat(dateTime.add(movementData.duration)) +
-                    " 동안 " +
-                    (movementData.distance / 1000).toString() +
-                    "km 이동",
-                style: myTextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w500,
-                ),
+              Row(
+                children: [
+                  Text(
+                    "${TimeFormat(dateTime.add(movementData.duration))} 동안 $distance 이동",
+                    style: myTextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  IconButton(
+                    padding: EdgeInsets.all(7),
+                    iconSize: 15,
+                    constraints: const BoxConstraints(
+                      minWidth: 10,
+                      minHeight: 10,
+                    ),
+                    icon: Icon(Icons.refresh),
+                    onPressed: () async {
+                      //새로고침
+                      var placeIndex = index ~/ 2;
+                      var placeList =
+                          context.read<DailyItineraryCubit>().state.placeList;
+                      var movementData = await getGoogleMapRoutes(
+                        placeList[placeIndex].state,
+                        placeList[placeIndex + 1].state,
+                      );
+                      print(jsonEncode(movementData.toJson()));
+                      movementCubit.update(movementData);
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(width: 7),
-              IconButton(
-                padding: EdgeInsets.zero,
-                iconSize: 15,
-                constraints: const BoxConstraints(
-                  minWidth: 10,
-                  minHeight: 10,
+              if (expanded)
+                Padding(
+                  padding: const EdgeInsets.only(left: 0),
+                  child: DailyItineraryMovementDetailItem(
+                    movementCubit: movementCubit,
+                    index: index,
+                  ),
                 ),
-                icon: Icon(Icons.refresh),
-                onPressed: () async {
-                  //새로고침
-                  var placeIndex = index ~/ 2;
-                  var placeList =
-                      context.read<DailyItineraryCubit>().state.placeList;
-                  var movementData = await getGoogleMapRoutes(
-                    placeList[placeIndex].state,
-                    placeList[placeIndex + 1].state,
-                  );
-                  print(jsonEncode(movementData.toJson()));
-                  movementCubit.update(movementData);
-                },
-              ),
+              // DailyItineraryMovementDetailItem(
+              //   movementCubit: movementCubit,
+              //   index: index,
+              // ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class DailyItineraryMovementDetailItem extends StatelessWidget {
+  final MovementCubit movementCubit;
+  final int index;
+
+  const DailyItineraryMovementDetailItem({
+    super.key,
+    required this.movementCubit,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider.value(
+      value: movementCubit,
+      child: BlocBuilder<MovementCubit, MovementData>(
+        builder: (context, movementData) {
+          DateTime dateTime = DateTime(1970, 1, 1, 0, 0);
+          var timeFormat1 = DateFormat('m분');
+          var timeFormat2 = DateFormat('h시간 m분');
+          var timeFormat3 = DateFormat('h시간');
+          var timeFormat4 = DateFormat('hh:mm');
+          String TimeFormat(DateTime dateTime) {
+            if (dateTime.hour == 0) {
+              return timeFormat1.format(dateTime);
+            } else if (dateTime.minute == 0) {
+              return timeFormat3.format(dateTime);
+            } else {
+              return timeFormat2.format(dateTime);
+            }
+          }
+
+          var children = <Widget>[];
+          for (var i = 0; i < movementData.details.length; i++) {
+            var movementDetail = movementData.details[i];
+            var method = movementDetail.method;
+
+            var distance = (movementDetail.distance < 1000)
+                ? "${movementDetail.distance.toInt()}m"
+                : ((movementDetail.distance < 10000)
+                    ? "${(movementDetail.distance / 1000).toStringAsFixed(2)}km"
+                    : "${(movementDetail.distance / 1000).toStringAsFixed(1)}km");
+            String methodText;
+            if (method == 'WALK') {
+              methodText = '도보';
+            } else if (method == 'BUS') {
+              methodText = '버스';
+            } else if (method == 'SUBWAY') {
+              methodText = '지하철';
+            } else if (method == 'CAR') {
+              methodText = '자동차';
+            } else {
+              methodText = '기타';
+            }
+            children.add(
+              Row(
+                spacing: 12,
+                children: [
+                  RoundText(text: methodText),
+                  Text(
+                    "${TimeFormat(dateTime.add(movementDetail.duration))} 동안 $distance 이동",
+                    style: myTextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(top: 16),
+            child: Column(
+              spacing: 10,
+              children: children,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class RoundText extends StatelessWidget {
+  final String text;
+
+  const RoundText({
+    super.key,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 13,
+        vertical: 1,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: cPrimary,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Text(
+        text,
+        style: myTextStyle(
+          fontSize: 12,
+          color: cPrimary,
+          fontWeight: FontWeight.w400,
+        ),
       ),
     );
   }

@@ -24,8 +24,12 @@ mixin _$MovementDetailData {
   Duration get duration => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
   String get path => throw _privateConstructorUsedError; // 경로
-  String get method => throw _privateConstructorUsedError; // 이동수단
-  String get source => throw _privateConstructorUsedError;
+  String get method =>
+      throw _privateConstructorUsedError; // 이동수단(WALK, TRANSIT, DRIVE)
+  String get source =>
+      throw _privateConstructorUsedError; // 경로 출처(Google, Kakao)
+  int? get stopCount => throw _privateConstructorUsedError; // 정차 횟수
+  String? get busNumber => throw _privateConstructorUsedError;
 
   /// Serializes this MovementDetailData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -49,7 +53,9 @@ abstract class $MovementDetailDataCopyWith<$Res> {
       double distance,
       String path,
       String method,
-      String source});
+      String source,
+      int? stopCount,
+      String? busNumber});
 }
 
 /// @nodoc
@@ -72,6 +78,8 @@ class _$MovementDetailDataCopyWithImpl<$Res, $Val extends MovementDetailData>
     Object? path = null,
     Object? method = null,
     Object? source = null,
+    Object? stopCount = freezed,
+    Object? busNumber = freezed,
   }) {
     return _then(_value.copyWith(
       duration: null == duration
@@ -94,6 +102,14 @@ class _$MovementDetailDataCopyWithImpl<$Res, $Val extends MovementDetailData>
           ? _value.source
           : source // ignore: cast_nullable_to_non_nullable
               as String,
+      stopCount: freezed == stopCount
+          ? _value.stopCount
+          : stopCount // ignore: cast_nullable_to_non_nullable
+              as int?,
+      busNumber: freezed == busNumber
+          ? _value.busNumber
+          : busNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -112,7 +128,9 @@ abstract class _$$MovementDetailDataImplCopyWith<$Res>
       double distance,
       String path,
       String method,
-      String source});
+      String source,
+      int? stopCount,
+      String? busNumber});
 }
 
 /// @nodoc
@@ -133,6 +151,8 @@ class __$$MovementDetailDataImplCopyWithImpl<$Res>
     Object? path = null,
     Object? method = null,
     Object? source = null,
+    Object? stopCount = freezed,
+    Object? busNumber = freezed,
   }) {
     return _then(_$MovementDetailDataImpl(
       duration: null == duration
@@ -155,6 +175,14 @@ class __$$MovementDetailDataImplCopyWithImpl<$Res>
           ? _value.source
           : source // ignore: cast_nullable_to_non_nullable
               as String,
+      stopCount: freezed == stopCount
+          ? _value.stopCount
+          : stopCount // ignore: cast_nullable_to_non_nullable
+              as int?,
+      busNumber: freezed == busNumber
+          ? _value.busNumber
+          : busNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -168,7 +196,9 @@ class _$MovementDetailDataImpl implements _MovementDetailData {
       required this.distance,
       required this.path,
       required this.method,
-      required this.source});
+      required this.source,
+      this.stopCount,
+      this.busNumber});
 
   factory _$MovementDetailDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$MovementDetailDataImplFromJson(json);
@@ -183,13 +213,19 @@ class _$MovementDetailDataImpl implements _MovementDetailData {
 // 경로
   @override
   final String method;
-// 이동수단
+// 이동수단(WALK, TRANSIT, DRIVE)
   @override
   final String source;
+// 경로 출처(Google, Kakao)
+  @override
+  final int? stopCount;
+// 정차 횟수
+  @override
+  final String? busNumber;
 
   @override
   String toString() {
-    return 'MovementDetailData(duration: $duration, distance: $distance, path: $path, method: $method, source: $source)';
+    return 'MovementDetailData(duration: $duration, distance: $distance, path: $path, method: $method, source: $source, stopCount: $stopCount, busNumber: $busNumber)';
   }
 
   @override
@@ -203,13 +239,17 @@ class _$MovementDetailDataImpl implements _MovementDetailData {
                 other.distance == distance) &&
             (identical(other.path, path) || other.path == path) &&
             (identical(other.method, method) || other.method == method) &&
-            (identical(other.source, source) || other.source == source));
+            (identical(other.source, source) || other.source == source) &&
+            (identical(other.stopCount, stopCount) ||
+                other.stopCount == stopCount) &&
+            (identical(other.busNumber, busNumber) ||
+                other.busNumber == busNumber));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, duration, distance, path, method, source);
+  int get hashCode => Object.hash(runtimeType, duration, distance, path, method,
+      source, stopCount, busNumber);
 
   /// Create a copy of MovementDetailData
   /// with the given fields replaced by the non-null parameter values.
@@ -235,7 +275,9 @@ abstract class _MovementDetailData implements MovementDetailData {
       required final double distance,
       required final String path,
       required final String method,
-      required final String source}) = _$MovementDetailDataImpl;
+      required final String source,
+      final int? stopCount,
+      final String? busNumber}) = _$MovementDetailDataImpl;
 
   factory _MovementDetailData.fromJson(Map<String, dynamic> json) =
       _$MovementDetailDataImpl.fromJson;
@@ -248,9 +290,13 @@ abstract class _MovementDetailData implements MovementDetailData {
   @override
   String get path; // 경로
   @override
-  String get method; // 이동수단
+  String get method; // 이동수단(WALK, TRANSIT, DRIVE)
   @override
-  String get source;
+  String get source; // 경로 출처(Google, Kakao)
+  @override
+  int? get stopCount; // 정차 횟수
+  @override
+  String? get busNumber;
 
   /// Create a copy of MovementDetailData
   /// with the given fields replaced by the non-null parameter values.

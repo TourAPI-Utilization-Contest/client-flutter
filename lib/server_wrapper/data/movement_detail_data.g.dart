@@ -14,6 +14,8 @@ _$MovementDetailDataImpl _$$MovementDetailDataImplFromJson(
       path: json['path'] as String,
       method: json['method'] as String,
       source: json['source'] as String,
+      stopCount: (json['stopCount'] as num?)?.toInt(),
+      busNumber: json['busNumber'] as String?,
     );
 
 Map<String, dynamic> _$$MovementDetailDataImplToJson(
@@ -24,4 +26,6 @@ Map<String, dynamic> _$$MovementDetailDataImplToJson(
       'path': instance.path,
       'method': instance.method,
       'source': instance.source,
+      'stopCount': instance.stopCount,
+      'busNumber': instance.busNumber,
     };
