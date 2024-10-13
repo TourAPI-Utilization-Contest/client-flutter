@@ -1,11 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:tradule/common/app_bar_blur.dart';
 import 'package:tradule/common/color.dart';
@@ -14,21 +10,19 @@ import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/common/place_card.dart';
 import 'package:tradule/common/single_child_scroll_fade_view.dart';
 import 'package:tradule/common/sort_widget.dart';
-import 'package:tradule/features/itinerary/screen.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
 import 'package:tradule/server_wrapper/data/user_data.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/tag_filter_button.dart';
 
-class MyPlaceScreen extends StatefulWidget {
-  const MyPlaceScreen({super.key});
+class MyPlaceAddScreen extends StatefulWidget {
+  const MyPlaceAddScreen({super.key});
 
   @override
-  State<MyPlaceScreen> createState() => _MyPlaceScreenState();
+  State<MyPlaceAddScreen> createState() => _MyPlaceAddScreenState();
 }
 
-class _MyPlaceScreenState extends State<MyPlaceScreen>
-    with AutomaticKeepAliveClientMixin<MyPlaceScreen> {
+class _MyPlaceAddScreenState extends State<MyPlaceAddScreen> {
   // final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   bool _selectedAllPlace = true;
@@ -54,7 +48,6 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -144,8 +137,7 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
                                 text: '나만의 장소',
                                 iconPath: 'assets/icon/jam_plus.svg',
                                 iconOnPressed: () {
-                                  // Navigator.pushNamed(context, '/add_place');
-                                  addMyPlace(context);
+                                  Navigator.pushNamed(context, '/add_place');
                                 },
                                 iconTooltip: '나만의 장소 추가',
                                 badgeText: _myPlaceCount.toString(),
@@ -305,248 +297,5 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
         });
         break;
     }
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
-
-Future<Object?> addMyPlace(BuildContext context) {
-  return showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: '',
-    barrierColor: Colors.black.withOpacity(0.2),
-    transitionDuration: const Duration(milliseconds: 200),
-    pageBuilder: (context, animation1, animation2) {
-      return AddMyPlaceDialog();
-    },
-  );
-}
-
-class AddMyPlaceDialog extends StatefulWidget {
-  const AddMyPlaceDialog({super.key});
-
-  @override
-  State<AddMyPlaceDialog> createState() => _AddMyPlaceDialogState();
-}
-
-class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _tagController = TextEditingController();
-  final List<String> _tags = [];
-  final List<String> _tagSuggestions = [
-    '카페',
-    '식당',
-    '마트',
-    '병원',
-    '학교',
-    '공원',
-    '박물관',
-    '도서관',
-    '영화관',
-    '쇼핑몰',
-    '헬스장',
-    '수영장',
-    '공연장',
-  ].toList();
-  BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
-  LatLng _markerPosition = const LatLng(37.5662952, 126.9779451);
-
-  @override
-  void initState() {
-    super.initState();
-    svgToBitmapDescriptor('assets/icon/iconamoon_location_pin_fill.svg')
-        .then((BitmapDescriptor bitmap) {
-      _markerIcon = bitmap;
-      setState(() {});
-    });
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _descriptionController.dispose();
-    _tagController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final padding = MediaQuery.of(context).padding;
-    return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-      child: Stack(
-        children: [
-          Positioned(
-            top: padding.top + 50,
-            left: 50,
-            right: 50,
-            bottom: padding.bottom + 50,
-            child: Material(
-              elevation: 0,
-              color: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  spacing: 8,
-                  children: <Widget>[
-                    Text(
-                      '나만의 장소 추가',
-                      style: myTextStyle(
-                        color: cPrimaryDark,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollFadeView(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            spacing: 16,
-                            children: <Widget>[
-                              MyTextFormField(
-                                controller: _titleController,
-                                hintText: '장소 이름',
-                              ),
-                              MyTextFormField(
-                                controller: _descriptionController,
-                                hintText: '장소 설명',
-                              ),
-                              //구글 지도
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      height: 300,
-                                      child: GoogleMap(
-                                        gestureRecognizers: {
-                                          Factory<OneSequenceGestureRecognizer>(
-                                              () => EagerGestureRecognizer())
-                                        },
-                                        initialCameraPosition:
-                                            const CameraPosition(
-                                          target:
-                                              LatLng(37.5662952, 126.9779451),
-                                          zoom: 12,
-                                        ),
-                                        markers: {
-                                          Marker(
-                                            markerId: const MarkerId('1'),
-                                            position: const LatLng(
-                                                37.5662952, 126.9779451),
-                                            icon: _markerIcon,
-                                            draggable: true,
-                                            onDrag: (LatLng latLng) {
-                                              _markerPosition = latLng;
-                                            },
-                                          ),
-                                        },
-                                      ),
-                                    ),
-                                    //장소 검색
-                                    Positioned(
-                                      top: 10,
-                                      left: 10,
-                                      right: 10,
-                                      child: MyTextField(
-                                        controller: TextEditingController(),
-                                        hintText: '장소 검색',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              MyTextFormField(
-                                controller: _tagController,
-                                hintText: '태그 추가',
-                                onSubmitted: (value) {
-                                  if (value.isNotEmpty) {
-                                    _tags.add(value);
-                                    _tagController.clear();
-                                    setState(() {});
-                                  }
-                                },
-                              ),
-                              Wrap(
-                                spacing: 8,
-                                children: <Widget>[
-                                  for (var tag in _tags)
-                                    Chip(
-                                      label: Text(tag),
-                                      onDeleted: () => setState(
-                                          () => _tags.remove(tag)), // 삭제 기능
-                                    ), // 태그 목록
-                                ],
-                              ),
-                              Wrap(
-                                spacing: 8,
-                                children: <Widget>[
-                                  for (var tag in _tagSuggestions)
-                                    TextButton(
-                                      style: TextButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8),
-                                      ),
-                                      onPressed: () {
-                                        _tags.add(tag);
-                                        setState(() {});
-                                      },
-                                      child: Text(tag),
-                                    ), // 태그 추천 목록
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('취소'),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            final placeData = PlaceData(
-                              id: Random().nextInt(1000000),
-                              title: _titleController.text,
-                              description: _descriptionController.text,
-                              latitude: _markerPosition.latitude,
-                              longitude: _markerPosition.longitude,
-                              address: '',
-                              tags: _tags,
-                              isProvided: false,
-                              createdTime: DateTime.now(),
-                            );
-                            // ServerWrapper.addMyPlace(placeData);
-                            // Navigator.pop(context);
-                          },
-                          child: const Text('추가'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

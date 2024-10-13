@@ -45,21 +45,53 @@ Future<MovementData> getGoogleMapRoutes(PlaceData start, PlaceData end) async {
     }),
   );
   if (response.statusCode == 200) {
+    print('response.body: ${response.body}');
     var data = jsonDecode(response.body);
     var legs = data['routes'][0]['legs'];
     var steps = legs[0]['steps'];
     var cumulativeSeconds = 0;
-    var details = steps.map<MovementDetailData>((step) {
+    // var details = steps.map<MovementDetailData>((step) {
+    //   int seconds = int.parse(step['staticDuration'].replaceAll('s', ''));
+    //   cumulativeSeconds += seconds;
+    //   return MovementDetailData(
+    //     path: step['polyline']['encodedPolyline'],
+    //     duration: Duration(seconds: seconds),
+    //     distance: step['distanceMeters'].toDouble(),
+    //     method: step['travelMode'],
+    //     source: 'Google',
+    //   );
+    // }).toList();
+    List<MovementDetailData> details = [];
+    for (var step in steps) {
+      var distance = step['distanceMeters'];
+      if (distance == null) continue;
       int seconds = int.parse(step['staticDuration'].replaceAll('s', ''));
       cumulativeSeconds += seconds;
-      return MovementDetailData(
+      var travelMode = step['travelMode'];
+      String method = "unknown";
+      String? nameShort;
+      String? name;
+      int? stopCount;
+      if (travelMode == 'WALK') {
+        method = 'WALK';
+      } else if (travelMode == 'TRANSIT') {
+        method = step['transitDetails']['transitLine']['vehicle']['type'];
+        name = step['transitDetails']['transitLine']['name'];
+        nameShort = step['transitDetails']['transitLine']['shortName'];
+        stopCount = step['transitDetails']['stopCount'];
+      }
+      details.add(MovementDetailData(
         path: step['polyline']['encodedPolyline'],
         duration: Duration(seconds: seconds),
-        distance: step['distanceMeters'].toDouble(),
-        method: step['travelMode'],
+        distance: distance.toDouble(),
+        method: method,
+        nameShort: nameShort,
+        name: name,
+        stopCount: stopCount,
         source: 'Google',
-      );
-    }).toList();
+      ));
+    }
+
     var leg = legs[0];
     return MovementData(
       startTime: departureTime,

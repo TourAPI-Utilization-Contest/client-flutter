@@ -20,7 +20,8 @@ class MovementDetailData with _$MovementDetailData {
     required String method, // 이동수단(WALK, TRANSIT, DRIVE)
     required String source, // 경로 출처(Google, Kakao)
     int? stopCount, // 정차 횟수
-    String? busNumber, // 버스 번호
+    String? name,
+    String? nameShort,
   }) = _MovementDetailData;
 
   factory MovementDetailData.initial() => MovementDetailData(

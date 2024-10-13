@@ -18,6 +18,7 @@ import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
 import 'package:tradule/server_wrapper/data/movement_data.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:tradule/server_wrapper/server_wrapper.dart';
 
 import 'bloc.dart';
 import 'map_style.dart';
@@ -76,6 +77,32 @@ Future<BitmapDescriptor> svgToBitmapDescriptor(String assetName,
   );
 }
 
+class GoogleMapData {
+  final Set<Marker> markers;
+  final Set<Polyline> polylines;
+  final BitmapDescriptor markerIcon;
+
+  GoogleMapData({
+    this.markers = const {},
+    this.polylines = const {},
+    this.markerIcon = BitmapDescriptor.defaultMarker,
+  });
+}
+
+class GoogleMapCubit extends Cubit<GoogleMapData> {
+  GoogleMapCubit(super.state);
+
+  void update(GoogleMapData googleMapData) {
+    emit(
+      GoogleMapData(
+        markers: googleMapData.markers,
+        polylines: googleMapData.polylines,
+        markerIcon: googleMapData.markerIcon,
+      ),
+    );
+  }
+}
+
 class _ItineraryEditorState extends State<ItineraryEditor>
     with TickerProviderStateMixin {
   GoogleMapController? _mapController;
@@ -84,12 +111,11 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   GlobalKey _mapKey = GlobalKey();
   String _cloudMapId = lightMapId; // 기본 스타일
   String? _style = aubergine;
-  BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
+
   DateTime _mapTime = DateTime.now();
   // TabController? _tabController;
   TabControllerCubit? _tabControllerCubit;
-  Set<Marker> _markers = {};
-  Set<Polyline> _polylines = {};
+  final GoogleMapCubit _googleMapCubit = GoogleMapCubit(GoogleMapData());
 
   @override
   void initState() {
@@ -100,8 +126,9 @@ class _ItineraryEditorState extends State<ItineraryEditor>
     // });
     svgToBitmapDescriptor('assets/icon/iconamoon_location_pin_fill.svg')
         .then((BitmapDescriptor bitmap) {
-      _markerIcon = bitmap;
-      setState(() {});
+      // _markerIcon = bitmap;
+      _googleMapCubit.update(GoogleMapData(markerIcon: bitmap));
+      // setState(() {});
     });
   }
 
@@ -147,8 +174,15 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider.value(
-        value: widget.itineraryCubit,
+      body: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(
+            value: _googleMapCubit,
+          ),
+          BlocProvider.value(
+            value: widget.itineraryCubit,
+          )
+        ],
         child: BlocBuilder<ItineraryCubit, ItineraryData?>(
             builder: (context, itinerary) {
           // var _tabController = _tabControllerCubit.state.tabController;
@@ -158,7 +192,9 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                 vsync: this,
                 length: itinerary!.dailyItineraryCubitList.length + 1,
                 initialIndex: 0,
-              ),
+              )..addListener(() {
+                  tabControllerListener(itinerary);
+                }),
             );
           else {
             var tabController = _tabControllerCubit!.state.tabController;
@@ -170,7 +206,9 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                   vsync: this,
                   length: itinerary.dailyItineraryCubitList.length + 1,
                   initialIndex: 0,
-                ),
+                )..addListener(() {
+                    tabControllerListener(itinerary);
+                  }),
               );
             }
           }
@@ -178,8 +216,11 @@ class _ItineraryEditorState extends State<ItineraryEditor>
             value: _tabControllerCubit!,
             child: LayoutBuilder(
               builder: (context, constraints) {
-                double mapHeight = constraints.maxHeight - _bottomSheetHeight;
+                final double mapHeight =
+                    constraints.maxHeight - _bottomSheetHeight;
                 final padding = MediaQuery.of(context).padding;
+                var markers = context.watch<GoogleMapCubit>().state.markers;
+                var polylines = context.watch<GoogleMapCubit>().state.polylines;
                 return Stack(
                   children: [
                     Positioned(
@@ -212,8 +253,8 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                           cloudMapId: _cloudMapId,
                           // style: _style,
                           // mapToolbarEnabled: true,
-                          markers: _markers,
-                          polylines: _polylines,
+                          markers: markers,
+                          polylines: polylines,
                         );
                       }),
                     ),
@@ -374,30 +415,51 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   }
 
   void tabControllerListener(ItineraryData itinerary) {
-    _markers.clear();
-    _polylines.clear();
     var tabController = _tabControllerCubit!.state.tabController;
-    var dailyItineraryCubit = itinerary.dailyItineraryCubitList[
-        tabController.index == 0 ? 0 : tabController.index - 1];
+    _refreshRoute(_googleMapCubit, itinerary, tabController.index);
+    // setState(() {});
+  }
+
+  @override
+  void dispose() {
+    // _tabController?.dispose();
+    _tabControllerCubit?.state.tabController.dispose();
+    super.dispose();
+  }
+}
+
+//리프레쉬 경로 (경로를 다시 그림)
+void _refreshRoute(
+    GoogleMapCubit googleMapCubit, ItineraryData itinerary, int index) {
+  // print('refreshRoute');
+  var markerIcon = googleMapCubit.state.markerIcon;
+  Set<Marker> markers = {};
+  Set<Polyline> polylines = {};
+  var iMax = index == 0 ? itinerary.dailyItineraryCubitList.length : index;
+  var iMin = index == 0 ? 0 : index - 1;
+  for (var i = iMin; i < iMax; i++) {
+    var dailyItineraryCubit = itinerary.dailyItineraryCubitList[i];
     for (var placeCubit in dailyItineraryCubit.state.placeList) {
-      _markers.add(
+      markers.add(
         Marker(
           markerId: MarkerId(placeCubit.state.id.toString()),
-          icon: _markerIcon,
+          icon: markerIcon,
           position:
               LatLng(placeCubit.state.latitude, placeCubit.state.longitude),
           draggable: false,
           infoWindow: InfoWindow(
             title: placeCubit.state.title,
             snippet: placeCubit.state.address,
-            anchor: Offset(0.5, 0.5),
+            // anchor: Offset(0.5, 0.5),
           ),
         ),
       );
     }
+    // print('dailyItineraryCubit: ${dailyItineraryCubit.state.toJson()}');
     for (var movementCubit in dailyItineraryCubit.state.movementList) {
+      print('movementCubit: ${movementCubit.state.toJson()}');
       for (var movementDetail in movementCubit.state.details) {
-        _polylines.add(
+        polylines.add(
           Polyline(
             polylineId: PolylineId(Random().nextInt(100000).toString()),
             points: PolylinePoints()
@@ -408,11 +470,11 @@ class _ItineraryEditorState extends State<ItineraryEditor>
             startCap: Cap.roundCap,
             endCap: Cap.roundCap,
             zIndex: 2,
-            color: Theme.of(context).primaryColor,
+            color: cPrimary,
             width: 7,
           ),
         );
-        _polylines.add(
+        polylines.add(
           Polyline(
             polylineId: PolylineId(Random().nextInt(100000).toString()),
             points: PolylinePoints()
@@ -429,15 +491,23 @@ class _ItineraryEditorState extends State<ItineraryEditor>
         );
       }
     }
-    setState(() {});
   }
 
-  @override
-  void dispose() {
-    // _tabController?.dispose();
-    _tabControllerCubit?.state.tabController.dispose();
-    super.dispose();
-  }
+  googleMapCubit.update(GoogleMapData(
+    markers: markers,
+    polylines: polylines,
+    markerIcon: markerIcon,
+  ));
+}
+
+void _refreshRouteWithServer(
+    GoogleMapCubit googleMapCubit, ItineraryData itinerary, int index) {
+  _refreshRoute(googleMapCubit, itinerary, index);
+  if (index == 0) return;
+  ServerWrapper.putScheduleDetail(
+    itinerary.id,
+    itinerary.dailyItineraryCubitList[index - 1],
+  );
 }
 
 class _Header extends StatelessWidget {
@@ -450,99 +520,113 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var tabController = context.watch<TabControllerCubit>().state;
-    return Column(
-      children: <Widget>[
-        // 슬라이더
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: FractionallySizedBox(
-              widthFactor: 0.15,
-              child: Container(
-                height: 2.67,
-                color: cGray4,
+    return Stack(
+      children: [
+        Column(
+          children: <Widget>[
+            // 슬라이더
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: FractionallySizedBox(
+                  widthFactor: 0.15,
+                  child: Container(
+                    height: 2.67,
+                    color: cGray4,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(height: 32),
-        // 날짜 보기
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: BlocBuilder<TabControllerCubit, TabControllerData>(
-            builder: (context, tabControllerData) {
-              var itinerary = context.read<ItineraryCubit>().state;
-              var dateFormat = DateFormat('yyyy.MM.dd');
-              var titleDateFormat = DateFormat('MM.dd');
-              var tabController = tabControllerData.tabController;
-              return Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          tabController.index == 0
-                              ? '전체보기'
-                              : titleDateFormat.format(itinerary.startDate.add(
-                                  Duration(days: tabController.index - 1))),
-                          style: myTextStyle(
-                            fontSize: 24,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w500,
+            const SizedBox(height: 32),
+            // 날짜 보기
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BlocBuilder<TabControllerCubit, TabControllerData>(
+                builder: (context, tabControllerData) {
+                  var itinerary = context.read<ItineraryCubit>().state;
+                  var dateFormat = DateFormat('yyyy.MM.dd');
+                  var titleDateFormat = DateFormat('MM.dd');
+                  var tabController = tabControllerData.tabController;
+                  return Stack(
+                    children: [
+                      Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              tabController.index == 0
+                                  ? '전체보기'
+                                  : titleDateFormat.format(itinerary.startDate
+                                      .add(Duration(
+                                          days: tabController.index - 1))),
+                              style: myTextStyle(
+                                fontSize: 24,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              tabController.index == 0
+                                  ? itinerary.title
+                                  : 'Day ${tabController.index}',
+                              style: myTextStyle(
+                                fontSize: 8,
+                                color: cGray3,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (tabController.index > 0)
+                        Positioned(
+                          left: 0,
+                          top: 0,
+                          child: _LR(
+                            key: const Key('left'),
+                            text: tabController.index == 1
+                                ? '전체보기'
+                                : dateFormat.format(itinerary.startDate.add(
+                                    Duration(days: tabController.index - 2))),
+                            onPressed: () {
+                              tabController.index -= 1;
+                            },
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          tabController.index == 0
-                              ? itinerary.title
-                              : 'Day ${tabController.index}',
-                          style: myTextStyle(
-                            fontSize: 8,
-                            color: cGray3,
-                            fontWeight: FontWeight.w400,
+                      if (tabController.index <
+                          itinerary.dailyItineraryCubitList.length)
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: _LR(
+                            key: const Key('right'),
+                            text: dateFormat.format(itinerary.startDate
+                                .add(Duration(days: tabController.index))),
+                            reverse: true,
+                            onPressed: () {
+                              print('right');
+                              tabController.index += 1;
+                            },
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  if (tabController.index > 0)
-                    Positioned(
-                      left: 0,
-                      top: 0,
-                      child: _LR(
-                        key: const Key('left'),
-                        text: tabController.index == 1
-                            ? '전체보기'
-                            : dateFormat.format(itinerary.startDate
-                                .add(Duration(days: tabController.index - 2))),
-                        onPressed: () {
-                          tabController.index -= 1;
-                        },
-                      ),
-                    ),
-                  if (tabController.index <
-                      itinerary.dailyItineraryCubitList.length)
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: _LR(
-                        key: const Key('right'),
-                        text: dateFormat.format(itinerary.startDate
-                            .add(Duration(days: tabController.index))),
-                        reverse: true,
-                        onPressed: () {
-                          print('right');
-                          tabController.index += 1;
-                        },
-                      ),
-                    ),
-                ],
-              );
-            },
-          ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
+        if (tabController.tabController.index > 0)
+          Positioned(
+            right: 10,
+            top: 10,
+            child: TextButton(
+              onPressed: () {},
+              child: Text("일정 순서 자동 재배치"),
+            ),
+          ),
       ],
     );
   }
@@ -759,29 +843,20 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
         children: [
           //선 그리기
           // if (widget.dotLine)
-          Positioned(
-            left: 59,
-            top: 43,
-            bottom: widget.place ? -18 : -30,
-            width: 1.5,
-            child: Container(
-              // width: 20,
-              color: cPrimary,
-              // decoration: BoxDecoration(
-              //   border: Border(
-              //     left: BorderSide(
-              //       color: cPrimary,
-              //       width: 1.5,
-              //     ),
-              //   ),
-              // ),
+          if (!widget.last)
+            Positioned(
+              left: 59,
+              top: 43,
+              bottom: widget.place ? -18 : -30,
+              width: 1.5,
+              child: Container(
+                color: cPrimary,
+              ),
             ),
-          ),
           ListTile(
             minTileHeight: 30,
             onTap: () {
               if (!widget.place) {
-                print('onTap->movement');
                 _expanded = !_expanded;
                 setState(() {});
               }
@@ -883,6 +958,15 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
                                     widget.index ~/ 2,
                                     widget.index ~/ 2 - 1,
                                   );
+                              _refreshRouteWithServer(
+                                context.read<GoogleMapCubit>(),
+                                context.read<ItineraryCubit>().state,
+                                context
+                                    .read<TabControllerCubit>()
+                                    .state
+                                    .tabController
+                                    .index,
+                              );
                             },
                           ),
                         ),
@@ -902,6 +986,15 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
                                     widget.index ~/ 2,
                                     widget.index ~/ 2 + 1,
                                   );
+                              _refreshRouteWithServer(
+                                context.read<GoogleMapCubit>(),
+                                context.read<ItineraryCubit>().state,
+                                context
+                                    .read<TabControllerCubit>()
+                                    .state
+                                    .tabController
+                                    .index,
+                              );
                             },
                             child: Transform.flip(
                               flipY: true,
@@ -1074,55 +1167,65 @@ class DailyItineraryMovementItem extends StatelessWidget {
                   ? "${(movementData.distance / 1000).toStringAsFixed(2)}km"
                   : "${(movementData.distance / 1000).toStringAsFixed(1)}km");
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    "${TimeFormat(dateTime.add(movementData.duration))} 동안 $distance 이동",
-                    style: myTextStyle(
-                      fontSize: 16,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w400,
+          return Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "${TimeFormat(dateTime.add(movementData.duration))} 동안 $distance 이동",
+                      style: myTextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.all(7),
-                    iconSize: 15,
-                    constraints: const BoxConstraints(
-                      minWidth: 10,
-                      minHeight: 10,
+                    IconButton(
+                      padding: EdgeInsets.all(7),
+                      iconSize: 15,
+                      constraints: const BoxConstraints(
+                        minWidth: 10,
+                        minHeight: 10,
+                      ),
+                      icon: Icon(Icons.refresh),
+                      onPressed: () async {
+                        //새로고침
+                        var placeIndex = index ~/ 2;
+                        var placeList =
+                            context.read<DailyItineraryCubit>().state.placeList;
+                        var movementData = await getGoogleMapRoutes(
+                          placeList[placeIndex].state,
+                          placeList[placeIndex + 1].state,
+                        );
+                        // print(jsonEncode(movementData.toJson()));
+                        movementCubit.update(movementData);
+                        _refreshRouteWithServer(
+                          context.read<GoogleMapCubit>(),
+                          context.read<ItineraryCubit>().state,
+                          context
+                              .read<TabControllerCubit>()
+                              .state
+                              .tabController
+                              .index,
+                        );
+                      },
                     ),
-                    icon: Icon(Icons.refresh),
-                    onPressed: () async {
-                      //새로고침
-                      var placeIndex = index ~/ 2;
-                      var placeList =
-                          context.read<DailyItineraryCubit>().state.placeList;
-                      var movementData = await getGoogleMapRoutes(
-                        placeList[placeIndex].state,
-                        placeList[placeIndex + 1].state,
-                      );
-                      print(jsonEncode(movementData.toJson()));
-                      movementCubit.update(movementData);
-                    },
-                  ),
-                ],
-              ),
-              if (expanded)
-                Padding(
-                  padding: const EdgeInsets.only(left: 0),
-                  child: DailyItineraryMovementDetailItem(
-                    movementCubit: movementCubit,
-                    index: index,
-                  ),
+                  ],
                 ),
-              // DailyItineraryMovementDetailItem(
-              //   movementCubit: movementCubit,
-              //   index: index,
-              // ),
-            ],
+
+                DailyItineraryMovementDetailItem(
+                  key: Key('DailyItineraryMovementDetailItem-$index'),
+                  movementCubit: movementCubit,
+                  index: index,
+                  expanded: expanded,
+                ),
+                // DailyItineraryMovementDetailItem(
+                //   movementCubit: movementCubit,
+                //   index: index,
+                // ),
+              ],
+            ),
           );
         },
       ),
@@ -1130,20 +1233,58 @@ class DailyItineraryMovementItem extends StatelessWidget {
   }
 }
 
-class DailyItineraryMovementDetailItem extends StatelessWidget {
+class DailyItineraryMovementDetailItem extends StatefulWidget {
   final MovementCubit movementCubit;
   final int index;
+  final bool expanded;
 
   const DailyItineraryMovementDetailItem({
     super.key,
     required this.movementCubit,
     required this.index,
+    required this.expanded,
   });
 
   @override
+  State<DailyItineraryMovementDetailItem> createState() =>
+      _DailyItineraryMovementDetailItemState();
+}
+
+class _DailyItineraryMovementDetailItemState
+    extends State<DailyItineraryMovementDetailItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _sizeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 애니메이션 컨트롤러 초기화
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300), // 애니메이션 지속 시간
+    );
+
+    // 투명도 애니메이션
+    _fadeAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+
+    // 높이 애니메이션
+    _sizeAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (widget.expanded) {
+      _controller.forward();
+    } else {
+      _controller.reverse();
+    }
     return BlocProvider.value(
-      value: movementCubit,
+      value: widget.movementCubit,
       child: BlocBuilder<MovementCubit, MovementData>(
         builder: (context, movementData) {
           DateTime dateTime = DateTime(1970, 1, 1, 0, 0);
@@ -1178,16 +1319,25 @@ class DailyItineraryMovementDetailItem extends StatelessWidget {
               methodText = '버스';
             } else if (method == 'SUBWAY') {
               methodText = '지하철';
+            } else if (method == 'TRAIN') {
+              methodText = '기차';
+            } else if (method == 'HEAVY_RAIL') {
+              methodText = '기차';
             } else if (method == 'CAR') {
               methodText = '자동차';
             } else {
               methodText = '기타';
             }
             children.add(
-              Row(
+              Wrap(
                 spacing: 12,
                 children: [
                   RoundText(text: methodText),
+                  if (movementDetail.nameShort != null)
+                    RoundText(text: movementDetail.nameShort!),
+                  if (movementDetail.nameShort == null &&
+                      movementDetail.name != null)
+                    RoundText(text: movementDetail.name!),
                   Text(
                     "${TimeFormat(dateTime.add(movementDetail.duration))} 동안 $distance 이동",
                     style: myTextStyle(
@@ -1201,11 +1351,58 @@ class DailyItineraryMovementDetailItem extends StatelessWidget {
             );
           }
 
-          return Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Column(
-              spacing: 10,
-              children: children,
+          if (children.isEmpty) {
+            children.add(
+              Column(
+                children: [
+                  Text(
+                    '이동 경로가 없어요!',
+                    style: myTextStyle(
+                      fontSize: 12,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      //새로고침
+                      var placeIndex = widget.index ~/ 2;
+                      var placeList =
+                          context.read<DailyItineraryCubit>().state.placeList;
+                      var movementData = await getGoogleMapRoutes(
+                        placeList[placeIndex].state,
+                        placeList[placeIndex + 1].state,
+                      );
+                      print(jsonEncode(movementData.toJson()));
+                      widget.movementCubit.update(movementData);
+                    },
+                    child: Text(
+                      '경로 계산하기',
+                      style: myTextStyle(
+                        fontSize: 12,
+                        color: cPrimary,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return FadeTransition(
+            opacity: _fadeAnimation,
+            child: SizeTransition(
+              axisAlignment: -1.0,
+              sizeFactor: _sizeAnimation,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: children,
+                ),
+              ),
             ),
           );
         },

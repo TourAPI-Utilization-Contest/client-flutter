@@ -29,7 +29,8 @@ mixin _$MovementDetailData {
   String get source =>
       throw _privateConstructorUsedError; // 경로 출처(Google, Kakao)
   int? get stopCount => throw _privateConstructorUsedError; // 정차 횟수
-  String? get busNumber => throw _privateConstructorUsedError;
+  String? get name => throw _privateConstructorUsedError;
+  String? get nameShort => throw _privateConstructorUsedError;
 
   /// Serializes this MovementDetailData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -55,7 +56,8 @@ abstract class $MovementDetailDataCopyWith<$Res> {
       String method,
       String source,
       int? stopCount,
-      String? busNumber});
+      String? name,
+      String? nameShort});
 }
 
 /// @nodoc
@@ -79,7 +81,8 @@ class _$MovementDetailDataCopyWithImpl<$Res, $Val extends MovementDetailData>
     Object? method = null,
     Object? source = null,
     Object? stopCount = freezed,
-    Object? busNumber = freezed,
+    Object? name = freezed,
+    Object? nameShort = freezed,
   }) {
     return _then(_value.copyWith(
       duration: null == duration
@@ -106,9 +109,13 @@ class _$MovementDetailDataCopyWithImpl<$Res, $Val extends MovementDetailData>
           ? _value.stopCount
           : stopCount // ignore: cast_nullable_to_non_nullable
               as int?,
-      busNumber: freezed == busNumber
-          ? _value.busNumber
-          : busNumber // ignore: cast_nullable_to_non_nullable
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      nameShort: freezed == nameShort
+          ? _value.nameShort
+          : nameShort // ignore: cast_nullable_to_non_nullable
               as String?,
     ) as $Val);
   }
@@ -130,7 +137,8 @@ abstract class _$$MovementDetailDataImplCopyWith<$Res>
       String method,
       String source,
       int? stopCount,
-      String? busNumber});
+      String? name,
+      String? nameShort});
 }
 
 /// @nodoc
@@ -152,7 +160,8 @@ class __$$MovementDetailDataImplCopyWithImpl<$Res>
     Object? method = null,
     Object? source = null,
     Object? stopCount = freezed,
-    Object? busNumber = freezed,
+    Object? name = freezed,
+    Object? nameShort = freezed,
   }) {
     return _then(_$MovementDetailDataImpl(
       duration: null == duration
@@ -179,9 +188,13 @@ class __$$MovementDetailDataImplCopyWithImpl<$Res>
           ? _value.stopCount
           : stopCount // ignore: cast_nullable_to_non_nullable
               as int?,
-      busNumber: freezed == busNumber
-          ? _value.busNumber
-          : busNumber // ignore: cast_nullable_to_non_nullable
+      name: freezed == name
+          ? _value.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      nameShort: freezed == nameShort
+          ? _value.nameShort
+          : nameShort // ignore: cast_nullable_to_non_nullable
               as String?,
     ));
   }
@@ -198,7 +211,8 @@ class _$MovementDetailDataImpl implements _MovementDetailData {
       required this.method,
       required this.source,
       this.stopCount,
-      this.busNumber});
+      this.name,
+      this.nameShort});
 
   factory _$MovementDetailDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$MovementDetailDataImplFromJson(json);
@@ -221,11 +235,13 @@ class _$MovementDetailDataImpl implements _MovementDetailData {
   final int? stopCount;
 // 정차 횟수
   @override
-  final String? busNumber;
+  final String? name;
+  @override
+  final String? nameShort;
 
   @override
   String toString() {
-    return 'MovementDetailData(duration: $duration, distance: $distance, path: $path, method: $method, source: $source, stopCount: $stopCount, busNumber: $busNumber)';
+    return 'MovementDetailData(duration: $duration, distance: $distance, path: $path, method: $method, source: $source, stopCount: $stopCount, name: $name, nameShort: $nameShort)';
   }
 
   @override
@@ -242,14 +258,15 @@ class _$MovementDetailDataImpl implements _MovementDetailData {
             (identical(other.source, source) || other.source == source) &&
             (identical(other.stopCount, stopCount) ||
                 other.stopCount == stopCount) &&
-            (identical(other.busNumber, busNumber) ||
-                other.busNumber == busNumber));
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.nameShort, nameShort) ||
+                other.nameShort == nameShort));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, duration, distance, path, method,
-      source, stopCount, busNumber);
+      source, stopCount, name, nameShort);
 
   /// Create a copy of MovementDetailData
   /// with the given fields replaced by the non-null parameter values.
@@ -277,7 +294,8 @@ abstract class _MovementDetailData implements MovementDetailData {
       required final String method,
       required final String source,
       final int? stopCount,
-      final String? busNumber}) = _$MovementDetailDataImpl;
+      final String? name,
+      final String? nameShort}) = _$MovementDetailDataImpl;
 
   factory _MovementDetailData.fromJson(Map<String, dynamic> json) =
       _$MovementDetailDataImpl.fromJson;
@@ -296,7 +314,9 @@ abstract class _MovementDetailData implements MovementDetailData {
   @override
   int? get stopCount; // 정차 횟수
   @override
-  String? get busNumber;
+  String? get name;
+  @override
+  String? get nameShort;
 
   /// Create a copy of MovementDetailData
   /// with the given fields replaced by the non-null parameter values.

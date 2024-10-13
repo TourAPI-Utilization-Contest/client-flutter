@@ -140,6 +140,7 @@ class _PlaceCardState extends State<PlaceCard> {
                                 ServerWrapper.userCubit
                                     .addPlace(widget.placeData);
                               }
+                              ServerWrapper.putMyPlaceList();
                               isHearted = !isHearted;
                               setState(() {});
                             });
@@ -245,9 +246,16 @@ class _SelectItineraryWidgetState extends State<SelectItineraryWidget>
       for (var day = 0; day < days; day++) {
         tab2.add(ShadowBox(
           height: 70,
-          onPressed: () {
+          onPressed: () async {
+            // 일정에 장소 추가
             selectedItineraryCubit!.state.dailyItineraryCubitList[day]
                 .addPlace(PlaceCubit(widget.placeData));
+            //서버로 전송
+            var itineraryId = selectedItineraryCubit!.state.id;
+            await ServerWrapper.putScheduleDetail(
+              itineraryId,
+              selectedItineraryCubit!.state.dailyItineraryCubitList[day],
+            );
             Navigator.of(context).pop();
           },
           child: Padding(
@@ -284,11 +292,12 @@ class _SelectItineraryWidgetState extends State<SelectItineraryWidget>
       }
     }
 
+    final padding = MediaQuery.of(context).padding;
     return Stack(
       children: [
         Positioned(
-          top: 50,
-          bottom: 50,
+          top: padding.top + 50,
+          bottom: padding.bottom + 50,
           left: 50,
           right: 50,
           child: Center(
@@ -331,7 +340,11 @@ class _SelectItineraryWidgetState extends State<SelectItineraryWidget>
                                         ItineraryCard(
                                           itineraryCubit: itinerary,
                                           preview: true,
-                                          onBodyPressed: () {
+                                          onBodyPressed: () async {
+                                            await ServerWrapper
+                                                .getScheduleDetailWithClear(
+                                              itinerary,
+                                            );
                                             selectedItineraryCubit = itinerary;
                                             setState(() {});
                                           },

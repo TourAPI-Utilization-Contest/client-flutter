@@ -264,7 +264,7 @@ class ServerWrapper {
     print(a1);
     print(a3);
 
-    Set();
+    offlineSet();
     print(json
         .encode(itineraryCubitMapCubit.state[itineraryIds[0]]!.state.toJson()));
   }
@@ -416,6 +416,7 @@ class ServerWrapper {
       var user =
           UserData.fromJson(json.decode(utf8.decode(response.bodyBytes)));
       userCubit.setUser(user);
+      getMyPlaceList();
       return LoginResult(true);
     }
     return LoginResult(false, message: '사용자 정보를 불러오는데 실패하였습니다.');
@@ -486,13 +487,18 @@ class ServerWrapper {
         var detail = details[i];
         DailyItineraryCubit dailyItineraryCubit;
         var id = detail['id'];
-        var detail2 = detail['detail'];
+        var detail2 = json.decode(detail['detail']);
         try {
           dailyItineraryCubit =
               DailyItineraryCubit(DailyItineraryData.fromJson(detail2).copyWith(
             dailyItineraryId: id,
           ));
+          // print(detail2);
+          // print(detail2['movementList']);
+          // print(json.encode(detail2['movementList'][0]['details']).length);
+          print(detail2['placeList']);
         } catch (e) {
+          print(e);
           dailyItineraryCubit =
               DailyItineraryCubit(DailyItineraryData.initial().copyWith(
             dailyItineraryId: id,
@@ -506,8 +512,8 @@ class ServerWrapper {
     return false;
   }
 
-  static Future<bool> postSchedule(ItineraryCubit itineraryCubit) async {
-    if (_offlineAccount) return true;
+  static Future<int?> postSchedule(ItineraryCubit itineraryCubit) async {
+    if (_offlineAccount) return Random().nextInt(100000);
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
     var response = await http.post(
@@ -534,18 +540,17 @@ class ServerWrapper {
       }),
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
-      return true;
+      return int.parse(response.body);
     }
     print('postSchedule 실패');
-    return false;
+    return null;
   }
 
-  static Future<bool> postScheduleDetail(
-      DailyItineraryCubit dailyItineraryCubit) async {
-    if (_offlineAccount) return true;
+  static Future<int?> postScheduleDetail(
+      int itineraryId, DailyItineraryCubit dailyItineraryCubit) async {
+    if (_offlineAccount) return Random().nextInt(100000);
     var dailyItinerary = dailyItineraryCubit.state;
-    var scheduleUrl = Uri.parse(
-        '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
+    var scheduleUrl = Uri.parse('${serverUrl}api/schedule/$itineraryId');
     var response = await http.post(
       scheduleUrl,
       headers: {
@@ -564,11 +569,11 @@ class ServerWrapper {
         },
       }),
     );
-    if (response.statusCode == 200) {
-      return true;
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return int.parse(response.body);
     }
     print('postScheduleDetail 실패');
-    return false;
+    return null;
   }
 
   static Future<bool> deleteSchedule(ItineraryCubit itineraryCubit) async {
@@ -598,11 +603,11 @@ class ServerWrapper {
   }
 
   static Future<bool> deleteScheduleDetail(
-      DailyItineraryCubit dailyItineraryCubit) async {
+      int itineraryId, DailyItineraryCubit dailyItineraryCubit) async {
     if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
-        '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
+        '${serverUrl}api/schedule/$itineraryId/${dailyItinerary.dailyItineraryId}');
     var response = await http.post(
       scheduleUrl,
       headers: {
@@ -659,12 +664,12 @@ class ServerWrapper {
     return false;
   }
 
-  Future<bool> putScheduleDetail(
-      DailyItineraryCubit dailyItineraryCubit) async {
+  static Future<bool> putScheduleDetail(
+      int itineraryId, DailyItineraryCubit dailyItineraryCubit) async {
     if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
-        '${serverUrl}api/schedule/${dailyItinerary.dailyItineraryId}');
+        '${serverUrl}api/schedule/$itineraryId/${dailyItinerary.dailyItineraryId}');
     var response = await http.post(
       scheduleUrl,
       headers: {
@@ -678,15 +683,70 @@ class ServerWrapper {
           'refresh_token': _refreshToken,
           'member_id': userCubit.state!.id.toString(),
         },
-        'body': json.encode({
+        'body': {
           'detail': json.encode(dailyItinerary.toJson()),
-        }),
+        },
       }),
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return true;
     }
-    print('putScheduleDetail 실패');
+    print('putScheduleDetail 실패: $scheduleUrl -> ${response.body}');
+    return false;
+  }
+
+  static Future<bool> putMyPlaceList() async {
+    if (_offlineAccount) return true;
+    // UserCubit.state!.myPlaceList;
+    List<PlaceData> places = userCubit.state!.places.values.toList();
+    var scheduleUrl = Uri.parse('${serverUrl}api/oauth/user');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'PUT',
+        'header': {
+          // 'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+        'body': places,
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    print('putMyPlace 실패: $scheduleUrl -> ${response.body}');
+    return false;
+  }
+
+  static Future<bool> getMyPlaceList() async {
+    if (_offlineAccount) return true;
+    var scheduleUrl = Uri.parse('${serverUrl}api/oauth/location');
+    var response = await http.post(
+      scheduleUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'GET',
+        'header': {
+          'Content-Type': 'application/json',
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      print(response.body);
+      ServerWrapper.userCubit.setPlaceWithClear(response.body);
+      return true;
+    }
+    print('getMyPlace 실패: $scheduleUrl -> ${response.body}');
     return false;
   }
 }
@@ -703,10 +763,7 @@ class ItineraryCubitMapCubit extends Cubit<Map<int, ItineraryCubit>> {
     var newMap = Map<int, ItineraryCubit>.from(state);
     newMap[itineraryId] = itineraryCubit;
     emit(newMap);
-    // emit(
-    //     {...state, itineraryId: itineraryCubit});
-    print('addItineraryCubit: $itineraryId');
-    // TODO: 서버로 전송
+    // print('addItineraryCubit: $itineraryId');
   }
 
   void removeItineraryCubit(ItineraryCubit itineraryCubit) {
@@ -715,11 +772,11 @@ class ItineraryCubitMapCubit extends Cubit<Map<int, ItineraryCubit>> {
     newMap.remove(itineraryId);
     emit(newMap);
     // emit({...state}..remove(itineraryId));
-    print('removeItineraryCubit: $itineraryId');
+    // print('removeItineraryCubit: $itineraryId');
   }
 }
 
-void Set() {
+void offlineSet() {
   var s =
       """{"id":1,"users":[1],"title":"서울 여행","description":null,"startDate":"2024-09-29T00:00:00.000","endDate":"2024-10-02T00:00:00.000","iconPath":null,"iconColor":4280391411,"dailyItineraryCubitList":[{"dailyItineraryId":1,"date":"2024-09-29T00:00:00.000","placeList":[{"id":11548,"title":"우리 집","address":"테스트 주소1","latitude":37.123456,"longitude":127.123456,"stayTime":10,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411},{"id":126508,"title":"경복궁","address":"서울특별시 종로구 사직로 161","latitude":37.5788222356,"longitude":126.9769930325,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":"http://tong.visitkorea.or.kr/cms/resource/33/2678633_image2_1.jpg","thumbnailUrl":"http://tong.visitkorea.or.kr/cms/resource/33/2678633_image3_1.jpg","iconColor":4288475135},{"id":2809117,"title":"런던베이글뮤지엄","address":"서울특별시 종로구 북촌로4길 20 연화빌딩","latitude":37.5792251324,"longitude":126.9862171806,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":"","thumbnailUrl":"","iconColor":4288475135},{"id":44726,"title":"숙소","address":"테스트 주소2","latitude":37.123456,"longitude":127.123456,"stayTime":30,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[{"startTime":"1970-01-01T00:00:00.000","endTime":"1970-01-01T00:00:00.000","duration":0,"minDuration":null,"maxDuration":null,"distance":0,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"work","source":"unknown","details":[]},{"startTime":"2024-10-10T16:00:08.426","endTime":"2024-10-10T16:17:03.426","duration":1015,"minDuration":null,"maxDuration":null,"distance":1529,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"TRANSIT","source":"Google","details":[{"duration":403,"distance":402,"path":"srjdFee_fWvSiJ","method":"WALK","source":"Google"},{"duration":344,"distance":860,"path":"{}idFop_fWYu@OqBGaB?i@ZyDT{EPyAEoAgAmEq@wBcCuFQc@Io@Wo@a@_BKw@Ca@@k@","method":"TRANSIT","source":"Google"},{"duration":268,"distance":267,"path":"qhjdFiiafWsKlI","method":"WALK","source":"Google"}]},{"startTime":"1970-01-01T00:00:00.000","endTime":"1970-01-01T00:00:00.000","duration":0,"minDuration":null,"maxDuration":null,"distance":0,"startLatitude":null,"startLongitude":null,"endLatitude":null,"endLongitude":null,"method":"work","source":"unknown","details":[]}]},{"dailyItineraryId":1,"date":"2024-09-30T00:00:00.000","placeList":[{"id":65049,"title":"테스트 장소3","address":"테스트 주소3","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]},{"dailyItineraryId":1,"date":"2024-10-01T00:00:00.000","placeList":[{"id":1926,"title":"테스트 장소4","address":"테스트 주소4","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]},{"dailyItineraryId":1,"date":"2024-10-02T00:00:00.000","placeList":[{"id":83937,"title":"테스트 장소5","address":"테스트 주소5","latitude":37.123456,"longitude":127.123456,"stayTime":0,"visitTime":null,"description":null,"phoneNumber":null,"homepage":null,"tag":null,"imageUrl":null,"thumbnailUrl":null,"iconColor":4280391411}],"movementList":[]}]}""";
   ServerWrapper.itineraryCubitMapCubit.state[1]!

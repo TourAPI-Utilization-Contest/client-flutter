@@ -201,12 +201,12 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
         widget.onTap?.call();
         setState(() {});
       },
-      onTapOutside: widget.onTapOutside == null
-          ? null
-          : (PointerDownEvent event) {
-              widget.onTapOutside!(event);
-              setState(() {});
-            },
+      // onTapOutside: widget.onTapOutside == null
+      //     ? null
+      //     : (PointerDownEvent event) {
+      //         widget.onTapOutside!(event);
+      //         setState(() {});
+      //       },
       onFieldSubmitted: (value) async {
         widget.onSubmitted?.call(value);
         setState(() {});

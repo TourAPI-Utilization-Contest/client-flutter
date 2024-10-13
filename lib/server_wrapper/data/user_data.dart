@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -65,6 +67,22 @@ class UserCubit extends Cubit<UserData?> {
   void removePlace(PlaceData place) {
     if (state != null) {
       emit(state!.copyWith(places: Map.from(state!.places)..remove(place.id)));
+    }
+  }
+
+  void setPlaceWithClear(String json) {
+    if (state != null) {
+      if (json.isEmpty) {
+        emit(state!.copyWith(places: {}));
+        return;
+      }
+      var list = jsonDecode(json);
+      Map<int, PlaceData> places = {};
+      for (var item in list) {
+        var place = PlaceData.fromJson(item);
+        places[place.id] = place;
+      }
+      emit(state!.copyWith(places: places));
     }
   }
 

@@ -73,52 +73,44 @@ class ItineraryData with _$ItineraryData {
 class ItineraryCubit extends Cubit<ItineraryData> {
   ItineraryCubit(super.itinerary);
 
-  void updateDates(DateTime newStartDate, DateTime newEndDate) {
-    int oldDays = state.endDate.difference(state.startDate).inDays;
-    int newDays = newEndDate.difference(newStartDate).inDays;
-
-    // 일정 쉬프팅
-    if (newStartDate.isAfter(state.startDate)) {
-      int shiftDays = newStartDate.difference(state.startDate).inDays;
-      state.dailyItineraryCubitList
-          .map((itineraryCubit) => itineraryCubit.shiftDate(shiftDays));
-    } else if (newStartDate.isBefore(state.startDate)) {
-      int shiftDays = state.startDate.difference(newStartDate).inDays;
-      state.dailyItineraryCubitList
-          .map((itineraryCubit) => itineraryCubit.shiftDate(-shiftDays));
-    }
-
-    // 일정이 길어졌다면 새로운 일정을 추가
-    if (newDays > oldDays) {
-      for (int i = oldDays + 1; i <= newDays; i++) {
-        state.dailyItineraryCubitList.add(DailyItineraryCubit(
-          DailyItineraryData(
-            dailyItineraryId: state.id,
-            date: newStartDate.add(Duration(days: i)),
-          ),
-        ));
-      }
-    }
-
-    // 일정이 줄어들었다면 마지막 일정을 삭제
-    if (newDays < oldDays) {
-      state.dailyItineraryCubitList.removeRange(newDays + 1, oldDays + 1);
-    }
-
-    emit(state.copyWith(startDate: newStartDate, endDate: newEndDate));
-  }
+  // void updateDates(DateTime newStartDate, DateTime newEndDate) {
+  //   int oldDays = state.endDate.difference(state.startDate).inDays;
+  //   int newDays = newEndDate.difference(newStartDate).inDays;
+  //
+  //   // 일정 쉬프팅
+  //   if (newStartDate.isAfter(state.startDate)) {
+  //     int shiftDays = newStartDate.difference(state.startDate).inDays;
+  //     state.dailyItineraryCubitList
+  //         .map((itineraryCubit) => itineraryCubit.shiftDate(shiftDays));
+  //   } else if (newStartDate.isBefore(state.startDate)) {
+  //     int shiftDays = state.startDate.difference(newStartDate).inDays;
+  //     state.dailyItineraryCubitList
+  //         .map((itineraryCubit) => itineraryCubit.shiftDate(-shiftDays));
+  //   }
+  //
+  //   // 일정이 길어졌다면 새로운 일정을 추가
+  //   if (newDays > oldDays) {
+  //     for (int i = oldDays + 1; i <= newDays; i++) {
+  //       state.dailyItineraryCubitList.add(DailyItineraryCubit(
+  //         DailyItineraryData(
+  //           dailyItineraryId: state.id,
+  //           date: newStartDate.add(Duration(days: i)),
+  //         ),
+  //       ));
+  //     }
+  //   }
+  //
+  //   // 일정이 줄어들었다면 마지막 일정을 삭제
+  //   if (newDays < oldDays) {
+  //     state.dailyItineraryCubitList.removeRange(newDays + 1, oldDays + 1);
+  //   }
+  //
+  //   emit(state.copyWith(startDate: newStartDate, endDate: newEndDate));
+  // }
 
   void setItinerary(ItineraryData itinerary) {
     emit(itinerary);
   }
-  //
-  // void putItinerary() {
-  //   ServerWrapper.putSchedule(this);
-  // }
-  //
-  // void deleteItinerary() {
-  //   ServerWrapper.deleteSchedule(this);
-  // }
 
   void clearDailyItineraryCubitList() {
     emit(state.copyWith(dailyItineraryCubitList: []));

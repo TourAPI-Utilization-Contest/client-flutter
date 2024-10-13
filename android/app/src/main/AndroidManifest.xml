@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->
     <activity
         android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"

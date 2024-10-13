@@ -460,6 +460,7 @@ class _MainPageState extends State<MainPage>
                           builder: (context, itineraryCubitMap) {
                             var sortedItineraryCubitList =
                                 itineraryCubitMap.values.toList();
+                            itineraryCubitSort(sortedItineraryCubitList);
 
                             return Column(
                               spacing: 20,
