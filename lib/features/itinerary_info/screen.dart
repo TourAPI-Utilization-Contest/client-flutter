@@ -296,13 +296,17 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text(
-                          '돌아기기',
-                          style: TextStyle(color: cGray3),
-                        ),
                         style: ButtonStyle(
                           minimumSize: WidgetStateProperty.all(
                             const Size(double.infinity, 50),
+                          ),
+                        ),
+                        child: Text(
+                          '돌아기기',
+                          style: myTextStyle(
+                            fontSize: 14,
+                            color: cGray3,
+                            // fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),
@@ -374,12 +378,6 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                           }
                           Navigator.pop(context);
                         },
-                        child: Text(isEditing ? '저장하기' : '일정 만들기',
-                            style: myTextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            )),
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all(
                             Theme.of(context).primaryColor,
@@ -391,6 +389,12 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                             Colors.white.withAlpha(50),
                           ),
                         ),
+                        child: Text(isEditing ? '저장하기' : '일정 만들기',
+                            style: myTextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            )),
                       ),
                     ),
                   ],
@@ -411,16 +415,21 @@ class _ItineraryInfoScreenState extends State<ItineraryInfoScreen> {
                       // }
                       Navigator.pop(context);
                     },
-                    child: const Text(
-                      '일정 삭제하기',
-                      style: TextStyle(color: Colors.red),
-                    ),
                     style: ButtonStyle(
                       minimumSize: WidgetStateProperty.all(
                         const Size(double.infinity, 50),
                       ),
                       overlayColor: WidgetStateProperty.all(
                         Colors.red.withAlpha(10),
+                      ),
+                    ),
+                    child: Text(
+                      '일정 삭제하기',
+                      style: myTextStyle(
+                        color: Colors.red,
+                        fontSize: 14,
+                        height: 1,
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
                   ),

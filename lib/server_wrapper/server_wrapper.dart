@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,14 @@ import 'data/itinerary_data.dart';
 class LoginResult {
   bool success;
   String? message;
-  LoginResult(this.success, {this.message});
+  bool needEmailVerification;
+  LoginResult(this.success, {this.message, this.needEmailVerification = false});
+}
+
+class SignUpResult {
+  bool success;
+  String? message;
+  SignUpResult(this.success, {this.message});
 }
 
 class ServerWrapper {
@@ -42,15 +50,30 @@ class ServerWrapper {
       final FirebaseAuth auth = FirebaseAuth.instance;
       try {
         if (id == "admin@tradule.com" && pw == "1234") pw = "tradule1234";
+        //탈퇴한 계정인지 확인
+        // var isDeleted = await isAccountDeleted(id);
+        // if (isDeleted) {
+        //   return LoginResult(false, message: '탈퇴한 계정입니다.');
+        // }
         await auth.signInWithEmailAndPassword(email: id, password: pw);
         print(auth.currentUser);
         if (auth.currentUser != null) {
           if (!auth.currentUser!.emailVerified && id != "admin@tradule.com") {
-            await auth.currentUser!.sendEmailVerification();
-            return LoginResult(false, message: '이메일 인증을 완료해주세요.');
+            return LoginResult(
+              false,
+              message: '이메일 인증을 완료해주세요.',
+              needEmailVerification: true,
+            );
+          }
+          if (auth.currentUser!.photoURL == "delete") {
+            return LoginResult(
+              false,
+              message: '탈퇴한 계정입니다.',
+            );
           }
           _offlineAccount = false;
           _loginKind = 1;
+          print(auth.currentUser!.uid);
           var loginUrl = Uri.parse('${serverUrl}api/oauth/login-test');
           var response = await http.post(
             loginUrl,
@@ -62,7 +85,8 @@ class ServerWrapper {
               'header': {'Content-Type': 'application/json'},
               'body': {
                 "email": id,
-                "password": "1234",
+                "password":
+                    id == "admin@tradule.com" ? "1234" : auth.currentUser!.uid,
               }
             }),
           );
@@ -100,6 +124,43 @@ class ServerWrapper {
       }
       return LoginResult(false, message: '로그인에 실패하였습니다. 아이디와 비밀번호를 확인하세요.');
     }
+  }
+
+  static Future<SignUpResult> signUpIdPw(
+      {required String id,
+      required String pw,
+      required String nickname}) async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    try {
+      await auth.createUserWithEmailAndPassword(email: id, password: pw);
+      if (auth.currentUser != null) {
+        var localPw = auth.currentUser!.uid;
+        try {
+          var r = await postRegister(id: id, pw: localPw, nickname: nickname);
+          if (!r) throw Exception('회원가입에 실패하였습니다.');
+          await auth.currentUser!.sendEmailVerification();
+        } catch (e) {
+          print(e);
+          await auth.currentUser!.delete();
+          return SignUpResult(false, message: '회원가입에 실패하였습니다.');
+        }
+        return SignUpResult(true);
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        return SignUpResult(false, message: '이미 가입된 이메일입니다.');
+      } else if (e.code == 'weak-password') {
+        return SignUpResult(false, message: '비밀번호가 너무 약합니다.');
+      } else if (e.code == 'invalid-email') {
+        return SignUpResult(false, message: '이메일 형식이 아닙니다.');
+      } else {
+        return SignUpResult(false, message: '알 수 없는 오류: $e');
+      }
+    } catch (e) {
+      print(e);
+      return SignUpResult(false, message: '회원가입에 실패하였습니다.');
+    }
+    return SignUpResult(false, message: '회원가입에 실패하였습니다.');
   }
 
   static void _testAccountLogin() {
@@ -766,6 +827,89 @@ class ServerWrapper {
     }
     print('getMyPlace 실패: $scheduleUrl -> ${response.body}');
     return false;
+  }
+
+  static Future<bool> postRegister(
+      {required String id,
+      required String pw,
+      required String nickname}) async {
+    var registerUrl = Uri.parse('${serverUrl}api/oauth/register');
+    var response = await http.post(
+      registerUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'POST',
+        'header': {'Content-Type': 'application/json'},
+        'body': {
+          "email": id,
+          "password": pw,
+          "nickname": nickname,
+        }
+      }),
+    );
+    if (200 <= response.statusCode && response.statusCode < 300) {
+      return true;
+    }
+    var responseJson = json.decode(response.body);
+    if (responseJson['code'] == -421) {
+      //이미 가입된 이메일
+      return true;
+    }
+    return false;
+  }
+
+  static Future<bool> deleteUser() async {
+    if (_offlineAccount) return true;
+
+    //일정 삭제
+    var itineraryIds = userCubit.state!.itineraries;
+    for (var itineraryId in itineraryIds) {
+      var itineraryCubit = itineraryCubitMapCubit.state[itineraryId];
+      if (itineraryCubit != null) {
+        deleteSchedule(itineraryCubit);
+      }
+    }
+
+    //내 장소 삭제
+    userCubit.state!.places.clear();
+    putMyPlaceList();
+
+    if (_loginKind == 2) {
+      await UserApi.instance.unlink();
+    }
+
+    if (_loginKind == 1) {
+      await markAccountAsDeleted(FirebaseAuth.instance.currentUser!.uid);
+    }
+
+    logout();
+    return true;
+  }
+
+  // ------------------------- 파이어 베이스 -------------------------
+  static Future<void> markAccountAsDeleted(String email) async {
+    await FirebaseFirestore.instance.collection('users').doc(email).set({
+      'isDeleted': true, // 탈퇴 계정으로 설정
+    });
+  }
+
+  static Future<void> reactivateAccount(String email) async {
+    await FirebaseFirestore.instance.collection('users').doc(email).set({
+      'isDeleted': false, // 계정을 다시 활성화
+    });
+  }
+
+  static Future<bool> isAccountDeleted(String email) async {
+    DocumentSnapshot userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(email).get();
+
+    if (userDoc.exists && userDoc.data() != null) {
+      return userDoc['isDeleted'] ?? false; // 탈퇴 상태 확인
+    }
+
+    return false; // 기본값으로 탈퇴되지 않은 상태 반환
   }
 }
 

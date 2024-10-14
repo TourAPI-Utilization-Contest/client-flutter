@@ -204,13 +204,17 @@ class _UserScreenState extends State<UserScreen> {
                             mainTabController!.animateTo(1);
                           }
                         },
-                        child: const Text(
-                          '돌아기기',
-                          style: TextStyle(color: cGray3),
-                        ),
                         style: ButtonStyle(
                           minimumSize: WidgetStateProperty.all(
                             const Size(double.infinity, 50),
+                          ),
+                        ),
+                        child: Text(
+                          '돌아기기',
+                          style: myTextStyle(
+                            fontSize: 14,
+                            color: cGray3,
+                            fontWeight: FontWeight.w400,
                           ),
                         ),
                       ),
@@ -232,13 +236,6 @@ class _UserScreenState extends State<UserScreen> {
                             mainTabController!.animateTo(1);
                           }
                         },
-                        // child: isEditing ? const Text('수정 완료') : const Text('일정 만들기'),
-                        child: Text('저장하기',
-                            style: myTextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            )),
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all(
                             Theme.of(context).primaryColor,
@@ -250,6 +247,13 @@ class _UserScreenState extends State<UserScreen> {
                             Colors.white.withAlpha(50),
                           ),
                         ),
+                        // child: isEditing ? const Text('수정 완료') : const Text('일정 만들기'),
+                        child: Text('저장하기',
+                            style: myTextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            )),
                       ),
                     ),
                   ],
@@ -257,7 +261,7 @@ class _UserScreenState extends State<UserScreen> {
                 TextButton(
                   onPressed: () {
                     //TODO: 회원탈퇴
-                    // ServerWrapper.deleteUser();
+                    ServerWrapper.deleteUser();
                   },
                   //글자 색 변경
                   style: ButtonStyle(

@@ -1,10 +1,12 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/common/app_bar_blur.dart';
+import 'package:tradule/common/login_text_form_field.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/color.dart';
@@ -93,16 +95,71 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            buildLoginTextFormField(
+                            LoginTextFormField(
+                              key: const Key('email'),
+                              formFieldKey: _emailKey,
                               hintText: 'Email',
                               isPassword: false,
+                              focusNode: _focusNodeEmail,
                               controller: _idController,
+                              onChanged: (value) {
+                                if (!_emailValidateFlag) return;
+                                _emailValidateFlag = false;
+                                _loginResult = null;
+                                _emailKey.currentState!.validate();
+                                setState(() {});
+                              },
+                              onSubmitted: (_) {
+                                _submitted(context: context);
+                              },
+                              validator: (value) {
+                                if (!_emailValidateFlag) return null;
+                                if (value == null || value.isEmpty) {
+                                  if (!_isFormValidateFailFlag) {
+                                    _isFormValidateFailFlag = true;
+                                    _focusNodeEmail.requestFocus();
+                                  }
+                                  return '아이디를 입력하세요';
+                                }
+                                if (!value.contains('@')) {
+                                  if (!_isFormValidateFailFlag) {
+                                    _isFormValidateFailFlag = true;
+                                    _focusNodeEmail.requestFocus();
+                                  }
+                                  return '이메일 형식으로 입력하세요';
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 15),
-                            buildLoginTextFormField(
+                            LoginTextFormField(
+                              key: const Key('password'),
                               hintText: 'Password',
                               isPassword: true,
+                              formFieldKey: _passwordKey,
+                              focusNode: _focusNodePassword,
                               controller: _pwController,
+                              onChanged: (value) {
+                                if (!_passwordValidateFlag) return;
+                                _passwordValidateFlag = false;
+                                _loginResult = null;
+                                _passwordKey.currentState!.validate();
+                                setState(() {});
+                              },
+                              onSubmitted: (_) {
+                                _submitted(context: context);
+                              },
+                              validator: (value) {
+                                if (!_passwordValidateFlag) return null;
+                                if (value == null || value.isEmpty) {
+                                  if (!_isFormValidateFailFlag) {
+                                    _isFormValidateFailFlag = true;
+                                    _focusNodePassword.requestFocus();
+                                  }
+                                  return '비밀번호를 입력하세요';
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 15),
                             SizedBox(
@@ -150,6 +207,50 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                               ),
+                            if (_loginResult != null &&
+                                !_loginResult!.success &&
+                                _loginResult!.needEmailVerification)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '이메일이 오지 않았다면 스팸 메일함을 확인하세요.',
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(context).colorScheme.error,
+                                        fontSize: 12.0,
+                                        fontFamily: 'NotoSansKR',
+                                        fontVariations: const [
+                                          FontVariation('wght', 400.0),
+                                        ],
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        var auth = FirebaseAuth.instance;
+                                        auth.currentUser!
+                                            .sendEmailVerification();
+                                      },
+                                      child: Text(
+                                        '이메일 재전송',
+                                        style: TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          fontSize: 12.0,
+                                          fontFamily: 'NotoSansKR',
+                                          fontVariations: const [
+                                            FontVariation('wght', 200.0),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
                             const SizedBox(height: 10),
                             TextButton(
                               onPressed: () {
@@ -303,6 +404,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }) {
     return TextFormField(
       key: isPassword ? _passwordKey : _emailKey,
+      keyboardType: TextInputType.emailAddress,
       initialValue: initialValue,
       controller: controller,
       obscureText: isPassword,
@@ -333,9 +435,7 @@ class _LoginScreenState extends State<LoginScreen> {
         hintStyle: TextStyle(
           color: cGray,
           fontFamily: 'NotoSansKR',
-          fontVariations: const [
-            FontVariation('wght', 200.0),
-          ],
+          fontVariations: const [FontVariation('wght', 200.0)],
         ),
         filled: true,
         fillColor: const Color(0xFFF8F8F8),
@@ -396,7 +496,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordValidateFlag = true;
     setState(() {});
     if (_formKey.currentState!.validate()) {
-      print('로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
+      // print('로그인 시도: 이메일: ${_idController.text}, 비밀번호: ${_pwController.text}');
       final result =
           await ServerWrapper.loginIdPw(_idController.text, _pwController.text);
       if (!context.mounted) return;

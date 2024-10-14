@@ -148,6 +148,7 @@ class MyTextFormField extends StatefulWidget {
   final void Function()? suffixOnPressed;
   final bool passwordMode;
   final bool enabled;
+  final TextInputType keyboardType;
 
   MyTextFormField({
     super.key,
@@ -165,7 +166,7 @@ class MyTextFormField extends StatefulWidget {
     this.suffixOnPressed,
     this.passwordMode = false,
     this.enabled = true,
-    // this.hintText = ''
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -178,6 +179,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: widget.keyboardType,
       controller: widget.controller,
       // padding: const MaterialStatePropertyAll<EdgeInsets>(
       //     EdgeInsets.symmetric(horizontal: 16.0)),
@@ -188,9 +190,6 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       obscureText: widget.passwordMode,
       enableSuggestions: !widget.passwordMode,
       autocorrect: !widget.passwordMode,
-      keyboardType: widget.passwordMode
-          ? TextInputType.visiblePassword
-          : TextInputType.text,
       inputFormatters: widget.passwordMode
           ? [
               FilteringTextInputFormatter.allow(
