@@ -337,6 +337,7 @@ class ServerWrapper {
           'Content-Type': 'application/json',
           'access_token': token.accessToken,
           'refresh_token': token.refreshToken!,
+          'member_id': (await api.me()).id.toString(),
         },
         body: json.encode({
           'method': 'GET',

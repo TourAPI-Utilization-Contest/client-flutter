@@ -115,6 +115,7 @@ Future<List<int>?> optimizedRoute(List<PlaceData> places) async {
     Uri.parse(proxyUrl),
     headers: {
       'Content-Type': 'application/json',
+      'X-Goog-FieldMask': 'routes.*',
     },
     body: jsonEncode({
       "origin": {
