@@ -335,12 +335,14 @@ class ServerWrapper {
         Uri.parse('${serverUrl}api/oauth/authenticate'),
         headers: {
           'Content-Type': 'application/json',
-          'access_token': token.accessToken,
-          'refresh_token': token.refreshToken!,
-          'member_id': (await api.me()).id.toString(),
         },
         body: json.encode({
           'method': 'GET',
+          'header': {
+            'access_token': token.accessToken,
+            'refresh_token': token.refreshToken!,
+            'member_id': (await api.me()).id.toString(),
+          }
         }),
       );
       print(tokenResponseLow.body);

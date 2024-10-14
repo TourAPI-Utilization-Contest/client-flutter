@@ -111,11 +111,45 @@ Future<MovementData> getGoogleMapRoutes(PlaceData start, PlaceData end) async {
 
 Future<List<int>?> optimizedRoute(List<PlaceData> places) async {
   final proxyUrl = '$_proxyUrl/computeRoutes';
+  print('places: $places');
+  String body = jsonEncode({
+    "origin": {
+      "location": {
+        "latLng": {
+          "latitude": places.first.latitude,
+          "longitude": places.first.longitude,
+        },
+      },
+    },
+    "destination": {
+      "location": {
+        "latLng": {
+          "latitude": places.last.latitude,
+          "longitude": places.last.longitude,
+        },
+      },
+    },
+    "intermediates": places
+        .sublist(1, places.length - 1)
+        .map((place) => {
+              "location": {
+                "latLng": {
+                  "latitude": place.latitude,
+                  "longitude": place.longitude,
+                },
+              },
+            })
+        .toList(),
+    "travelMode": "DRIVE",
+    "optimizeWaypointOrder": "true",
+  });
+  print('body: $body');
   var response = await http.post(
     Uri.parse(proxyUrl),
     headers: {
       'Content-Type': 'application/json',
-      'X-Goog-FieldMask': 'routes.*',
+      'X-Goog-FieldMask':
+          'routes.optimizedIntermediateWaypointIndex,geocodingResults.intermediates.intermediateWaypointRequestIndex',
     },
     body: jsonEncode({
       "origin": {
