@@ -55,6 +55,7 @@ dependencies:
   flutter_polyline_points: ^2.1.0
   latlong2: ^0.9.1
   iconsax_flutter: ^1.0.0
+  tsp_route_finder: ^0.0.3
 #  fluttertoast: ^8.2.8
 #  avs_svg_provider: ^1.0.1
 #  google_maps_routes: ^1.1.2

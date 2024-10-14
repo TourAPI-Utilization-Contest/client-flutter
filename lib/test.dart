@@ -1,62 +1,74 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:tsp_route_finder/tsp_route_finder.dart';
 
-class GradualBlurExample extends StatelessWidget {
+class FindTspRoute extends StatefulWidget {
+  const FindTspRoute({super.key});
+
+  @override
+  State<FindTspRoute> createState() => _FindTspRouteState();
+}
+
+class _FindTspRouteState extends State<FindTspRoute> {
+  List<int> tspRoute = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("TSP Route Finder"),
+        centerTitle: true,
+      ),
       body: Center(
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // 배경 이미지 또는 컬러
-            Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/logo/symbol_icon3.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
+            MaterialButton(
+              onPressed: () {
+                findTSP();
+                setState(() {});
+              },
+              color: Colors.deepPurpleAccent,
+              child: const Text("Find", style: TextStyle(color: Colors.white)),
             ),
-            // 점진적 블러를 위한 BackdropFilter와 ShaderMask 조합
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: BackdropFilter(
-                // imageFilter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-                child: ShaderMask(
-                  shaderCallback: (Rect bounds) {
-                    return LinearGradient(
-                      // center: Alignment.center,
-                      // radius: 0.5,
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black,
-                        Colors.black.withOpacity(0),
-                      ],
-                      stops: [0, 1],
-                    ).createShader(bounds);
-                  },
-                  blendMode: BlendMode.dstOut,
-                  child: Container(
-                    width: 300,
-                    height: 300,
-                    color: Colors.transparent,
-                    child: Image(
-                      image: AssetImage('assets/logo/symbol_icon3.png'),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            if (tspRoute.isNotEmpty) Text(tspRoute.toString()),
           ],
         ),
       ),
     );
   }
+
+  void findTSP() async {
+    // Define a list locations
+    final List<CitiesLocations> locations = [
+      CitiesLocations(
+          cityName: "Cairo",
+          latitude: 30.04536650078621,
+          longitude: 31.233230917179828),
+      CitiesLocations(
+          cityName: "Tanta",
+          latitude: 30.78654967266781,
+          longitude: 31.001245021237708),
+      CitiesLocations(
+          cityName: "Mansoura",
+          latitude: 31.040718440307945,
+          longitude: 31.380351843023824),
+      CitiesLocations(
+          cityName: "Aswan",
+          latitude: 24.089512449946742,
+          longitude: 32.89933393026378),
+      CitiesLocations(
+          cityName: "Alexandria",
+          latitude: 31.200888037065972,
+          longitude: 29.927766526114013),
+    ];
+
+    // Calculate the TSP route
+    tspRoute = await TspPackage.calculateTspRoute(
+        locations: locations, startingLocationIndex: 0);
+  }
 }
 
-void main() => runApp(MaterialApp(home: GradualBlurExample()));
+void main() {
+  runApp(const MaterialApp(
+    home: FindTspRoute(),
+  ));
+}
