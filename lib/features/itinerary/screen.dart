@@ -922,7 +922,9 @@ class _Header extends StatelessWidget {
             right: 10,
             top: 10,
             child: TextButton(
-              onPressed: autoArrange,
+              onPressed: () {
+                autoArrange(context);
+              },
               child: Text("일정 순서 자동 재배치"),
             ),
           ),
@@ -930,7 +932,20 @@ class _Header extends StatelessWidget {
     );
   }
 
-  void autoArrange() {}
+  void autoArrange(BuildContext context) async {
+    var tabController = context.read<TabControllerCubit>().state.tabController;
+    List<PlaceData> placeList = [];
+    var index = tabController.index - 1;
+    if (index < 0) return;
+    var dailyItineraryCubit =
+        context.read<ItineraryCubit>().state.dailyItineraryCubitList[index];
+    for (var placeCubit in dailyItineraryCubit.state.placeList) {
+      placeList.add(placeCubit.state);
+    }
+
+    List<int>? newIndexList = await optimizedRoute(placeList);
+    if (newIndexList == null) return;
+  }
 }
 
 class _Body extends StatefulWidget {

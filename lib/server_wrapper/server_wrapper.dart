@@ -290,44 +290,59 @@ class ServerWrapper {
     final AuthCodeClient client = AuthCodeClient.instance;
     try {
       final api = UserApi.instance;
+      final token = await (await isKakaoTalkInstalled()
+          ? api.loginWithKakaoTalk()
+          : api.loginWithKakaoAccount());
       // api.loginWithKakaoAccount();
-      String redirectUri =
-          'http://ec2-3-104-73-228.ap-southeast-2.compute.amazonaws.com:8080/api/oauth/authenticate';
-      _code = await (await isKakaoTalkInstalled()
-          ? client.authorizeWithTalk(
-              redirectUri: redirectUri,
-              webPopupLogin: true,
-            )
-          : client.authorize(
-              redirectUri: redirectUri,
-              webPopupLogin: true,
-            ));
+      // String redirectUri =
+      //     'http://ec2-3-104-73-228.ap-southeast-2.compute.amazonaws.com:8080/api/oauth/authenticate';
+      // _code = await (await isKakaoTalkInstalled()
+      //     ? client.authorizeWithTalk(
+      //         redirectUri: redirectUri,
+      //         webPopupLogin: true,
+      //       )
+      //     : client.authorize(
+      //         redirectUri: redirectUri,
+      //         webPopupLogin: true,
+      //       ));
       // final token = await AuthApi.instance.issueAccessToken(
       //   authCode: _code,
       //   redirectUri: redirectUri,
       // );
+      // final tokenResponseLow = await http.post(
+      //   Uri.parse('${serverUrl}api/oauth/authenticate?code=$_code'),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: json.encode({
+      //     'method': 'GET',
+      //   }),
+      // );
+      // var tokenResponseLowJson = json.decode(tokenResponseLow.body);
+      // print(tokenResponseLowJson);
+      // // OAuthToken()
+      // var tokenResponse = AccessTokenResponse(
+      //   tokenResponseLowJson['accessToken'],
+      //   7199,
+      //   tokenResponseLowJson['refreshToken'],
+      //   null,
+      //   null,
+      //   "bearer",
+      // );
+      // var token = OAuthToken.fromResponse(tokenResponse);
+      // token = OAuthToken.fromJson(json)
       final tokenResponseLow = await http.post(
-        Uri.parse('${serverUrl}api/oauth/authenticate?code=$_code'),
+        Uri.parse('${serverUrl}api/oauth/authenticate'),
         headers: {
           'Content-Type': 'application/json',
+          'access_token': token.accessToken,
+          'refresh_token': token.refreshToken!,
         },
         body: json.encode({
           'method': 'GET',
         }),
       );
-      var tokenResponseLowJson = json.decode(tokenResponseLow.body);
-      print(tokenResponseLowJson);
-      // OAuthToken()
-      var tokenResponse = AccessTokenResponse(
-        tokenResponseLowJson['accessToken'],
-        7199,
-        tokenResponseLowJson['refreshToken'],
-        null,
-        null,
-        "bearer",
-      );
-      var token = OAuthToken.fromResponse(tokenResponse);
-      // token = OAuthToken.fromJson(json)
+      print(tokenResponseLow.body);
       await TokenManagerProvider.instance.manager.setToken(token);
       _accessToken = token.accessToken;
       _refreshToken = token.refreshToken!;

@@ -108,3 +108,52 @@ Future<MovementData> getGoogleMapRoutes(PlaceData start, PlaceData end) async {
     throw Exception('Failed to load routes');
   }
 }
+
+Future<List<int>?> optimizedRoute(List<PlaceData> places) async {
+  final proxyUrl = '$_proxyUrl/computeRoutes';
+  var response = await http.post(
+    Uri.parse(proxyUrl),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      "origin": {
+        "location": {
+          "latLng": {
+            "latitude": places.first.latitude,
+            "longitude": places.first.longitude,
+          },
+        },
+      },
+      "destination": {
+        "location": {
+          "latLng": {
+            "latitude": places.last.latitude,
+            "longitude": places.last.longitude,
+          },
+        },
+      },
+      "intermediates": places
+          .sublist(1, places.length - 1)
+          .map((place) => {
+                "location": {
+                  "latLng": {
+                    "latitude": place.latitude,
+                    "longitude": place.longitude,
+                  },
+                },
+              })
+          .toList(),
+      "travelMode": "DRIVE",
+      "optimizeWaypointOrder": "true",
+    }),
+  );
+  if (response.statusCode == 200) {
+    print('response.body: ${response.body}');
+    var data = jsonDecode(response.body);
+    List<int> order = data['routes']['optimizedIntermediateWaypointIndex'];
+    return order;
+  } else {
+    throw Exception('Failed to load routes');
+  }
+}
