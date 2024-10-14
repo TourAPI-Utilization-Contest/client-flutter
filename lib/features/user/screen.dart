@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:toastification/toastification.dart';
 import 'package:tradule/common/app_bar_blur.dart';
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/global_value.dart';
@@ -23,6 +25,8 @@ class _UserScreenState extends State<UserScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _passwordConfirmController =
       TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -158,38 +162,50 @@ class _UserScreenState extends State<UserScreen> {
                       },
                     ),
                   ),
-                Column(
-                  spacing: 10,
-                  children: [
-                    MyTextFormField(
-                      controller: TextEditingController(
-                          text: ServerWrapper.getUser()?.email ?? ''),
-                      hintText: ServerWrapper.getUser()?.email ?? '',
-                      labelText: '이메일',
-                      enabled: false,
-                    ),
-                    //비밀번호 변경
-                    MyTextFormField(
-                      controller: _passwordController,
-                      hintText: '새 비밀번호',
-                      labelText:
-                          '비밀번호 변경${ServerWrapper.getLoginKind() == 2 ? ' (카카오 로그인 사용자는 비밀번호 변경이 불가능합니다.)' : ''}',
-                      passwordMode: true,
-                      enabled: ServerWrapper.getLoginKind() != 2,
-                      onChanged: (value) {
-                        // if (value.isNotEmpty) {
-                        setState(() {});
-                        // }
-                      },
-                    ),
-                    if (_passwordController.text.isNotEmpty)
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    spacing: 10,
+                    children: [
                       MyTextFormField(
-                        controller: _passwordConfirmController,
-                        hintText: '새 비밀번호 확인',
-                        labelText: '새 비밀번호 확인',
-                        passwordMode: true,
+                        controller: TextEditingController(
+                            text: ServerWrapper.getUser()?.email ?? ''),
+                        hintText: ServerWrapper.getUser()?.email ?? '',
+                        labelText: '이메일',
+                        enabled: false,
                       ),
-                  ],
+                      //비밀번호 변경
+                      MyTextFormField(
+                        controller: _passwordController,
+                        hintText: '새 비밀번호',
+                        labelText:
+                            '비밀번호 변경${ServerWrapper.getLoginKind() == 2 ? ' (카카오 로그인 사용자는 비밀번호 변경이 불가능합니다.)' : ''}',
+                        passwordMode: true,
+                        enabled: ServerWrapper.getLoginKind() != 2,
+                        onSubmitted: (_) => onSubmitted(),
+                        onChanged: (value) {
+                          // if (value.isNotEmpty) {
+                          setState(() {});
+                          // }
+                        },
+                      ),
+                      if (_passwordController.text.isNotEmpty)
+                        MyTextFormField(
+                          controller: _passwordConfirmController,
+                          hintText: '새 비밀번호 확인',
+                          labelText: '새 비밀번호 확인',
+                          helperText: '6자리 이상 입력해주세요.',
+                          passwordMode: true,
+                          onSubmitted: (_) => onSubmitted(),
+                          validator: (value) {
+                            if (value != _passwordController.text) {
+                              return '비밀번호가 일치하지 않습니다.';
+                            }
+                            return null;
+                          },
+                        ),
+                    ],
+                  ),
                 ),
                 Row(
                   spacing: 8,
@@ -222,20 +238,7 @@ class _UserScreenState extends State<UserScreen> {
                     Flexible(
                       flex: 7,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // if (_passwordController.text.isNotEmpty &&
-                          //     _passwordController.text ==
-                          //         _passwordConfirmController.text) {
-                          //   ServerWrapper.userCubit
-                          //       .updatePassword(_passwordController.text);
-                          // }
-                          // Navigator.pop(context);
-                          if (Navigator.canPop(context)) {
-                            Navigator.pop(context);
-                          } else {
-                            mainTabController!.animateTo(1);
-                          }
-                        },
+                        onPressed: onSubmitted,
                         style: ButtonStyle(
                           backgroundColor: WidgetStateProperty.all(
                             Theme.of(context).primaryColor,
@@ -247,7 +250,6 @@ class _UserScreenState extends State<UserScreen> {
                             Colors.white.withAlpha(50),
                           ),
                         ),
-                        // child: isEditing ? const Text('수정 완료') : const Text('일정 만들기'),
                         child: Text('저장하기',
                             style: myTextStyle(
                               fontSize: 16,
@@ -260,8 +262,57 @@ class _UserScreenState extends State<UserScreen> {
                 ),
                 TextButton(
                   onPressed: () {
-                    //TODO: 회원탈퇴
-                    ServerWrapper.deleteUser();
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('회원탈퇴'),
+                          content: const Text('정말로 탈퇴하시겠습니까?'),
+                          backgroundColor: Colors.white,
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('취소'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                var email = ServerWrapper.getUser()?.email;
+                                if (email == 'admin@tradule.com' ||
+                                    email == 'test@test') {
+                                  toastification.show(
+                                    context: context,
+                                    type: ToastificationType.error,
+                                    style: ToastificationStyle.fillColored,
+                                    title: Text("회원 탈퇴 오류"),
+                                    description: Text("관리자 계정은 탈퇴할 수 없습니다."),
+                                    alignment: Alignment.center,
+                                    autoCloseDuration:
+                                        const Duration(seconds: 3),
+                                    icon: Icon(Iconsax.alarm_copy),
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    dragToClose: true,
+                                    applyBlurEffect: true,
+                                    showProgressBar: false,
+                                    // boxShadow: lowModeShadow,
+                                  );
+                                  return;
+                                }
+                                ServerWrapper.deleteUser();
+                                if (Navigator.canPop(context)) {
+                                  Navigator.pop(context);
+                                } else {
+                                  mainTabController!.animateTo(1);
+                                }
+                              },
+                              child: const Text('확인'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
                   //글자 색 변경
                   style: ButtonStyle(
@@ -292,5 +343,44 @@ class _UserScreenState extends State<UserScreen> {
         ),
       ),
     );
+  }
+
+  void onSubmitted() async {
+    if (ServerWrapper.getLoginKind() != 2 &&
+        _passwordController.text.isNotEmpty &&
+        _formKey.currentState!.validate()) {
+      var result = await ServerWrapper.updatePassword(_passwordController.text);
+      if (result != null) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          title: Text("비밀번호 변경 오류"),
+          description: Text(result),
+          alignment: Alignment.center,
+          autoCloseDuration: const Duration(seconds: 3),
+          icon: Icon(Iconsax.alarm_copy),
+          borderRadius: BorderRadius.circular(12.0),
+          dragToClose: true,
+          applyBlurEffect: true,
+          showProgressBar: false,
+        );
+        return;
+      }
+      toastification.show(
+        context: context,
+        type: ToastificationType.success,
+        style: ToastificationStyle.fillColored,
+        title: Text("비밀번호 변경 완료"),
+        description: Text("비밀번호가 변경되었습니다."),
+        alignment: Alignment.center,
+        autoCloseDuration: const Duration(seconds: 3),
+        icon: Icon(Iconsax.alarm_copy),
+        borderRadius: BorderRadius.circular(12.0),
+        dragToClose: true,
+        applyBlurEffect: true,
+        showProgressBar: false,
+      );
+    }
   }
 }

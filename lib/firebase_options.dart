@@ -78,4 +78,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'tradule-com.appspot.com',
     iosBundleId: 'com.tradule.tradule',
   );
+
 }

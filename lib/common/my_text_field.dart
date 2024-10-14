@@ -149,6 +149,7 @@ class MyTextFormField extends StatefulWidget {
   final bool passwordMode;
   final bool enabled;
   final TextInputType keyboardType;
+  final String? helperText;
 
   MyTextFormField({
     super.key,
@@ -167,6 +168,7 @@ class MyTextFormField extends StatefulWidget {
     this.passwordMode = false,
     this.enabled = true,
     this.keyboardType = TextInputType.text,
+    this.helperText,
   });
 
   @override
@@ -222,13 +224,13 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       decoration: InputDecoration(
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20.0, vertical: 17.0),
-        // border: const OutlineInputBorder(
-        //   borderSide: BorderSide(
-        //     color: cAqua,
-        //     width: 10.0,
-        //   ),
-        //   borderRadius: BorderRadius.all(Radius.circular(50.0)),
-        // ),
+        border: const OutlineInputBorder(
+          borderSide: BorderSide(
+            color: cGray3,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+        ),
         enabledBorder: const OutlineInputBorder(
           borderSide: BorderSide(
             color: cGray3,
@@ -250,6 +252,13 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
           ),
           borderRadius: BorderRadius.all(Radius.circular(50.0)),
         ),
+        errorBorder: const OutlineInputBorder(
+          borderSide: BorderSide(
+            color: cError,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(50.0)),
+        ),
         hoverColor: Theme.of(context).primaryColor.withAlpha(10),
         // labelStyle: const TextStyle(
         //   color: cGray,
@@ -260,6 +269,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
         filled: true,
         fillColor: Colors.white,
         labelText: widget.labelText,
+        helperText: widget.helperText,
         hintText: widget.hintText,
         hintStyle: const TextStyle(
           // color: _focusNode.hasFocus ? Colors.black38 : cGray,
@@ -277,23 +287,26 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
         // ),
         suffixIcon: widget.controller.text.isEmpty || !widget.enabled
             ? null
-            : Padding(
-                padding: const EdgeInsets.only(right: 10.0),
-                child: Tooltip(
-                  message: widget.suffixToolTip ?? '초기화',
-                  child: IconButton(
-                    icon: SvgPicture.asset(
-                      'assets/icon/jam_close_circle_f.svg',
-                      colorFilter:
-                          const ColorFilter.mode(cGray, BlendMode.srcIn),
-                      height: 19.9,
+            : FocusScope(
+                canRequestFocus: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10.0),
+                  child: Tooltip(
+                    message: widget.suffixToolTip ?? '초기화',
+                    child: IconButton(
+                      icon: SvgPicture.asset(
+                        'assets/icon/jam_close_circle_f.svg',
+                        colorFilter:
+                            const ColorFilter.mode(cGray, BlendMode.srcIn),
+                        height: 19.9,
+                      ),
+                      onPressed: widget.suffixOnPressed ??
+                          () {
+                            // _controller.closeView(null);
+                            widget.controller.clear();
+                            setState(() {});
+                          },
                     ),
-                    onPressed: widget.suffixOnPressed ??
-                        () {
-                          // _controller.closeView(null);
-                          widget.controller.clear();
-                          setState(() {});
-                        },
                   ),
                 ),
               ),

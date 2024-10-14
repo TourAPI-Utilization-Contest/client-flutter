@@ -1,6 +1,7 @@
 import 'package:tradule/features/search/screen.dart';
 
 import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';

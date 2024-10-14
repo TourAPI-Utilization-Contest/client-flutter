@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +31,9 @@ class SignUpResult {
 }
 
 class ServerWrapper {
+  static FirebaseFirestore firestore = FirebaseFirestore.instanceFor(
+      app: Firebase.app(), databaseId: 'tradule-db');
+  static FirebaseAuth auth = FirebaseAuth.instance;
   static bool _offlineAccount = false;
   static int _loginKind = 0; // 1: ID/PW, 2: Kakao
   static UserCubit userCubit = UserCubit();
@@ -51,10 +55,10 @@ class ServerWrapper {
       try {
         if (id == "admin@tradule.com" && pw == "1234") pw = "tradule1234";
         //탈퇴한 계정인지 확인
-        // var isDeleted = await isAccountDeleted(id);
-        // if (isDeleted) {
-        //   return LoginResult(false, message: '탈퇴한 계정입니다.');
-        // }
+        var isDeleted = await isAccountDeleted(id);
+        if (isDeleted) {
+          return LoginResult(false, message: '탈퇴한 계정입니다. (재가입 가능)');
+        }
         await auth.signInWithEmailAndPassword(email: id, password: pw);
         print(auth.currentUser);
         if (auth.currentUser != null) {
@@ -63,12 +67,6 @@ class ServerWrapper {
               false,
               message: '이메일 인증을 완료해주세요.',
               needEmailVerification: true,
-            );
-          }
-          if (auth.currentUser!.photoURL == "delete") {
-            return LoginResult(
-              false,
-              message: '탈퇴한 계정입니다.',
             );
           }
           _offlineAccount = false;
@@ -148,7 +146,15 @@ class ServerWrapper {
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        return SignUpResult(false, message: '이미 가입된 이메일입니다.');
+        bool isDeleted = await isAccountDeleted(id);
+        if (isDeleted) {
+          reactivateAccount(id);
+          FirebaseAuth.instance.sendPasswordResetEmail(email: id);
+          return SignUpResult(false,
+              message: '이미 가입된 이메일이므로 재가입 처리를 위한 이메일을 전송하였습니다.');
+        } else {
+          return SignUpResult(false, message: '이미 가입된 이메일입니다.');
+        }
       } else if (e.code == 'weak-password') {
         return SignUpResult(false, message: '비밀번호가 너무 약합니다.');
       } else if (e.code == 'invalid-email') {
@@ -421,6 +427,62 @@ class ServerWrapper {
     // _testAccount = false;
     // _loginKind = 2;
     // return true;
+  }
+
+  static Future<bool> updateNickname(String nickname) async {
+    if (_offlineAccount) {
+      userCubit.updateNickname(nickname);
+      return true;
+    }
+    var userUrl = Uri.parse('${serverUrl}api/oauth/user');
+    var response = await http.post(
+      userUrl,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'method': 'PUT',
+        'header': {
+          'access_token': _accessToken,
+          'refresh_token': _refreshToken,
+          'member_id': userCubit.state!.id.toString(),
+        },
+        'body': {
+          'nickname': nickname,
+        },
+      }),
+    );
+    if (response.statusCode == 200) {
+      userCubit.updateNickname(nickname);
+      return true;
+    }
+    return false;
+  }
+
+  static Future<String?> updatePassword(String password) async {
+    if (_offlineAccount) return null;
+    var email = userCubit.state!.email;
+    if (email == 'admin@tradule.com' || email == 'test@test') {
+      return '관리자 계정은 비밀번호 변경이 불가능합니다.';
+    }
+    if (_loginKind == 1) {
+      try {
+        await FirebaseAuth.instance.currentUser!.updatePassword(password);
+        return null;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          return '비밀번호가 너무 약합니다.';
+        } else {
+          return '알 수 없는 오류: $e';
+        }
+      } catch (e) {
+        print(e);
+        return '비밀번호 변경에 실패하였습니다.';
+      }
+    } else if (_loginKind == 2) {
+      return '카카오톡 로그인은 비밀번호 변경이 불가능합니다.';
+    }
+    return '알 수 없는 오류';
   }
 
   static bool isLogin() {
@@ -864,16 +926,13 @@ class ServerWrapper {
     if (_offlineAccount) return true;
 
     //일정 삭제
-    var itineraryIds = userCubit.state!.itineraries;
-    for (var itineraryId in itineraryIds) {
-      var itineraryCubit = itineraryCubitMapCubit.state[itineraryId];
-      if (itineraryCubit != null) {
-        deleteSchedule(itineraryCubit);
-      }
+    for (var itineraryCubit in itineraryCubitMapCubit.state.values) {
+      deleteSchedule(itineraryCubit);
     }
 
     //내 장소 삭제
-    userCubit.state!.places.clear();
+    // userCubit.state!.places.clear();
+    userCubit.setUser(userCubit.state!.copyWith(places: {}));
     putMyPlaceList();
 
     if (_loginKind == 2) {
@@ -881,7 +940,7 @@ class ServerWrapper {
     }
 
     if (_loginKind == 1) {
-      await markAccountAsDeleted(FirebaseAuth.instance.currentUser!.uid);
+      await markAccountAsDeleted(FirebaseAuth.instance.currentUser!.email!);
     }
 
     logout();
@@ -890,20 +949,20 @@ class ServerWrapper {
 
   // ------------------------- 파이어 베이스 -------------------------
   static Future<void> markAccountAsDeleted(String email) async {
-    await FirebaseFirestore.instance.collection('users').doc(email).set({
+    await firestore.collection('users').doc(email).set({
       'isDeleted': true, // 탈퇴 계정으로 설정
     });
   }
 
   static Future<void> reactivateAccount(String email) async {
-    await FirebaseFirestore.instance.collection('users').doc(email).set({
+    await firestore.collection('users').doc(email).set({
       'isDeleted': false, // 계정을 다시 활성화
     });
   }
 
   static Future<bool> isAccountDeleted(String email) async {
     DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(email).get();
+        await firestore.collection('users').doc(email).get();
 
     if (userDoc.exists && userDoc.data() != null) {
       return userDoc['isDeleted'] ?? false; // 탈퇴 상태 확인
