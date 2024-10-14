@@ -238,26 +238,26 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
           },
         ),
       ),
-      // // 내 장소 추가 버튼
-      // floatingActionButton: Tooltip(
-      //   message: '장소 추가',
-      //   child: FloatingActionButton(
-      //     backgroundColor: cPrimary.withAlpha(130),
-      //     hoverColor: cPrimary.withAlpha(150),
-      //     shape: const CircleBorder(),
-      //     elevation: 0,
-      //     hoverElevation: 0,
-      //     focusElevation: 0,
-      //     highlightElevation: 0,
-      //     onPressed: () {
-      //       Navigator.pushNamed(context, '/add_place');
-      //     },
-      //     child: SvgPicture.asset(
-      //       'assets/icon/jam_plus.svg',
-      //       color: Colors.white,
-      //     ),
-      //   ),
-      // ),
+      // 내 장소 추가 버튼
+      floatingActionButton: Tooltip(
+        message: '장소 추가',
+        child: FloatingActionButton(
+          backgroundColor: cPrimary.withAlpha(130),
+          hoverColor: cPrimary.withAlpha(150),
+          shape: const CircleBorder(),
+          elevation: 0,
+          hoverElevation: 0,
+          focusElevation: 0,
+          highlightElevation: 0,
+          onPressed: () {
+            addMyPlace(context);
+          },
+          child: SvgPicture.asset(
+            'assets/icon/jam_plus.svg',
+            color: Colors.white,
+          ),
+        ),
+      ),
     );
   }
 

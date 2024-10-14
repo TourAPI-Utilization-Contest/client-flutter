@@ -460,11 +460,11 @@ class ServerWrapper {
   }
 
   static Future<String?> updatePassword(String password) async {
-    if (_offlineAccount) return null;
     var email = userCubit.state!.email;
     if (email == 'admin@tradule.com' || email == 'test@test') {
       return '관리자 계정은 비밀번호 변경이 불가능합니다.';
     }
+    if (_offlineAccount) return '오프라인 계정은 비밀번호 변경이 불가능합니다.';
     if (_loginKind == 1) {
       try {
         await FirebaseAuth.instance.currentUser!.updatePassword(password);

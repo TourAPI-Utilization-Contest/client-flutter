@@ -40,6 +40,10 @@ class _SearchScreenState extends State<SearchScreen> {
   String? suggestionsReservedText;
   String? suggestionsPreviousText;
   Map<String, Map<String, dynamic>> suggestionsCache = {};
+  String lastSearchText = '';
+  int pageNo = 1;
+  bool endOfResults = false;
+  int totalCount = 0;
 
   @override
   void initState() {
@@ -47,22 +51,12 @@ class _SearchScreenState extends State<SearchScreen> {
     _focusNode.addListener(() {
       setState(() {});
     });
-    // var p = PlaceData(
-    //   id: "1234",
-    //   title: "경복궁",
-    //   address: "주소",
-    //   latitude: 1234,
-    //   longitude: 1234,
-    //   imageUrl: "",
-    //   iconColor: 0xFF9CEFFF,
-    // );
-    // setState(() {
-    //   searchResults.add(
-    //     PlaceCard(
-    //       placeData: p,
-    //     ),
-    //   );
-    // });
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100) {
+        makeSearchResults();
+      }
+    });
   }
 
   @override
@@ -147,11 +141,24 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           if (!firstSearch)
                             Section(
-                              title: Text('검색 결과',
-                                  style: myTextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  )),
+                              title: Row(
+                                spacing: 8,
+                                children: [
+                                  Text('검색 결과',
+                                      style: myTextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      )),
+                                  Text(
+                                    '총 $totalCount건',
+                                    style: myTextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w200,
+                                      color: cDark,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               content: Column(
                                 children: [
                                   for (var item in searchResults)
@@ -174,6 +181,52 @@ class _SearchScreenState extends State<SearchScreen> {
                                       padding: const EdgeInsets.only(top: 16),
                                       child: Text(
                                         '검색 결과가 없습니다.',
+                                        style: myTextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                      ),
+                                    ),
+                                  if (!searchResultsLoading && !endOfResults)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: TextButton(
+                                        onPressed: makeSearchResults,
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                          minimumSize: Size.zero,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                            side: BorderSide(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '더 보기',
+                                          style: myTextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  if (!searchResultsLoading &&
+                                      searchResults.isNotEmpty &&
+                                      endOfResults)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 16),
+                                      child: Text(
+                                        '더 이상 검색 결과가 없어요!',
                                         style: myTextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w400,
@@ -310,46 +363,60 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
 
-    if (searchResultsLoading) return; // 중복 요청 방지
-    searchResultsLoading = true;
     suggestionsVisible = false;
     suggestionsStop = true;
-    setState(() {});
-
     firstSearch = false;
+    endOfResults = false;
+    pageNo = 0;
     text = text.trim().replaceAll(RegExp(r'\s+'), ' ');
+    lastSearchText = text;
+    makeSearchResults();
+  }
+
+  void makeSearchResults() async {
+    if (endOfResults) return;
+    if (searchResultsLoading) return; // 중복 요청 방지
+    searchResultsLoading = true;
+    setState(() {});
     var jsonData = await tourApiRequest(
-      keyword: text,
-      pageNo: 1,
+      keyword: lastSearchText,
+      pageNo: ++pageNo,
       numOfRows: 10,
     );
 
     try {
-      if (jsonData["response"] != null &&
-          jsonData["response"]["body"]["items"].isNotEmpty) {
-        for (var item in jsonData["response"]["body"]["items"]["item"]) {
-          searchResults.add(
-            PlaceCard(
-              placeData: PlaceData(
-                id: int.parse(item["contentid"]),
-                title: item["title"],
-                address: item["addr1"],
-                latitude: double.parse(item["mapy"]),
-                longitude: double.parse(item["mapx"]),
-                imageUrl: item["firstimage"],
-                thumbnailUrl: item["firstimage2"],
-                iconColor: const Color(0xFF9CEFFF),
-                isProvided: true,
+      if (jsonData["response"] != null) {
+        totalCount = jsonData["response"]["body"]["totalCount"];
+        if (jsonData["response"]["body"]["items"].isNotEmpty) {
+          var items = jsonData["response"]["body"]["items"]["item"];
+          if (items.length < 10) endOfResults = true;
+          for (var item in items) {
+            searchResults.add(
+              PlaceCard(
+                placeData: PlaceData(
+                  id: int.parse(item["contentid"]),
+                  title: item["title"],
+                  address: item["addr1"],
+                  latitude: double.parse(item["mapy"]),
+                  longitude: double.parse(item["mapx"]),
+                  imageUrl: item["firstimage"],
+                  thumbnailUrl: item["firstimage2"],
+                  iconColor: const Color(0xFF9CEFFF),
+                  isProvided: true,
+                ),
               ),
-            ),
-          );
+            );
+          }
+        } else {
+          endOfResults = true;
         }
+      } else {
+        endOfResults = true;
       }
     } catch (e) {
       print(e);
       print(jsonData);
     }
-
     searchResultsLoading = false;
     setState(() {});
   }
