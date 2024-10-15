@@ -1548,12 +1548,17 @@ class DailyItineraryPlaceItem extends StatelessWidget {
                         width: 20,
                       ),
                       onPressed: () async {
+                        var itineraryCubit = context.read<ItineraryCubit>();
+                        var dailyItineraryCubit =
+                            context.read<DailyItineraryCubit>();
                         //수정
                         await showDialog(
                           context: context,
                           builder: (context) {
                             return PlaceEditDialog(
                               placeCubit: placeCubit,
+                              itineraryCubit: itineraryCubit,
+                              dailyItineraryCubit: dailyItineraryCubit,
                             );
                           },
                         );
@@ -1617,8 +1622,12 @@ class DailyItineraryPlaceItem extends StatelessWidget {
 
 class PlaceEditDialog extends StatefulWidget {
   final PlaceCubit placeCubit;
+  final ItineraryCubit itineraryCubit;
+  final DailyItineraryCubit dailyItineraryCubit;
   const PlaceEditDialog({
     required this.placeCubit,
+    required this.itineraryCubit,
+    required this.dailyItineraryCubit,
     super.key,
   });
 
@@ -1742,8 +1751,8 @@ class _PlaceEditDialogState extends State<PlaceEditDialog> {
               ),
             );
             ServerWrapper.putScheduleDetail(
-              context.read<ItineraryCubit>().state.id,
-              context.read<DailyItineraryCubit>(),
+              widget.itineraryCubit.state.id,
+              widget.dailyItineraryCubit,
             );
             Navigator.of(context).pop();
           },
