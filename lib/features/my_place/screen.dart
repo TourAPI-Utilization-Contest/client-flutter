@@ -494,50 +494,55 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
                                   },
                                   child: Column(
                                     children: [
-                                      Stack(
-                                        children: [
-                                          Container(
-                                            height: 300,
-                                            child: GoogleMap(
-                                              webGestureHandling:
-                                                  WebGestureHandling.greedy,
-                                              gestureRecognizers: const {
-                                                Factory<OneSequenceGestureRecognizer>(
-                                                    EagerGestureRecognizer.new),
-                                              },
-                                              initialCameraPosition:
-                                                  const CameraPosition(
-                                                target: LatLng(
-                                                    37.5662952, 126.9779451),
-                                                zoom: 12,
-                                              ),
-                                              markers: {
-                                                Marker(
-                                                  markerId: const MarkerId('1'),
-                                                  position: const LatLng(
+                                      PointerInterceptor(
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              height: 300,
+                                              child: GoogleMap(
+                                                webGestureHandling:
+                                                    WebGestureHandling.greedy,
+                                                gestureRecognizers: const {
+                                                  Factory<OneSequenceGestureRecognizer>(
+                                                      EagerGestureRecognizer
+                                                          .new),
+                                                },
+                                                initialCameraPosition:
+                                                    const CameraPosition(
+                                                  target: LatLng(
                                                       37.5662952, 126.9779451),
-                                                  icon: _markerIcon,
-                                                  draggable: true,
-                                                  onDrag: (LatLng latLng) {
-                                                    _markerPosition = latLng;
-                                                    setState(() {});
-                                                  },
+                                                  zoom: 12,
                                                 ),
-                                              },
+                                                markers: {
+                                                  Marker(
+                                                    markerId:
+                                                        const MarkerId('1'),
+                                                    position: const LatLng(
+                                                        37.5662952,
+                                                        126.9779451),
+                                                    icon: _markerIcon,
+                                                    draggable: true,
+                                                    onDrag: (LatLng latLng) {
+                                                      _markerPosition = latLng;
+                                                      setState(() {});
+                                                    },
+                                                  ),
+                                                },
+                                              ),
                                             ),
-                                          ),
-                                          //장소 검색
-                                          Positioned(
-                                            top: 10,
-                                            left: 10,
-                                            right: 10,
-                                            child: MyTextField(
-                                              controller:
-                                                  TextEditingController(),
-                                              hintText: '장소 검색',
+                                            //장소 검색
+                                            Positioned(
+                                              top: 10,
+                                              left: 10,
+                                              right: 10,
+                                              child: MyTextField(
+                                                controller:
+                                                    TextEditingController(),
+                                                hintText: '장소 검색',
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                       Text(
                                         '핀을 드래그하여 이동할 수 있어요!',
