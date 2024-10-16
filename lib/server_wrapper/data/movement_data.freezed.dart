@@ -39,6 +39,8 @@ mixin _$MovementData {
   String get source =>
       throw _privateConstructorUsedError; // 경로 출처(Google, Kakao)
   List<MovementDetailData> get details => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get processing => throw _privateConstructorUsedError;
 
   /// Serializes this MovementData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -76,7 +78,8 @@ abstract class $MovementDataCopyWith<$Res> {
       double? endLongitude,
       String method,
       String source,
-      List<MovementDetailData> details});
+      List<MovementDetailData> details,
+      @JsonKey(includeFromJson: false, includeToJson: false) bool processing});
 }
 
 /// @nodoc
@@ -107,6 +110,7 @@ class _$MovementDataCopyWithImpl<$Res, $Val extends MovementData>
     Object? method = null,
     Object? source = null,
     Object? details = null,
+    Object? processing = null,
   }) {
     return _then(_value.copyWith(
       startTime: null == startTime
@@ -161,6 +165,10 @@ class _$MovementDataCopyWithImpl<$Res, $Val extends MovementData>
           ? _value.details
           : details // ignore: cast_nullable_to_non_nullable
               as List<MovementDetailData>,
+      processing: null == processing
+          ? _value.processing
+          : processing // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -193,7 +201,8 @@ abstract class _$$MovementDataImplCopyWith<$Res>
       double? endLongitude,
       String method,
       String source,
-      List<MovementDetailData> details});
+      List<MovementDetailData> details,
+      @JsonKey(includeFromJson: false, includeToJson: false) bool processing});
 }
 
 /// @nodoc
@@ -222,6 +231,7 @@ class __$$MovementDataImplCopyWithImpl<$Res>
     Object? method = null,
     Object? source = null,
     Object? details = null,
+    Object? processing = null,
   }) {
     return _then(_$MovementDataImpl(
       startTime: null == startTime
@@ -276,6 +286,10 @@ class __$$MovementDataImplCopyWithImpl<$Res>
           ? _value._details
           : details // ignore: cast_nullable_to_non_nullable
               as List<MovementDetailData>,
+      processing: null == processing
+          ? _value.processing
+          : processing // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -304,7 +318,9 @@ class _$MovementDataImpl implements _MovementData {
       this.endLongitude,
       required this.method,
       required this.source,
-      final List<MovementDetailData> details = const []})
+      final List<MovementDetailData> details = const [],
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.processing = false})
       : _details = details;
 
   factory _$MovementDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -352,8 +368,12 @@ class _$MovementDataImpl implements _MovementData {
   }
 
   @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final bool processing;
+
+  @override
   String toString() {
-    return 'MovementData(startTime: $startTime, endTime: $endTime, duration: $duration, minDuration: $minDuration, maxDuration: $maxDuration, distance: $distance, startLatitude: $startLatitude, startLongitude: $startLongitude, endLatitude: $endLatitude, endLongitude: $endLongitude, method: $method, source: $source, details: $details)';
+    return 'MovementData(startTime: $startTime, endTime: $endTime, duration: $duration, minDuration: $minDuration, maxDuration: $maxDuration, distance: $distance, startLatitude: $startLatitude, startLongitude: $startLongitude, endLatitude: $endLatitude, endLongitude: $endLongitude, method: $method, source: $source, details: $details, processing: $processing)';
   }
 
   @override
@@ -382,7 +402,9 @@ class _$MovementDataImpl implements _MovementData {
                 other.endLongitude == endLongitude) &&
             (identical(other.method, method) || other.method == method) &&
             (identical(other.source, source) || other.source == source) &&
-            const DeepCollectionEquality().equals(other._details, _details));
+            const DeepCollectionEquality().equals(other._details, _details) &&
+            (identical(other.processing, processing) ||
+                other.processing == processing));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -401,7 +423,8 @@ class _$MovementDataImpl implements _MovementData {
       endLongitude,
       method,
       source,
-      const DeepCollectionEquality().hash(_details));
+      const DeepCollectionEquality().hash(_details),
+      processing);
 
   /// Create a copy of MovementData
   /// with the given fields replaced by the non-null parameter values.
@@ -440,7 +463,9 @@ abstract class _MovementData implements MovementData {
       final double? endLongitude,
       required final String method,
       required final String source,
-      final List<MovementDetailData> details}) = _$MovementDataImpl;
+      final List<MovementDetailData> details,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final bool processing}) = _$MovementDataImpl;
 
   factory _MovementData.fromJson(Map<String, dynamic> json) =
       _$MovementDataImpl.fromJson;
@@ -476,6 +501,9 @@ abstract class _MovementData implements MovementData {
   String get source; // 경로 출처(Google, Kakao)
   @override
   List<MovementDetailData> get details;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get processing;
 
   /// Create a copy of MovementData
   /// with the given fields replaced by the non-null parameter values.

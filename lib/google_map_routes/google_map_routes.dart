@@ -9,9 +9,18 @@ import 'package:tradule/server_wrapper/data/place_data.dart';
 String _proxyUrl = 'https://proxy-iubedabnlq-du.a.run.app';
 // String _proxyUrl = 'http://127.0.0.1:5001/tradule-com/asia-northeast3/proxy';
 
-Future<MovementData> getGoogleMapRoutes(PlaceData start, PlaceData end) async {
+Future<MovementData?> getGoogleMapRoutes(PlaceData start, PlaceData end,
+    {int recursionCount = 0}) async {
   final proxyUrl = '$_proxyUrl/computeRoutes';
-  var departureTime = start.visitTime ?? DateTime.now();
+  var now = DateTime.now();
+  var visitDateTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    start.visitTime?.hour ?? 0,
+    start.visitTime?.minute ?? 0,
+  );
+  var departureTime = visitDateTime.add(start.stayTime ?? const Duration());
   var departureTimeString = departureTime.toUtc().toIso8601String();
 
   var response = await http.post(
@@ -45,7 +54,7 @@ Future<MovementData> getGoogleMapRoutes(PlaceData start, PlaceData end) async {
     }),
   );
   if (response.statusCode == 200) {
-    print('response.body: ${response.body}');
+    // print('response.body: ${response.body}');
     var data = jsonDecode(response.body);
     var legs = data['routes'][0]['legs'];
     var steps = legs[0]['steps'];
@@ -105,7 +114,8 @@ Future<MovementData> getGoogleMapRoutes(PlaceData start, PlaceData end) async {
       details: details,
     );
   } else {
-    throw Exception('Failed to load routes');
+    if (3 < recursionCount) return null; // 3회 이상 재시도하지 않음
+    return getGoogleMapRoutes(start, end, recursionCount: recursionCount + 1);
   }
 }
 

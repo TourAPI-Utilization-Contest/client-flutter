@@ -532,6 +532,7 @@ class ServerWrapper {
     required String accessToken,
     String refreshToken = '',
     String memberId = '',
+    int recursionCount = 0,
   }) async {
     if (_offlineAccount) return LoginResult(true);
     _accessToken = accessToken;
@@ -559,11 +560,20 @@ class ServerWrapper {
       userCubit.setUser(user);
       getMyPlaceList();
       return LoginResult(true);
+    } else {
+      if (3 < recursionCount) {
+        return LoginResult(false, message: '사용자 정보를 불러오는데 실패하였습니다.');
+      }
+      return _getUser(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        memberId: memberId,
+        recursionCount: recursionCount + 1,
+      );
     }
-    return LoginResult(false, message: '사용자 정보를 불러오는데 실패하였습니다.');
   }
 
-  static Future<bool> getScheduleWithClear() async {
+  static Future<bool> getScheduleWithClear({int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
     var response = await http.post(
@@ -597,12 +607,16 @@ class ServerWrapper {
         itineraryCubitMapCubit.addItineraryCubit(ItineraryCubit(itinerary));
       }
       return true;
+    } else {
+      if (3 < recursionCount) {
+        return false;
+      }
+      return getScheduleWithClear(recursionCount: recursionCount + 1);
     }
-    return false;
   }
 
-  static Future<bool> getScheduleDetailWithClear(
-      ItineraryCubit itinerary) async {
+  static Future<bool> getScheduleDetailWithClear(ItineraryCubit itinerary,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var scheduleUrl = Uri.parse(
         '${serverUrl}api/schedule/${itinerary.state.id}?contains-user=false');
@@ -648,12 +662,15 @@ class ServerWrapper {
         itinerary.addDailyItineraryCubit(dailyItineraryCubit);
       }
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return getScheduleDetailWithClear(itinerary,
+          recursionCount: recursionCount + 1);
     }
-    print('getScheduleDetailWithClear 실패');
-    return false;
   }
 
-  static Future<int?> postSchedule(ItineraryCubit itineraryCubit) async {
+  static Future<int?> postSchedule(ItineraryCubit itineraryCubit,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return Random().nextInt(100000);
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule');
@@ -682,13 +699,15 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return int.parse(response.body);
+    } else {
+      if (3 < recursionCount) return null;
+      return postSchedule(itineraryCubit, recursionCount: recursionCount + 1);
     }
-    print('postSchedule 실패');
-    return null;
   }
 
   static Future<int?> postScheduleDetail(
-      int itineraryId, DailyItineraryCubit dailyItineraryCubit) async {
+      int itineraryId, DailyItineraryCubit dailyItineraryCubit,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return Random().nextInt(100000);
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule/$itineraryId');
@@ -712,12 +731,15 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return int.parse(response.body);
+    } else {
+      if (3 < recursionCount) return null;
+      return postScheduleDetail(itineraryId, dailyItineraryCubit,
+          recursionCount: recursionCount + 1);
     }
-    print('postScheduleDetail 실패');
-    return null;
   }
 
-  static Future<bool> deleteSchedule(ItineraryCubit itineraryCubit) async {
+  static Future<bool> deleteSchedule(ItineraryCubit itineraryCubit,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule/${itinerary.id}');
@@ -738,13 +760,15 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return deleteSchedule(itineraryCubit, recursionCount: recursionCount + 1);
     }
-    print('deleteSchedule 실패');
-    return false;
   }
 
   static Future<bool> deleteScheduleDetail(
-      int itineraryId, DailyItineraryCubit dailyItineraryCubit) async {
+      int itineraryId, DailyItineraryCubit dailyItineraryCubit,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
@@ -766,12 +790,15 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return deleteScheduleDetail(itineraryId, dailyItineraryCubit,
+          recursionCount: recursionCount + 1);
     }
-    print('deleteScheduleDetail 실패');
-    return false;
   }
 
-  static Future<bool> putSchedule(ItineraryCubit itineraryCubit) async {
+  static Future<bool> putSchedule(ItineraryCubit itineraryCubit,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var itinerary = itineraryCubit.state;
     var scheduleUrl = Uri.parse('${serverUrl}api/schedule/${itinerary.id}');
@@ -800,13 +827,15 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return putSchedule(itineraryCubit, recursionCount: recursionCount + 1);
     }
-    print('putSchedule 실패');
-    return false;
   }
 
   static Future<bool> putScheduleDetail(
-      int itineraryId, DailyItineraryCubit dailyItineraryCubit) async {
+      int itineraryId, DailyItineraryCubit dailyItineraryCubit,
+      {int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var dailyItinerary = dailyItineraryCubit.state;
     var scheduleUrl = Uri.parse(
@@ -831,12 +860,14 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return putScheduleDetail(itineraryId, dailyItineraryCubit,
+          recursionCount: recursionCount + 1);
     }
-    print('putScheduleDetail 실패: $scheduleUrl -> ${response.body}');
-    return false;
   }
 
-  static Future<bool> putMyPlaceList() async {
+  static Future<bool> putMyPlaceList({int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     // UserCubit.state!.myPlaceList;
     List<PlaceData> places = userCubit.state!.places.values.toList();
@@ -859,12 +890,13 @@ class ServerWrapper {
     );
     if (200 <= response.statusCode && response.statusCode < 300) {
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return putMyPlaceList(recursionCount: recursionCount + 1);
     }
-    print('putMyPlace 실패: $scheduleUrl -> ${response.body}');
-    return false;
   }
 
-  static Future<bool> getMyPlaceList() async {
+  static Future<bool> getMyPlaceList({int recursionCount = 0}) async {
     if (_offlineAccount) return true;
     var scheduleUrl = Uri.parse('${serverUrl}api/oauth/location');
     var response = await http.post(
@@ -886,15 +918,18 @@ class ServerWrapper {
       print(response.body);
       ServerWrapper.userCubit.setPlaceWithClear(response.body);
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return getMyPlaceList(recursionCount: recursionCount + 1);
     }
-    print('getMyPlace 실패: $scheduleUrl -> ${response.body}');
-    return false;
   }
 
-  static Future<bool> postRegister(
-      {required String id,
-      required String pw,
-      required String nickname}) async {
+  static Future<bool> postRegister({
+    required String id,
+    required String pw,
+    required String nickname,
+    int recursionCount = 0,
+  }) async {
     var registerUrl = Uri.parse('${serverUrl}api/oauth/register');
     var response = await http.post(
       registerUrl,
@@ -918,8 +953,14 @@ class ServerWrapper {
     if (responseJson['code'] == -421) {
       //이미 가입된 이메일
       return true;
+    } else {
+      if (3 < recursionCount) return false;
+      return postRegister(
+          id: id,
+          pw: pw,
+          nickname: nickname,
+          recursionCount: recursionCount + 1);
     }
-    return false;
   }
 
   static Future<bool> deleteUser() async {

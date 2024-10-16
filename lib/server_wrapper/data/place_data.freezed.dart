@@ -27,8 +27,8 @@ mixin _$PlaceData {
   double get longitude => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   Duration? get stayTime => throw _privateConstructorUsedError;
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime? get visitTime => throw _privateConstructorUsedError;
+  @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
+  TimeOfDay? get visitTime => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime? get createdTime => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
@@ -40,6 +40,8 @@ mixin _$PlaceData {
   bool get isProvided => throw _privateConstructorUsedError;
   @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   Color? get iconColor => throw _privateConstructorUsedError;
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get isSelected => throw _privateConstructorUsedError;
 
   /// Serializes this PlaceData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -64,8 +66,8 @@ abstract class $PlaceDataCopyWith<$Res> {
       double longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       Duration? stayTime,
-      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-      DateTime? visitTime,
+      @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
+      TimeOfDay? visitTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime? createdTime,
       String? description,
@@ -75,8 +77,8 @@ abstract class $PlaceDataCopyWith<$Res> {
       String? imageUrl,
       String? thumbnailUrl,
       bool isProvided,
-      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
-      Color? iconColor});
+      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) Color? iconColor,
+      @JsonKey(includeFromJson: false, includeToJson: false) bool isSelected});
 }
 
 /// @nodoc
@@ -110,6 +112,7 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
     Object? thumbnailUrl = freezed,
     Object? isProvided = null,
     Object? iconColor = freezed,
+    Object? isSelected = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -139,7 +142,7 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
       visitTime: freezed == visitTime
           ? _value.visitTime
           : visitTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as TimeOfDay?,
       createdTime: freezed == createdTime
           ? _value.createdTime
           : createdTime // ignore: cast_nullable_to_non_nullable
@@ -176,6 +179,10 @@ class _$PlaceDataCopyWithImpl<$Res, $Val extends PlaceData>
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
               as Color?,
+      isSelected: null == isSelected
+          ? _value.isSelected
+          : isSelected // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -196,8 +203,8 @@ abstract class _$$PlaceDataImplCopyWith<$Res>
       double longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       Duration? stayTime,
-      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-      DateTime? visitTime,
+      @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
+      TimeOfDay? visitTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       DateTime? createdTime,
       String? description,
@@ -207,8 +214,8 @@ abstract class _$$PlaceDataImplCopyWith<$Res>
       String? imageUrl,
       String? thumbnailUrl,
       bool isProvided,
-      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
-      Color? iconColor});
+      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) Color? iconColor,
+      @JsonKey(includeFromJson: false, includeToJson: false) bool isSelected});
 }
 
 /// @nodoc
@@ -240,6 +247,7 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
     Object? thumbnailUrl = freezed,
     Object? isProvided = null,
     Object? iconColor = freezed,
+    Object? isSelected = null,
   }) {
     return _then(_$PlaceDataImpl(
       id: null == id
@@ -269,7 +277,7 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
       visitTime: freezed == visitTime
           ? _value.visitTime
           : visitTime // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
+              as TimeOfDay?,
       createdTime: freezed == createdTime
           ? _value.createdTime
           : createdTime // ignore: cast_nullable_to_non_nullable
@@ -306,6 +314,10 @@ class __$$PlaceDataImplCopyWithImpl<$Res>
           ? _value.iconColor
           : iconColor // ignore: cast_nullable_to_non_nullable
               as Color?,
+      isSelected: null == isSelected
+          ? _value.isSelected
+          : isSelected // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -321,7 +333,7 @@ class _$PlaceDataImpl implements _PlaceData {
       required this.longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       this.stayTime,
-      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
+      @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
       this.visitTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       this.createdTime,
@@ -332,7 +344,9 @@ class _$PlaceDataImpl implements _PlaceData {
       this.imageUrl,
       this.thumbnailUrl,
       this.isProvided = false,
-      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) this.iconColor})
+      @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson) this.iconColor,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      this.isSelected = false})
       : _tags = tags;
 
   factory _$PlaceDataImpl.fromJson(Map<String, dynamic> json) =>
@@ -353,8 +367,8 @@ class _$PlaceDataImpl implements _PlaceData {
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   final Duration? stayTime;
   @override
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  final DateTime? visitTime;
+  @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
+  final TimeOfDay? visitTime;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   final DateTime? createdTime;
@@ -385,10 +399,13 @@ class _$PlaceDataImpl implements _PlaceData {
   @override
   @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   final Color? iconColor;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final bool isSelected;
 
   @override
   String toString() {
-    return 'PlaceData(id: $id, title: $title, address: $address, latitude: $latitude, longitude: $longitude, stayTime: $stayTime, visitTime: $visitTime, createdTime: $createdTime, description: $description, phoneNumber: $phoneNumber, homepage: $homepage, tags: $tags, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, isProvided: $isProvided, iconColor: $iconColor)';
+    return 'PlaceData(id: $id, title: $title, address: $address, latitude: $latitude, longitude: $longitude, stayTime: $stayTime, visitTime: $visitTime, createdTime: $createdTime, description: $description, phoneNumber: $phoneNumber, homepage: $homepage, tags: $tags, imageUrl: $imageUrl, thumbnailUrl: $thumbnailUrl, isProvided: $isProvided, iconColor: $iconColor, isSelected: $isSelected)';
   }
 
   @override
@@ -423,7 +440,9 @@ class _$PlaceDataImpl implements _PlaceData {
             (identical(other.isProvided, isProvided) ||
                 other.isProvided == isProvided) &&
             (identical(other.iconColor, iconColor) ||
-                other.iconColor == iconColor));
+                other.iconColor == iconColor) &&
+            (identical(other.isSelected, isSelected) ||
+                other.isSelected == isSelected));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -445,7 +464,8 @@ class _$PlaceDataImpl implements _PlaceData {
       imageUrl,
       thumbnailUrl,
       isProvided,
-      iconColor);
+      iconColor,
+      isSelected);
 
   /// Create a copy of PlaceData
   /// with the given fields replaced by the non-null parameter values.
@@ -472,8 +492,8 @@ abstract class _PlaceData implements PlaceData {
       required final double longitude,
       @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
       final Duration? stayTime,
-      @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-      final DateTime? visitTime,
+      @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
+      final TimeOfDay? visitTime,
       @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
       final DateTime? createdTime,
       final String? description,
@@ -484,7 +504,9 @@ abstract class _PlaceData implements PlaceData {
       final String? thumbnailUrl,
       final bool isProvided,
       @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
-      final Color? iconColor}) = _$PlaceDataImpl;
+      final Color? iconColor,
+      @JsonKey(includeFromJson: false, includeToJson: false)
+      final bool isSelected}) = _$PlaceDataImpl;
 
   factory _PlaceData.fromJson(Map<String, dynamic> json) =
       _$PlaceDataImpl.fromJson;
@@ -503,8 +525,8 @@ abstract class _PlaceData implements PlaceData {
   @JsonKey(fromJson: _durationFromJson, toJson: _durationToJson)
   Duration? get stayTime;
   @override
-  @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
-  DateTime? get visitTime;
+  @JsonKey(fromJson: _timeOfDayFromJson, toJson: _timeOfDayToJson)
+  TimeOfDay? get visitTime;
   @override
   @JsonKey(fromJson: _dateTimeFromJson, toJson: _dateTimeToJson)
   DateTime? get createdTime;
@@ -525,6 +547,9 @@ abstract class _PlaceData implements PlaceData {
   @override
   @JsonKey(toJson: _colorToJson, fromJson: _colorFromJson)
   Color? get iconColor;
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  bool get isSelected;
 
   /// Create a copy of PlaceData
   /// with the given fields replaced by the non-null parameter values.

@@ -56,6 +56,9 @@ dependencies:
   latlong2: ^0.9.1
   iconsax_flutter: ^1.0.0
   tsp_route_finder: ^0.0.3
+  wheel_picker: ^0.1.1
+  scroll_datetime_picker: ^0.1.2
+#  flutter_time_picker_spinner: ^2.0.0
 #  fluttertoast: ^8.2.8
 #  avs_svg_provider: ^1.0.1
 #  google_maps_routes: ^1.1.2

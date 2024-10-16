@@ -8,7 +8,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:toastification/toastification.dart';
+// import 'package:scroll_datetime_picker/scroll_datetime_picker.dart';
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/context_menu.dart';
 import 'package:tradule/common/my_text_style.dart';
@@ -21,6 +24,8 @@ import 'package:tradule/server_wrapper/data/movement_data.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:latlong2/latlong.dart' as latlng2;
+import 'package:tradule/server_wrapper/tsp.dart';
+// import 'package:wheel_picker/wheel_picker.dart';
 
 import 'bloc.dart';
 import 'map_style.dart';
@@ -148,6 +153,14 @@ class GoogleMapCubit extends Cubit<GoogleMapData> {
   }
 }
 
+// class SelectCubit extends Cubit<List<List<bool>>> {
+//   SelectCubit(super.state);
+//
+//   void update(List<List<bool>> selectList) {
+//     emit(selectList);
+//   }
+// }
+
 class _ItineraryEditorState extends State<ItineraryEditor>
     with TickerProviderStateMixin {
   GoogleMapController? _mapController;
@@ -229,12 +242,15 @@ class _ItineraryEditorState extends State<ItineraryEditor>
           ),
           BlocProvider.value(
             value: widget.itineraryCubit,
-          )
+          ),
+          // BlocProvider.value(
+          //   value: _selectCubit,
+          // ),
         ],
         child: BlocBuilder<ItineraryCubit, ItineraryData?>(
             builder: (context, itinerary) {
           // var _tabController = _tabControllerCubit.state.tabController;
-          if (_tabControllerCubit == null)
+          if (_tabControllerCubit == null) {
             _tabControllerCubit = TabControllerCubit(
               tabController: TabController(
                 vsync: this,
@@ -244,7 +260,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                   tabControllerListener(itinerary);
                 }),
             );
-          else {
+          } else {
             var tabController = _tabControllerCubit!.state.tabController;
             if (tabController.length !=
                 itinerary!.dailyItineraryCubitList.length + 1) {
@@ -260,6 +276,13 @@ class _ItineraryEditorState extends State<ItineraryEditor>
               );
             }
           }
+          // _selectCubit.update(List.generate(
+          //   itinerary!.dailyItineraryCubitList.length + 1,
+          //       (index) => List.generate(
+          //     itinerary.dailyItineraryCubitList[index].state.placeList.length,
+          //         (index) => false,
+          //   ),
+          // ));
           return BlocProvider.value(
             value: _tabControllerCubit!,
             child: LayoutBuilder(
@@ -925,26 +948,160 @@ class _Header extends StatelessWidget {
               onPressed: () {
                 autoArrange(context);
               },
-              child: Text("일정 순서 자동 재배치"),
+              child: const Text("일정 순서 최적화"),
             ),
           ),
       ],
     );
   }
 
-  void autoArrange(BuildContext context) async {
+  Future<bool> autoArrange(BuildContext context) async {
     var tabController = context.read<TabControllerCubit>().state.tabController;
-    List<PlaceData> placeList = [];
+    // List<PlaceData> placeList = [];
     var index = tabController.index - 1;
-    if (index < 0) return;
+    if (index < 0) return false;
     var dailyItineraryCubit =
         context.read<ItineraryCubit>().state.dailyItineraryCubitList[index];
+    List<List<(double, double)>> latlngList = [];
+    var latlngIndex = 0;
+    var latlngIndexList = [];
+    var pass = true;
     for (var placeCubit in dailyItineraryCubit.state.placeList) {
-      placeList.add(placeCubit.state);
+      var placeData = placeCubit.state;
+      if (placeData.isSelected) {
+        if (pass) {
+          latlngList.add([]);
+          latlngIndexList.add(latlngIndex);
+          pass = false;
+        }
+        // placeList.add(placeData);
+        latlngList.last.add(
+          (placeData.latitude, placeData.longitude),
+        );
+      } else {
+        pass = true;
+      }
+      latlngIndex++;
     }
 
-    List<int>? newIndexList = await optimizedRoute(placeList);
-    if (newIndexList == null) return;
+    if (latlngList.length < 1) {
+      toastification.show(
+        context: context,
+        type: ToastificationType.error,
+        style: ToastificationStyle.fillColored,
+        title: Text("일정 순서 최적화 실패"),
+        description: Text("최적화 할 장소를 선택해주세요."),
+        alignment: Alignment.center,
+        autoCloseDuration: const Duration(seconds: 3),
+        icon: Icon(Iconsax.alarm_copy),
+        borderRadius: BorderRadius.circular(12.0),
+        dragToClose: true,
+        applyBlurEffect: true,
+        showProgressBar: false,
+        // boxShadow: lowModeShadow,
+      );
+    }
+    for (var i = 0; i < latlngList.length; i++) {
+      if (latlngList[i].length < 2) {
+        toastification.show(
+          context: context,
+          type: ToastificationType.error,
+          style: ToastificationStyle.fillColored,
+          title: Text("일정 순서 최적화 실패"),
+          description: Text("최적화 할 장소를 2곳 이상 연속하여 선택해주세요."),
+          alignment: Alignment.center,
+          autoCloseDuration: const Duration(seconds: 3),
+          icon: Icon(Iconsax.alarm_copy),
+          borderRadius: BorderRadius.circular(12.0),
+          dragToClose: true,
+          applyBlurEffect: true,
+          showProgressBar: false,
+          // boxShadow: lowModeShadow,
+        );
+        return false;
+      }
+    }
+
+    //경유지 순서 계산
+    var indexList = await TspRouteFinder.findTspRoute(latlngList);
+
+    //경유지 순서에 따라 장소 순서 변경
+    var oldPlaceList =
+        dailyItineraryCubit.state.placeList.map((e) => e.state).toList();
+    var newPlaceList = List<PlaceData>.from(oldPlaceList);
+    for (var i = 0; i < latlngIndexList.length; i++) {
+      var latlngIndex = latlngIndexList[i];
+      var length = indexList[i].length;
+      for (var j = 0; j < length; j++) {
+        newPlaceList[latlngIndex + j] = oldPlaceList[indexList[i][j]];
+        if (j != 0) {
+          dailyItineraryCubit.resetMovement(latlngIndex + j - 1);
+          dailyItineraryCubit.processingMovement(latlngIndex + j - 1);
+        }
+      }
+    }
+
+    //장소 순서 변경
+    for (var i = 0; i < newPlaceList.length; i++) {
+      print('newPlaceList: ${newPlaceList[i].toJson()}');
+      dailyItineraryCubit.state.placeList[i].update(newPlaceList[i]);
+    }
+
+    //서버로 일정 업데이트
+    ServerWrapper.putScheduleDetail(
+      context.read<ItineraryCubit>().state.id,
+      dailyItineraryCubit,
+    );
+
+    //경로 계산
+    List<Future<bool?>> futures = [];
+    for (var i = 0; i < latlngIndexList.length; i++) {
+      var startIndex = latlngIndexList[i];
+      var count = indexList[i].length;
+      futures.add(autoRoute(
+        dailyItineraryCubit,
+        startIndex,
+        count,
+      ));
+    }
+
+    var results = await Future.wait(futures);
+    print('results: $results');
+    ServerWrapper.putScheduleDetail(
+      context.read<ItineraryCubit>().state.id,
+      dailyItineraryCubit,
+    );
+    return results.every((element) => element == true);
+  }
+
+  Future<bool> autoRoute(DailyItineraryCubit dailyItineraryCubit,
+      int startIndex, int count) async {
+    //경로 계산(getGoogleMapRoutes)
+    var placeList = dailyItineraryCubit.state.placeList;
+    // var movementList = dailyItineraryCubit.state.movementList;
+
+    for (var i = 0; i < count - 1; i++) {
+      var startPlace = placeList[startIndex + i].state;
+      var endPlace = placeList[startIndex + i + 1].state;
+      var movementCubit =
+          dailyItineraryCubit.state.movementList[startIndex + i];
+      var movementData = await getGoogleMapRoutes(startPlace, endPlace);
+      dailyItineraryCubit.processingMovement(startIndex + i, processing: false);
+      if (movementData == null) {
+        return false;
+      }
+      movementCubit.update(movementData);
+      //다음 장소 도착 시간 계산
+      var startTime = movementCubit.state.startTime;
+      var endTime = startTime.add(movementData.duration);
+      var endPlaceCubit = placeList[startIndex + i + 1];
+      endPlaceCubit.update(
+        endPlace.copyWith(
+          visitTime: TimeOfDay.fromDateTime(endTime),
+        ),
+      );
+    }
+    return true;
   }
 }
 
@@ -1202,7 +1359,7 @@ class DailyItineraryItem extends StatefulWidget {
 class _DailyItineraryItemState extends State<DailyItineraryItem> {
   final Size jamChevronUpDownSize = const Size(20, 20);
   bool _expanded = false;
-  bool _checked = true;
+  // bool _checked = true;
   Offset? _tapPosition;
 
   @override
@@ -1251,7 +1408,11 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
                   _expanded = !_expanded;
                   setState(() {});
                 } else {
-                  _checked = !_checked;
+                  widget.placeCubit!.update(
+                    widget.placeCubit!.state.copyWith(
+                      isSelected: !widget.placeCubit!.state.isSelected,
+                    ),
+                  );
                   setState(() {});
                 }
               },
@@ -1320,11 +1481,11 @@ class _DailyItineraryItemState extends State<DailyItineraryItem> {
                         },
                         child: SvgPicture.asset(
                           // 상태에 따라 다른 SVG를 보여줌
-                          _checked
+                          widget.placeCubit?.state.isSelected ?? false
                               ? "assets/icon/check_on.svg"
                               : "assets/icon/check_off.svg",
                           key: ValueKey<bool>(
-                              _checked), // 상태 변경 시 애니메이션을 트리거하는 key
+                              !(widget.placeCubit?.state.isSelected ?? !false)),
                           colorFilter: widget.place
                               ? null
                               : const ColorFilter.mode(
@@ -1578,7 +1739,13 @@ class DailyItineraryPlaceItem extends StatelessWidget {
                     Text(
                       placeData.visitTime == null
                           ? '??:??'
-                          : timeFormat4.format(placeData.visitTime!),
+                          : timeFormat4.format(DateTime(
+                              dateTime.year,
+                              dateTime.month,
+                              dateTime.day,
+                              placeData.visitTime!.hour,
+                              placeData.visitTime!.minute,
+                            )),
                       style: myTextStyle(
                         fontSize: 9,
                         color: cPrimaryDark,
@@ -1638,7 +1805,7 @@ class PlaceEditDialog extends StatefulWidget {
 class _PlaceEditDialogState extends State<PlaceEditDialog> {
   late TextEditingController _titleController;
   late TextEditingController _addressController;
-  late DateTime _visitTime;
+  late TimeOfDay _visitTime;
   late Duration _stayTime;
 
   @override
@@ -1647,7 +1814,7 @@ class _PlaceEditDialogState extends State<PlaceEditDialog> {
     var placeData = widget.placeCubit.state;
     _titleController = TextEditingController(text: placeData.title);
     _addressController = TextEditingController(text: placeData.address);
-    _visitTime = placeData.visitTime ?? DateTime.now();
+    _visitTime = placeData.visitTime ?? const TimeOfDay(hour: 0, minute: 0);
     _stayTime = placeData.stayTime ?? Duration.zero;
   }
 
@@ -1678,27 +1845,61 @@ class _PlaceEditDialogState extends State<PlaceEditDialog> {
                 onPressed: () async {
                   var time = await showTimePicker(
                     context: context,
-                    initialTime: TimeOfDay.fromDateTime(_visitTime),
+                    initialTime: _visitTime,
                     cancelText: '취소',
                     confirmText: '확인',
                     helpText: '방문 시간 선택',
                   );
                   if (time != null) {
                     setState(() {
-                      _visitTime = DateTime(
-                        _visitTime.year,
-                        _visitTime.month,
-                        _visitTime.day,
-                        time.hour,
-                        time.minute,
-                      );
+                      _visitTime = time;
                     });
                   }
                 },
                 child: Text(
-                  DateFormat('HH:mm').format(_visitTime),
+                  // DateFormat('HH:mm').format(_visitTime),
+                  _visitTime.format(context),
                 ),
               ),
+              // SizedBox(
+              //   height: 20,
+              //   width: 100,
+              //   child: WheelPicker(
+              //     itemCount: 7,
+              //     builder: (context, index) => Text(
+              //       '${index + 1}시',
+              //       style: myTextStyle(
+              //         fontSize: 16,
+              //         color: Colors.black,
+              //         fontWeight: FontWeight.w400,
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 50,
+              //   width: 100,
+              //   child: ScrollDateTimePicker(
+              //       itemExtent: 50,
+              //       onChange: (DateTime dateTime) {
+              //         setState(() {
+              //           _visitTime = TimeOfDay.fromDateTime(dateTime);
+              //         });
+              //       },
+              //       infiniteScroll: true,
+              //       wheelOption: DateTimePickerWheelOption(
+              //         perspective: 0.01,
+              //         diameterRatio: 1.5,
+              //         squeeze: 10,
+              //         offAxisFraction: 1.0,
+              //         physics: BouncingScrollPhysics(),
+              //       ),
+              //       dateOption: DateTimePickerOption(
+              //         maxDate: DateTime(1970, 1, 1, 23, 59),
+              //         minDate: DateTime(1970, 1, 1, 0, 0),
+              //         dateFormat: DateFormat('HHmm'),
+              //       )),
+              // ),
             ],
           ),
           Row(
@@ -1708,13 +1909,20 @@ class _PlaceEditDialogState extends State<PlaceEditDialog> {
                 onPressed: () async {
                   var time = await showTimePicker(
                     context: context,
-                    initialTime: TimeOfDay.fromDateTime(
-                      DateTime(1970, 1, 1, _stayTime.inHours,
-                          _stayTime.inMinutes % 60),
+                    initialTime: TimeOfDay(
+                      hour: _stayTime.inHours,
+                      minute: _stayTime.inMinutes % 60,
                     ),
                     cancelText: '취소',
                     confirmText: '확인',
                     helpText: '관광 시간 선택',
+                    builder: (BuildContext context, Widget? child) {
+                      return MediaQuery(
+                        data: MediaQuery.of(context)
+                            .copyWith(alwaysUse24HourFormat: true),
+                        child: child!,
+                      );
+                    },
                   );
                   if (time != null) {
                     setState(() {
@@ -1808,62 +2016,79 @@ class DailyItineraryMovementItem extends StatelessWidget {
                   : "${(movementData.distance / 1000).toStringAsFixed(1)}km");
 
           return Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "${TimeFormat(dateTime.add(movementData.duration))} 동안 $distance 이동",
-                      style: myTextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w400,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          "${TimeFormat(dateTime.add(movementData.duration))} 동안 $distance 이동",
+                          style: myTextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        IconButton(
+                          padding: EdgeInsets.all(7),
+                          iconSize: 15,
+                          constraints: const BoxConstraints(
+                            minWidth: 10,
+                            minHeight: 10,
+                          ),
+                          icon: Icon(Icons.refresh),
+                          onPressed: () async {
+                            //새로고침
+                            var placeIndex = index ~/ 2;
+                            var placeList = context
+                                .read<DailyItineraryCubit>()
+                                .state
+                                .placeList;
+                            var movementData = await getGoogleMapRoutes(
+                              placeList[placeIndex].state,
+                              placeList[placeIndex + 1].state,
+                            );
+                            // print(jsonEncode(movementData.toJson()));
+                            if (movementData == null) return;
+                            movementCubit.update(movementData);
+                            _refreshRouteWithServer(
+                              context.read<GoogleMapCubit>(),
+                              context.read<ItineraryCubit>().state,
+                              context
+                                  .read<TabControllerCubit>()
+                                  .state
+                                  .tabController
+                                  .index,
+                            );
+                          },
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      padding: EdgeInsets.all(7),
-                      iconSize: 15,
-                      constraints: const BoxConstraints(
-                        minWidth: 10,
-                        minHeight: 10,
-                      ),
-                      icon: Icon(Icons.refresh),
-                      onPressed: () async {
-                        //새로고침
-                        var placeIndex = index ~/ 2;
-                        var placeList =
-                            context.read<DailyItineraryCubit>().state.placeList;
-                        var movementData = await getGoogleMapRoutes(
-                          placeList[placeIndex].state,
-                          placeList[placeIndex + 1].state,
-                        );
-                        // print(jsonEncode(movementData.toJson()));
-                        movementCubit.update(movementData);
-                        _refreshRouteWithServer(
-                          context.read<GoogleMapCubit>(),
-                          context.read<ItineraryCubit>().state,
-                          context
-                              .read<TabControllerCubit>()
-                              .state
-                              .tabController
-                              .index,
-                        );
-                      },
+
+                    DailyItineraryMovementDetailItem(
+                      key: Key('DailyItineraryMovementDetailItem-$index'),
+                      movementCubit: movementCubit,
+                      index: index,
+                      expanded: expanded,
                     ),
+                    // DailyItineraryMovementDetailItem(
+                    //   movementCubit: movementCubit,
+                    //   index: index,
+                    // ),
                   ],
                 ),
-
-                DailyItineraryMovementDetailItem(
-                  key: Key('DailyItineraryMovementDetailItem-$index'),
-                  movementCubit: movementCubit,
-                  index: index,
-                  expanded: expanded,
-                ),
-                // DailyItineraryMovementDetailItem(
-                //   movementCubit: movementCubit,
-                //   index: index,
-                // ),
+                //처리중인지
+                if (movementData.processing)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  ),
               ],
             ),
           );
@@ -2013,6 +2238,7 @@ class _DailyItineraryMovementDetailItemState
                         placeList[placeIndex].state,
                         placeList[placeIndex + 1].state,
                       );
+                      if (movementData == null) return;
                       print(jsonEncode(movementData.toJson()));
                       widget.movementCubit.update(movementData);
                     },

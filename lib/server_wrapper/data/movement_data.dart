@@ -41,6 +41,9 @@ class MovementData with _$MovementData {
     required String method, // 이동수단
     required String source, // 경로 출처(Google, Kakao)
     @Default([]) List<MovementDetailData> details,
+    @Default(false)
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    bool processing,
   }) = _MovementData;
 
   factory MovementData.initial() => MovementData(
@@ -63,7 +66,9 @@ class MovementData with _$MovementData {
 }
 
 class MovementCubit extends Cubit<MovementData> {
-  MovementCubit(super.state);
+  MovementCubit(super.state) {
+    print('MovementCubit: $state');
+  }
 
   void update(MovementData movement) {
     emit(movement);

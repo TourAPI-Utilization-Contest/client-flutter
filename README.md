@@ -17,3 +17,4 @@
 ### Android build
 
 `flutter build apk --release`
+`flutter build appbundle --release --obfuscate --split-debug-info=./build/android/debug-info`
