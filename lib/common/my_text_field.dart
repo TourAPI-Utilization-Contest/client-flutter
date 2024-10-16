@@ -8,14 +8,14 @@ import 'my_text_style.dart';
 class MyTextField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
-  final bool autoFocus = true;
+  final bool autoFocus;
   final void Function()? onTap;
   final void Function(PointerDownEvent event)? onTapOutside;
   final void Function(String value)? onSubmitted;
   final void Function(String value)? onChanged;
   final String? hintText;
 
-  MyTextField({
+  const MyTextField({
     super.key,
     required this.controller,
     this.focusNode,
@@ -24,6 +24,7 @@ class MyTextField extends StatefulWidget {
     this.onSubmitted,
     this.onChanged,
     this.hintText,
+    this.autoFocus = false,
     // this.hintText = ''
   });
 

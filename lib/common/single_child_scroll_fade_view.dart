@@ -62,12 +62,14 @@ class SingleChildScrollFadeView extends StatefulWidget {
     this.topFadeHeight = 30,
     this.bottomFadeHeight = 30,
     this.child,
+    this.physics,
   });
 
   final ScrollController? scrollController;
   final double topFadeHeight;
   final double bottomFadeHeight;
   final Widget? child;
+  final ScrollPhysics? physics;
 
   @override
   State<SingleChildScrollFadeView> createState() =>
@@ -87,6 +89,7 @@ class _SingleChildScrollFadeViewState extends State<SingleChildScrollFadeView> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       controller: _scrollController,
+      physics: widget.physics,
       child: FadeShaderMask(
         scrollController: _scrollController!,
         topFadeHeight: widget.topFadeHeight,

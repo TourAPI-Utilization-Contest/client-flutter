@@ -52,6 +52,10 @@ class _LoginTextFormFieldState extends State<LoginTextFormField> {
       focusNode: widget.focusNode,
       onFieldSubmitted: widget.onSubmitted,
       onChanged: widget.onChanged,
+      onTapOutside: (event) {
+        // widget.focusNode.unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
       decoration: InputDecoration(
         helperText: widget.helperText,
         helperStyle: myTextStyle(

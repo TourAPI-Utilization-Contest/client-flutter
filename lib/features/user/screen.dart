@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
@@ -8,6 +9,7 @@ import 'package:tradule/common/color.dart';
 import 'package:tradule/common/global_value.dart';
 import 'package:tradule/common/my_text_field.dart';
 import 'package:tradule/common/my_text_style.dart';
+import 'package:tradule/server_wrapper/server_info.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 
 class UserScreen extends StatefulWidget {
@@ -81,7 +83,10 @@ class _UserScreenState extends State<UserScreen> {
                           if (ServerWrapper.isLogin() &&
                               ServerWrapper.userCubit.state!.profileUrl != null)
                             Image.network(
-                              ServerWrapper.userCubit.state!.profileUrl!,
+                              kIsWeb
+                                  ? proxyImageUrl +
+                                      ServerWrapper.userCubit.state!.profileUrl!
+                                  : ServerWrapper.userCubit.state!.profileUrl!,
                               width: double.infinity,
                               height: double.infinity,
                               // width: 54,

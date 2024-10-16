@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:tradule/common/app_bar_blur.dart';
 import 'package:tradule/common/color.dart';
 import 'package:tradule/common/my_text_field.dart';
@@ -86,8 +87,10 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
               spacing: 20,
               children: <Widget>[
                 MyTextField(
+                  key: Key('search'),
                   controller: _searchController,
                   hintText: '장소 이름, 태그로 검색',
+                  autoFocus: false,
                   onSubmitted: (_) {
                     // _searchPlace(_searchController.text);
                     setState(() {});
@@ -95,6 +98,9 @@ class _MyPlaceScreenState extends State<MyPlaceScreen>
                   onChanged: (value) {
                     // _searchPlace(value);
                     setState(() {});
+                  },
+                  onTapOutside: (_) {
+                    FocusManager.instance.primaryFocus?.unfocus();
                   },
                 ),
                 Padding(
@@ -353,6 +359,7 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
   ].toList();
   BitmapDescriptor _markerIcon = BitmapDescriptor.defaultMarker;
   LatLng _markerPosition = const LatLng(37.5662952, 126.9779451);
+  bool scrollAble = true;
 
   @override
   void initState() {
@@ -377,7 +384,8 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
     final padding = MediaQuery.of(context).padding;
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus();
+        // FocusScope.of(context).unfocus();
+        FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Stack(
         children: [
@@ -390,7 +398,7 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
               elevation: 0,
               color: Colors.transparent,
               child: Container(
-                padding: const EdgeInsets.all(16),
+                // padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -398,18 +406,27 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
                 child: Column(
                   spacing: 8,
                   children: <Widget>[
-                    Text(
-                      '나만의 장소 추가',
-                      style: myTextStyle(
-                        color: cPrimaryDark,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 16, left: 16, right: 16),
+                      child: Text(
+                        '나만의 장소 추가',
+                        style: myTextStyle(
+                          color: cPrimaryDark,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     Expanded(
                       child: SingleChildScrollFadeView(
+                        physics: scrollAble
+                            ? const AlwaysScrollableScrollPhysics()
+                            : const NeverScrollableScrollPhysics(),
+                        scrollController: ScrollController(),
                         child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(8.0) +
+                              const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
                             spacing: 16,
                             children: <Widget>[
@@ -464,60 +481,74 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
                               //구글 지도
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        Container(
-                                          height: 300,
-                                          child: GoogleMap(
-                                            gestureRecognizers: {
-                                              Factory<OneSequenceGestureRecognizer>(
-                                                  () =>
-                                                      EagerGestureRecognizer())
-                                            },
-                                            initialCameraPosition:
-                                                const CameraPosition(
-                                              target: LatLng(
-                                                  37.5662952, 126.9779451),
-                                              zoom: 12,
-                                            ),
-                                            markers: {
-                                              Marker(
-                                                markerId: const MarkerId('1'),
-                                                position: const LatLng(
+                                child: MouseRegion(
+                                  onEnter: (_) {
+                                    setState(() {
+                                      scrollAble = false;
+                                    });
+                                  },
+                                  onExit: (_) {
+                                    setState(() {
+                                      scrollAble = true;
+                                    });
+                                  },
+                                  child: Column(
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            height: 300,
+                                            child: GoogleMap(
+                                              webGestureHandling:
+                                                  WebGestureHandling.greedy,
+                                              gestureRecognizers: const {
+                                                Factory<OneSequenceGestureRecognizer>(
+                                                    EagerGestureRecognizer.new),
+                                              },
+                                              initialCameraPosition:
+                                                  const CameraPosition(
+                                                target: LatLng(
                                                     37.5662952, 126.9779451),
-                                                icon: _markerIcon,
-                                                draggable: true,
-                                                onDrag: (LatLng latLng) {
-                                                  _markerPosition = latLng;
-                                                  setState(() {});
-                                                },
+                                                zoom: 12,
                                               ),
-                                            },
+                                              markers: {
+                                                Marker(
+                                                  markerId: const MarkerId('1'),
+                                                  position: const LatLng(
+                                                      37.5662952, 126.9779451),
+                                                  icon: _markerIcon,
+                                                  draggable: true,
+                                                  onDrag: (LatLng latLng) {
+                                                    _markerPosition = latLng;
+                                                    setState(() {});
+                                                  },
+                                                ),
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                        //장소 검색
-                                        Positioned(
-                                          top: 10,
-                                          left: 10,
-                                          right: 10,
-                                          child: MyTextField(
-                                            controller: TextEditingController(),
-                                            hintText: '장소 검색',
+                                          //장소 검색
+                                          Positioned(
+                                            top: 10,
+                                            left: 10,
+                                            right: 10,
+                                            child: MyTextField(
+                                              controller:
+                                                  TextEditingController(),
+                                              hintText: '장소 검색',
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Text(
-                                      '핀을 드래그하여 이동할 수 있어요!',
-                                      style: myTextStyle(
-                                        color: cPrimary,
-                                        fontSize: 14,
+                                        ],
                                       ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
+                                      Text(
+                                        '핀을 드래그하여 이동할 수 있어요!',
+                                        style: myTextStyle(
+                                          color: cPrimary,
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
 
@@ -565,36 +596,40 @@ class _AddMyPlaceDialogState extends State<AddMyPlaceDialog> {
                         ),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('취소'),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            final placeData = PlaceData(
-                              id: Random().nextInt(1000000),
-                              title: _titleController.text,
-                              description: _descriptionController.text,
-                              latitude: _markerPosition.latitude,
-                              longitude: _markerPosition.longitude,
-                              address: '주소 없음',
-                              tags: _tags,
-                              isProvided: false,
-                              createdTime: DateTime.now(),
-                            );
-                            ServerWrapper.userCubit.addPlace(placeData);
-                            ServerWrapper.putMyPlaceList();
-                            Navigator.pop(context);
-                          },
-                          child: const Text('추가'),
-                        ),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 16, left: 16, right: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('취소'),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              final placeData = PlaceData(
+                                id: Random().nextInt(1000000),
+                                title: _titleController.text,
+                                description: _descriptionController.text,
+                                latitude: _markerPosition.latitude,
+                                longitude: _markerPosition.longitude,
+                                address: '주소 없음',
+                                tags: _tags,
+                                isProvided: false,
+                                createdTime: DateTime.now(),
+                              );
+                              ServerWrapper.userCubit.addPlace(placeData);
+                              ServerWrapper.putMyPlaceList();
+                              Navigator.pop(context);
+                            },
+                            child: const Text('추가'),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -77,10 +77,10 @@ Future<BitmapDescriptor> svgToBitmapDescriptor(String assetName,
       ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
 
   //웹일 경우 픽셀 비율을 1로 설정
-  var pixelRatio2 = kIsWeb ? 1.0 : pixelRatio;
+  // var pixelRatio2 = kIsWeb ? 1.0 : pixelRatio;
 
   return BitmapDescriptor.bytes(
-    await svgAssetToPngBytes(assetName, pixelRatio2),
+    await svgAssetToPngBytes(assetName, pixelRatio),
     imagePixelRatio: pixelRatio,
   );
 }
@@ -467,14 +467,15 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       right: 0,
                       left: 0,
                       bottom: _bottomSheetHeight + 20,
-                      child: PointerInterceptor(
-                        child: Opacity(
-                          opacity: 0.7,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextButton(
+                      child: Opacity(
+                        opacity: 0.7,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PointerInterceptor(
+                              child: TextButton(
                                 onPressed: () {
                                   setState(() {
                                     _globalGoogleMapCubit.update(
@@ -706,8 +707,8 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
