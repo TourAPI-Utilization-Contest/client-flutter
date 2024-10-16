@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -6,6 +7,7 @@ import 'package:tradule/common/single_child_scroll_fade_view.dart';
 import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/place_data.dart';
+import 'package:tradule/server_wrapper/server_info.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 
 import 'my_text_style.dart';
@@ -79,7 +81,9 @@ class _PlaceCardState extends State<PlaceCard> {
                       if (widget.placeData.thumbnailUrl != null &&
                           widget.placeData.thumbnailUrl!.isNotEmpty)
                         Image.network(
-                          widget.placeData.thumbnailUrl!,
+                          kIsWeb
+                              ? proxyImageUrl + widget.placeData.thumbnailUrl!
+                              : widget.placeData.thumbnailUrl!,
                           width: 54,
                           height: 54,
                           fit: BoxFit.cover,

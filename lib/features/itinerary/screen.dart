@@ -1152,7 +1152,7 @@ class _Body extends StatefulWidget {
 }
 
 class _BodyState extends State<_Body> with TickerProviderStateMixin {
-  final ScrollController _scrollController = ScrollController();
+  // final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     // var tabController = context.watch<TabControllerCubit>().state;
