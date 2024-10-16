@@ -54,7 +54,6 @@ Future<MovementData?> getGoogleMapRoutes(PlaceData start, PlaceData end,
     }),
   );
   if (response.statusCode == 200) {
-    // print('response.body: ${response.body}');
     var data = jsonDecode(response.body);
     var legs = data['routes'][0]['legs'];
     var steps = legs[0]['steps'];

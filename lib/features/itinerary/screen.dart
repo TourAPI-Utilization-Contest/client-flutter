@@ -258,7 +258,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                 length: itinerary!.dailyItineraryCubitList.length + 1,
                 initialIndex: 0,
               )..addListener(() {
-                  tabControllerListener(itinerary);
+                  tabControllerListener(context.read<ItineraryCubit>());
                 }),
             );
           } else {
@@ -272,7 +272,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                   length: itinerary.dailyItineraryCubitList.length + 1,
                   initialIndex: 0,
                 )..addListener(() {
-                    tabControllerListener(itinerary);
+                    tabControllerListener(context.read<ItineraryCubit>());
                   }),
               );
             }
@@ -722,8 +722,9 @@ class _ItineraryEditorState extends State<ItineraryEditor>
     );
   }
 
-  void tabControllerListener(ItineraryData itinerary) {
+  void tabControllerListener(ItineraryCubit itineraryCubit) {
     var tabController = _tabControllerCubit!.state.tabController;
+    var itinerary = itineraryCubit.state;
     _refreshRoute(_globalGoogleMapCubit, itinerary, tabController.index);
     // setState(() {});
   }
@@ -1734,7 +1735,7 @@ class DailyItineraryPlaceItem extends StatelessWidget {
           var timeFormat2 = DateFormat('h시간 m분');
           var timeFormat3 = DateFormat('h시간');
           var timeFormat4 = DateFormat('mm');
-          var timeFormat5 = DateFormat('hh:mm');
+          var timeFormat5 = DateFormat('HH:mm');
           String timeFormatFunc1(DateTime dateTime) {
             if (dateTime.hour == 0) {
               return timeFormat1.format(dateTime);
