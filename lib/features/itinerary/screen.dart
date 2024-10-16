@@ -90,6 +90,7 @@ class GoogleMapData {
   final Set<Polyline> polylines;
   final Set<Circle> circles;
   final BitmapDescriptor markerIcon;
+  final BitmapDescriptor expectedLocationIcon;
   final List<LatLng> expectedLocationList;
   final DateTime mapTime;
   final bool congestionToggle; // 혼잡도 표시
@@ -99,6 +100,7 @@ class GoogleMapData {
     this.polylines = const {},
     this.circles = const {},
     this.markerIcon = BitmapDescriptor.defaultMarker,
+    this.expectedLocationIcon = BitmapDescriptor.defaultMarker,
     this.expectedLocationList = const [],
     DateTime? mapTime,
     this.congestionToggle = false,
@@ -110,6 +112,7 @@ class GoogleMapData {
     Set<Polyline>? polylines,
     Set<Circle>? circles,
     BitmapDescriptor? markerIcon,
+    BitmapDescriptor? expectedLocationIcon,
     List<LatLng>? expectedLocationList,
     DateTime? mapTime,
     bool? congestionToggle,
@@ -119,6 +122,7 @@ class GoogleMapData {
       polylines: polylines ?? this.polylines,
       circles: circles ?? this.circles,
       markerIcon: markerIcon ?? this.markerIcon,
+      expectedLocationIcon: expectedLocationIcon ?? this.expectedLocationIcon,
       expectedLocationList: expectedLocationList ?? this.expectedLocationList,
       mapTime: mapTime ?? this.mapTime,
       congestionToggle: congestionToggle ?? this.congestionToggle,
@@ -138,6 +142,7 @@ class GoogleMapCubit extends Cubit<GoogleMapData> {
     Set<Polyline>? polylines,
     Set<Circle>? circles,
     BitmapDescriptor? markerIcon,
+    BitmapDescriptor? expectedLocationIcon,
     List<LatLng>? expectedLocationList,
     DateTime? mapTime,
     bool? congestionToggle,
@@ -147,6 +152,7 @@ class GoogleMapCubit extends Cubit<GoogleMapData> {
       polylines: polylines,
       circles: circles,
       markerIcon: markerIcon,
+      expectedLocationIcon: expectedLocationIcon,
       expectedLocationList: expectedLocationList,
       mapTime: mapTime,
       congestionToggle: congestionToggle,
@@ -188,6 +194,15 @@ class _ItineraryEditorState extends State<ItineraryEditor>
       // _markerIcon = bitmap;
       _globalGoogleMapCubit.update(
         _globalGoogleMapCubit.state.copyWith(markerIcon: bitmap),
+      );
+      _refreshRoute(_globalGoogleMapCubit, widget.itineraryCubit.state, 0);
+      // setState(() {});
+    });
+    svgToBitmapDescriptor('assets/icon/expected_location_pin.svg')
+        .then((BitmapDescriptor bitmap) {
+      // _markerIcon = bitmap;
+      _globalGoogleMapCubit.update(
+        _globalGoogleMapCubit.state.copyWith(expectedLocationIcon: bitmap),
       );
       _refreshRoute(_globalGoogleMapCubit, widget.itineraryCubit.state, 0);
       // setState(() {});
@@ -475,238 +490,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             PointerInterceptor(
-                              child: TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _globalGoogleMapCubit.update(
-                                      _globalGoogleMapCubit.state.copyWith(
-                                        congestionToggle: !_globalGoogleMapCubit
-                                            .state.congestionToggle,
-                                      ),
-                                    );
-                                  });
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      WidgetStateProperty.all(cPrimary),
-                                  shadowColor: WidgetStateProperty.all(
-                                    Colors.black.withOpacity(0.25),
-                                  ),
-                                  elevation: WidgetStateProperty.all(10),
-                                  padding: WidgetStateProperty.all(
-                                    EdgeInsets.zero,
-                                  ),
-                                ),
-
-                                // padding: const EdgeInsets.only(top: 15),
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 20,
-                                        right: 10,
-                                      ),
-                                      child: Text(
-                                        "혼잡도 " +
-                                            (_globalGoogleMapCubit
-                                                    .state.congestionToggle
-                                                ? "ON"
-                                                : "OFF"),
-                                        style: myTextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                          letterSpacing: 0.25,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: SizedBox(
-                                        width: 150,
-                                        height: 40,
-                                        // color: Colors.white,
-                                        child: Builder(builder: (context) {
-                                          var mapTime = _globalGoogleMapCubit
-                                              .state.mapTime;
-                                          var textStyle = myTextStyle(
-                                            fontSize: 16,
-                                            color: const Color(0xFF4C5364),
-                                            letterSpacing: 0.25,
-                                            fontWeight: FontWeight.w500,
-                                          );
-                                          return TextButton(
-                                            style: ButtonStyle(
-                                              backgroundColor:
-                                                  WidgetStateProperty.all(
-                                                Colors.white,
-                                              ),
-                                              // shadowColor: WidgetStateProperty.all(
-                                              //   Colors.black.withOpacity(0.25),
-                                              // ),
-                                              elevation:
-                                                  WidgetStateProperty.all(10),
-                                              padding: WidgetStateProperty.all(
-                                                EdgeInsets.zero,
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                              //시간 설정
-                                              showTimePicker(
-                                                context: context,
-                                                // initialTime: _mapTime.timeOfDay,
-                                                initialTime:
-                                                    TimeOfDay.fromDateTime(
-                                                        mapTime),
-
-                                                cancelText: '취소',
-                                                confirmText: '확인',
-                                                helpText: '시간 설정',
-                                                builder: (context, child) {
-                                                  return Theme(
-                                                    data: ThemeData.light()
-                                                        .copyWith(
-                                                      colorScheme:
-                                                          ColorScheme.light(
-                                                        primary: cPrimary,
-                                                        onPrimary: Colors.white,
-                                                        surface: Colors.white,
-                                                        onSurface: Colors.black,
-                                                      ),
-                                                      dialogBackgroundColor:
-                                                          Colors.white,
-                                                    ),
-                                                    child: child!,
-                                                  );
-                                                },
-                                              ).then((time) {
-                                                if (time != null) {
-                                                  setState(() {
-                                                    _globalGoogleMapCubit
-                                                        .copyWith(
-                                                      mapTime: DateTime(
-                                                        mapTime.year,
-                                                        mapTime.month,
-                                                        mapTime.day,
-                                                        time.hour,
-                                                        time.minute,
-                                                      ),
-                                                    );
-                                                    _refreshRoute(
-                                                        _globalGoogleMapCubit,
-                                                        itinerary,
-                                                        _tabControllerCubit!
-                                                            .state
-                                                            .tabController
-                                                            .index);
-                                                  });
-                                                }
-                                              });
-                                            },
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    _globalGoogleMapCubit
-                                                        .copyWith(
-                                                      mapTime:
-                                                          _globalGoogleMapCubit
-                                                              .state.mapTime
-                                                              .subtract(
-                                                        const Duration(
-                                                            minutes: 1),
-                                                      ),
-                                                    );
-                                                    _refreshRoute(
-                                                        _globalGoogleMapCubit,
-                                                        itinerary,
-                                                        _tabControllerCubit!
-                                                            .state
-                                                            .tabController
-                                                            .index);
-                                                    setState(() {});
-                                                  },
-                                                  style: ButtonStyle(
-                                                    padding:
-                                                        WidgetStateProperty.all(
-                                                      EdgeInsets.zero,
-                                                    ),
-                                                    minimumSize:
-                                                        WidgetStateProperty.all(
-                                                      const Size(40, 40),
-                                                    ),
-                                                    fixedSize:
-                                                        WidgetStateProperty.all(
-                                                      const Size(40, 40),
-                                                    ),
-                                                  ),
-                                                  child: SvgPicture.asset(
-                                                    'assets/icon/m.svg',
-                                                  ),
-                                                ),
-                                                Text(
-                                                  '${mapTime.hour}',
-                                                  style: textStyle,
-                                                ),
-                                                Text(
-                                                  ':',
-                                                  style: textStyle,
-                                                ),
-                                                Text(
-                                                  '${mapTime.minute}',
-                                                  style: textStyle,
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    _globalGoogleMapCubit
-                                                        .copyWith(
-                                                      mapTime:
-                                                          _globalGoogleMapCubit
-                                                              .state.mapTime
-                                                              .add(
-                                                        const Duration(
-                                                            minutes: 1),
-                                                      ),
-                                                    );
-                                                    _refreshRoute(
-                                                        _globalGoogleMapCubit,
-                                                        itinerary,
-                                                        _tabControllerCubit!
-                                                            .state
-                                                            .tabController
-                                                            .index);
-                                                    setState(() {});
-                                                  },
-                                                  style: ButtonStyle(
-                                                    padding:
-                                                        WidgetStateProperty.all(
-                                                      EdgeInsets.zero,
-                                                    ),
-                                                    minimumSize:
-                                                        WidgetStateProperty.all(
-                                                      const Size(40, 40),
-                                                    ),
-                                                    fixedSize:
-                                                        WidgetStateProperty.all(
-                                                      const Size(40, 40),
-                                                    ),
-                                                  ),
-                                                  child: SvgPicture.asset(
-                                                    'assets/icon/p.svg',
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              child: MapTimeButton(),
                             ),
                           ],
                         ),
@@ -737,6 +521,222 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   }
 }
 
+class MapTimeButton extends StatefulWidget {
+  const MapTimeButton({
+    super.key,
+  });
+
+  @override
+  State<MapTimeButton> createState() => _MapTimeButtonState();
+}
+
+class _MapTimeButtonState extends State<MapTimeButton> {
+  @override
+  Widget build(BuildContext context) {
+    var itinerary = context.read<ItineraryCubit>().state;
+    var tabControllerCubit = context.read<TabControllerCubit>();
+
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          _globalGoogleMapCubit.update(
+            _globalGoogleMapCubit.state.copyWith(
+              congestionToggle: !_globalGoogleMapCubit.state.congestionToggle,
+            ),
+          );
+        });
+      },
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(cPrimary),
+        shadowColor: WidgetStateProperty.all(
+          Colors.black.withOpacity(0.25),
+        ),
+        elevation: WidgetStateProperty.all(10),
+        padding: WidgetStateProperty.all(
+          EdgeInsets.zero,
+        ),
+      ),
+
+      // padding: const EdgeInsets.only(top: 15),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 10,
+            ),
+            child: Text(
+              "혼잡도 ${_globalGoogleMapCubit.state.congestionToggle ? "ON" : "OFF"}",
+              style: myTextStyle(
+                fontSize: 16,
+                color: Colors.white,
+                letterSpacing: 0.25,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: SizedBox(
+              width: 150,
+              height: 40,
+              // color: Colors.white,
+              child: Builder(builder: (context) {
+                var mapTime = _globalGoogleMapCubit.state.mapTime;
+                var textStyle = myTextStyle(
+                  fontSize: 16,
+                  color: const Color(0xFF4C5364),
+                  letterSpacing: 0.25,
+                  fontWeight: FontWeight.w500,
+                );
+                return GestureDetector(
+                  onVerticalDragUpdate: (details) {
+                    setState(() {
+                      _globalGoogleMapCubit.copyWith(
+                        mapTime: _globalGoogleMapCubit.state.mapTime.subtract(
+                          Duration(minutes: details.delta.dy.toInt()),
+                        ),
+                      );
+                      _refreshRoute(_globalGoogleMapCubit, itinerary,
+                          tabControllerCubit.state.tabController.index);
+                    });
+                  },
+                  child: TextButton(
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(
+                        Colors.white,
+                      ),
+                      // shadowColor: WidgetStateProperty.all(
+                      //   Colors.black.withOpacity(0.25),
+                      // ),
+                      elevation: WidgetStateProperty.all(10),
+                      padding: WidgetStateProperty.all(
+                        EdgeInsets.zero,
+                      ),
+                    ),
+                    onPressed: () {
+                      //시간 설정
+                      showTimePicker(
+                        context: context,
+                        // initialTime: _mapTime.timeOfDay,
+                        initialTime: TimeOfDay.fromDateTime(mapTime),
+
+                        cancelText: '취소',
+                        confirmText: '확인',
+                        helpText: '시간 설정',
+                        builder: (context, child) {
+                          return Theme(
+                            data: ThemeData.light().copyWith(
+                              colorScheme: ColorScheme.light(
+                                primary: cPrimary,
+                                onPrimary: Colors.white,
+                                surface: Colors.white,
+                                onSurface: Colors.black,
+                              ),
+                              dialogBackgroundColor: Colors.white,
+                            ),
+                            child: child!,
+                          );
+                        },
+                      ).then((time) {
+                        if (time != null) {
+                          setState(() {
+                            _globalGoogleMapCubit.copyWith(
+                              mapTime: DateTime(
+                                mapTime.year,
+                                mapTime.month,
+                                mapTime.day,
+                                time.hour,
+                                time.minute,
+                              ),
+                            );
+                            _refreshRoute(_globalGoogleMapCubit, itinerary,
+                                tabControllerCubit!.state.tabController.index);
+                          });
+                        }
+                      });
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            _globalGoogleMapCubit.copyWith(
+                              mapTime:
+                                  _globalGoogleMapCubit.state.mapTime.subtract(
+                                const Duration(minutes: 1),
+                              ),
+                            );
+                            _refreshRoute(_globalGoogleMapCubit, itinerary,
+                                tabControllerCubit!.state.tabController.index);
+                            setState(() {});
+                          },
+                          style: ButtonStyle(
+                            padding: WidgetStateProperty.all(
+                              EdgeInsets.zero,
+                            ),
+                            minimumSize: WidgetStateProperty.all(
+                              const Size(40, 40),
+                            ),
+                            fixedSize: WidgetStateProperty.all(
+                              const Size(40, 40),
+                            ),
+                          ),
+                          child: SvgPicture.asset(
+                            'assets/icon/m.svg',
+                          ),
+                        ),
+                        Text(
+                          '${mapTime.hour}',
+                          style: textStyle,
+                        ),
+                        Text(
+                          ':',
+                          style: textStyle,
+                        ),
+                        Text(
+                          '${mapTime.minute}',
+                          style: textStyle,
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            _globalGoogleMapCubit.copyWith(
+                              mapTime: _globalGoogleMapCubit.state.mapTime.add(
+                                const Duration(minutes: 1),
+                              ),
+                            );
+                            _refreshRoute(_globalGoogleMapCubit, itinerary,
+                                tabControllerCubit!.state.tabController.index);
+                            setState(() {});
+                          },
+                          style: ButtonStyle(
+                            padding: WidgetStateProperty.all(
+                              EdgeInsets.zero,
+                            ),
+                            minimumSize: WidgetStateProperty.all(
+                              const Size(40, 40),
+                            ),
+                            fixedSize: WidgetStateProperty.all(
+                              const Size(40, 40),
+                            ),
+                          ),
+                          child: SvgPicture.asset(
+                            'assets/icon/p.svg',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 GoogleMapCubit _globalGoogleMapCubit = GoogleMapCubit(GoogleMapData());
 // late ItineraryData _globalItinerary;
 void refreshRoute(ItineraryData itinerary) {
@@ -746,6 +746,8 @@ void refreshRoute(ItineraryData itinerary) {
 //리프레쉬 경로 (경로를 다시 그림)
 void _refreshRoute(
     GoogleMapCubit googleMapCubit, ItineraryData itinerary, int index) {
+  DateTime targetTime = googleMapCubit.state.mapTime;
+  targetTime = DateTime(1970, 1, 1, targetTime.hour, targetTime.minute);
   // print('refreshRoute');
   var markerIcon = googleMapCubit.state.markerIcon;
   Set<Marker> markers = {};
@@ -755,7 +757,9 @@ void _refreshRoute(
   var iMin = index == 0 ? 0 : index - 1;
   for (var i = iMin; i < iMax; i++) {
     var dailyItineraryCubit = itinerary.dailyItineraryCubitList[i];
-    for (var placeCubit in dailyItineraryCubit.state.placeList) {
+    var jMax = dailyItineraryCubit.state.placeList.length;
+    for (var j = 0; j < jMax; j++) {
+      var placeCubit = dailyItineraryCubit.state.placeList[j];
       markers.add(
         Marker(
           markerId: MarkerId(placeCubit.state.id.toString()),
@@ -766,15 +770,38 @@ void _refreshRoute(
           infoWindow: InfoWindow(
             title: placeCubit.state.title,
             snippet: placeCubit.state.address,
-            // anchor: Offset(0.5, 0.5),
           ),
+          zIndex: 10,
         ),
       );
+      var visitTime =
+          placeCubit.state.visitTime ?? const TimeOfDay(hour: 0, minute: 0);
+      DateTime startTime =
+          DateTime(1970, 1, 1, visitTime.hour, visitTime.minute);
+      DateTime endTime = j == jMax - 1
+          ? DateTime(1970, 1, 1, 23, 59)
+          : startTime.add(
+              placeCubit.state.stayTime ?? const Duration(),
+            );
+      if (j == 0) startTime = DateTime(1970, 1, 1, 0, 0);
+
+      // print(
+      //     'startTime: $startTime, endTime: $endTime, targetTime: $targetTime');
+      if (startTime.isBefore(targetTime) && endTime.isAfter(targetTime)) {
+        drawExpectedLocation(
+          markers,
+          LatLng(
+            placeCubit.state.latitude,
+            placeCubit.state.longitude,
+          ),
+        );
+      }
     }
     // print('dailyItineraryCubit: ${dailyItineraryCubit.state.toJson()}');
     for (var movementCubit in dailyItineraryCubit.state.movementList) {
       // print('movementCubit: ${movementCubit.state.toJson()}');
       DateTime startTime = movementCubit.state.startTime;
+      startTime = DateTime(1970, 1, 1, startTime.hour, startTime.minute);
       DateTime currentTime = startTime;
       DateTime nextTime = currentTime;
       for (var movementDetail in movementCubit.state.details) {
@@ -812,31 +839,10 @@ void _refreshRoute(
           latlngList,
           currentTime,
           nextTime,
-          googleMapCubit.state.mapTime,
+          targetTime,
         );
         if (expectedLocation != null) {
-          circle.add(
-            Circle(
-              circleId: CircleId(Random().nextInt(100000).toString()),
-              center: expectedLocation,
-              zIndex: 3,
-              radius: 100,
-              fillColor: cPrimary.withAlpha(50),
-              strokeColor: cPrimary.withAlpha(100),
-              strokeWidth: 2,
-            ),
-          );
-          circle.add(
-            Circle(
-              circleId: CircleId(Random().nextInt(100000).toString()),
-              center: expectedLocation,
-              zIndex: 4,
-              radius: 30,
-              fillColor: Colors.white,
-              strokeColor: cPrimary,
-              strokeWidth: 6,
-            ),
-          );
+          drawExpectedLocation(markers, expectedLocation);
         }
         currentTime = nextTime;
       }
@@ -848,6 +854,19 @@ void _refreshRoute(
       markers: markers,
       polylines: polylines,
       circles: circle,
+    ),
+  );
+}
+
+void drawExpectedLocation(Set<Marker> markers, LatLng expectedLocation) {
+  markers.add(
+    Marker(
+      markerId: MarkerId('expectedLocation-${Random().nextInt(100000)}'),
+      icon: _globalGoogleMapCubit.state.expectedLocationIcon,
+      position: expectedLocation,
+      draggable: false,
+      anchor: const Offset(0.5, 0.5),
+      zIndex: 3,
     ),
   );
 }

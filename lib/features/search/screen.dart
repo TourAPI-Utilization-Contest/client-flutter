@@ -115,22 +115,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   },
                   onChanged: onChanged,
                   onSubmitted: onEnter,
+                  autoFocus: true,
                   hintText:
                       _focusNode.hasFocus ? '주소, 장소, 키워드를 입력하세요' : '어디로 떠나볼까요?',
                 )),
-            // if (suggestionsVisible && _textController.text.isNotEmpty)
-            //   buildSuggestions(),
-            // if (firstSearch && _textController.text.isEmpty)
-            //   Padding(
-            //     padding: const EdgeInsets.only(top: 16),
-            //     child: Text(
-            //       '어서 검색해 보세요!',
-            //       style: myTextStyle(
-            //         fontSize: 16,
-            //         fontWeight: FontWeight.w400,
-            //       ),
-            //     ),
-            //   ),
             Expanded(
               child: Stack(
                 children: [
