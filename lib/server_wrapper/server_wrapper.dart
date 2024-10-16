@@ -30,6 +30,12 @@ class SignUpResult {
   SignUpResult(this.success, {this.message});
 }
 
+class SendPasswordResetEmailResult {
+  bool success;
+  String? message;
+  SendPasswordResetEmailResult(this.success, {this.message});
+}
+
 class ServerWrapper {
   static FirebaseFirestore firestore = FirebaseFirestore.instanceFor(
       app: Firebase.app(), databaseId: 'tradule-db');
@@ -988,7 +994,27 @@ class ServerWrapper {
     return true;
   }
 
-  // ------------------------- 파이어 베이스 -------------------------
+  static Future<SendPasswordResetEmailResult> sendPasswordResetEmail(
+      String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return SendPasswordResetEmailResult(true);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') {
+        return SendPasswordResetEmailResult(false, message: '가입되지 않은 이메일입니다.');
+      } else if (e.code == 'user-not-found') {
+        return SendPasswordResetEmailResult(false, message: '가입되지 않은 이메일입니다.');
+      } else {
+        return SendPasswordResetEmailResult(false, message: '알 수 없는 오류: $e');
+      }
+    } catch (e) {
+      print(e);
+      return SendPasswordResetEmailResult(false,
+          message: '비밀번호 재설정 이메일 전송에 실패하였습니다.');
+    }
+  }
+
+  // ------------------------- 파이어 스토어 -------------------------
   static Future<void> markAccountAsDeleted(String email) async {
     await firestore.collection('users').doc(email).set({
       'isDeleted': true, // 탈퇴 계정으로 설정

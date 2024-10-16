@@ -181,15 +181,15 @@ class DailyItineraryCubit extends Cubit<DailyItineraryData> {
   void resetMovement(int index, {MovementData? movementData}) {
     if (index < 0 || index >= state.movementList.length) return;
     var newMovements = List<MovementCubit>.from(state.movementList);
-    newMovements[index] = MovementCubit(movementData ?? MovementData.initial());
+    newMovements[index].update(movementData ?? MovementData.initial());
     emit(state.copyWith(movementList: newMovements));
   }
 
   void processingMovement(int index, {bool processing = true}) {
     if (index < 0 || index >= state.movementList.length) return;
     var newMovements = List<MovementCubit>.from(state.movementList);
-    newMovements[index] = MovementCubit(
-        newMovements[index].state.copyWith(processing: processing));
+    newMovements[index]
+        .update(newMovements[index].state.copyWith(processing: processing));
     emit(state.copyWith(movementList: newMovements));
   }
 }

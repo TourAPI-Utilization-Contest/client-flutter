@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tradule/common/app_bar_blur.dart';
 import 'package:tradule/common/login_text_form_field.dart';
+import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/common/section.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
 import 'package:tradule/common/color.dart';
@@ -254,7 +255,145 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 10),
                             TextButton(
                               onPressed: () {
-                                print('비밀번호 찾기 버튼 클릭');
+                                // print('비밀번호 찾기 버튼 클릭');
+                                // 이메일 입력 다이얼로그 표시
+                                showDialog(
+                                  context: context,
+                                  builder: (_) {
+                                    var emailController =
+                                        TextEditingController();
+                                    return AlertDialog(
+                                      title: const Text('비밀번호 찾기'),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Text(
+                                            '가입 시 사용한 이메일을 입력하세요.',
+                                            style: TextStyle(
+                                              fontSize: 12.0,
+                                              fontFamily: 'NotoSansKR',
+                                              fontVariations: [
+                                                FontVariation('wght', 200.0),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          TextFormField(
+                                            controller: emailController,
+                                            decoration: InputDecoration(
+                                              hintText: 'Email',
+                                              hintStyle: TextStyle(
+                                                color: cGray,
+                                                fontFamily: 'NotoSansKR',
+                                                fontVariations: const [
+                                                  FontVariation('wght', 200.0),
+                                                ],
+                                              ),
+                                              filled: true,
+                                              fillColor:
+                                                  const Color(0xFFF8F8F8),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(30.0),
+                                                borderSide: BorderSide.none,
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                vertical: 17.0,
+                                                horizontal: 25.0,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 10),
+                                          ElevatedButton(
+                                            onPressed: () async {
+                                              Navigator.pop(context);
+                                              var result = await ServerWrapper
+                                                  .sendPasswordResetEmail(
+                                                      emailController.text);
+                                              print(result.message);
+                                              if (!context.mounted) return;
+                                              if (!result.success) {
+                                                print('비밀번호 찾기 실패');
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) {
+                                                    return AlertDialog(
+                                                      title:
+                                                          const Text('비밀번호 찾기'),
+                                                      content: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          Text(
+                                                            result.message!,
+                                                            style: myTextStyle(
+                                                              fontSize: 12.0,
+                                                            ),
+                                                          ),
+                                                          const SizedBox(
+                                                              height: 10),
+                                                          ElevatedButton(
+                                                            onPressed: () {
+                                                              Navigator.pop(
+                                                                  context);
+                                                            },
+                                                            child: const Text(
+                                                                '확인'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                                return;
+                                              }
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title:
+                                                        const Text('비밀번호 찾기'),
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        const Text(
+                                                          '입력하신 이메일로 비밀번호 재설정 링크를 보냈습니다.',
+                                                          style: TextStyle(
+                                                            fontSize: 12.0,
+                                                            fontFamily:
+                                                                'NotoSansKR',
+                                                            fontVariations: [
+                                                              FontVariation(
+                                                                  'wght',
+                                                                  200.0),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        const SizedBox(
+                                                            height: 10),
+                                                        ElevatedButton(
+                                                          onPressed: () {
+                                                            Navigator.pop(
+                                                                context);
+                                                          },
+                                                          child:
+                                                              const Text('확인'),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            child: const Text('전송'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                );
                               },
                               child: Text(
                                 'forgot your password?',

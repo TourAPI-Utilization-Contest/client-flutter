@@ -479,12 +479,15 @@ class _MainPageState extends State<MainPage>
                                                   ItineraryEditor(
                                                       itineraryCubit:
                                                           itineraryCubit),
-                                              // CustomBottomSheetMap(),
                                             ),
                                           );
                                           ServerWrapper
-                                              .getScheduleDetailWithClear(
-                                                  itineraryCubit);
+                                                  .getScheduleDetailWithClear(
+                                                      itineraryCubit)
+                                              .then((bool value) {
+                                            if (!value) return;
+                                            refreshRoute(itineraryCubit.state);
+                                          });
                                         },
                                         onEditPressed: () {
                                           Navigator.push(
