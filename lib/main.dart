@@ -1,3 +1,4 @@
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:tradule/features/search/screen.dart';
 
 import 'firebase_options.dart';
@@ -25,7 +26,8 @@ import 'package:tradule/features/login/screen.dart';
 import 'package:tradule/features/login/sign_up.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   // GoogleFonts.config.allowRuntimeFetching = false;
 
   await Firebase.initializeApp(
@@ -67,6 +69,7 @@ class Tradule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return MaterialApp(
       title: 'Tradule',
       theme: ThemeData(

@@ -3,6 +3,7 @@
 ## 메모
 
 `flutter pub run build_runner watch`
+`dart run flutter_native_splash:create`
 웹 CORS 끄기: `--web-browser-flag "--disable-web-security"`
 
 ### web build
