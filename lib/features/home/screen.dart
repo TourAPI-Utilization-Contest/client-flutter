@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:tradule/common/global_value.dart';
 import 'package:tradule/common/itinerary_card.dart';
 import 'package:tradule/common/sort_widget.dart';
+import 'package:tradule/features/itinerary/congestion.dart';
 import 'package:tradule/features/itinerary/screen_legacy.dart';
 import 'package:tradule/features/my_place/screen.dart';
 import 'package:tradule/server_wrapper/server_wrapper.dart';
@@ -485,6 +486,10 @@ class _MainPageState extends State<MainPage>
                                                   .getScheduleDetailWithClear(
                                                       itineraryCubit)
                                               .then((bool value) {
+                                            if (!value) return;
+                                            refreshRoute(itineraryCubit.state);
+                                          });
+                                          fetchCongestionData().then((value) {
                                             if (!value) return;
                                             refreshRoute(itineraryCubit.state);
                                           });

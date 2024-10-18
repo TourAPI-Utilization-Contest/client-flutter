@@ -60,6 +60,7 @@ dependencies:
   scroll_datetime_picker: ^0.1.2
   pointer_interceptor: ^0.10.1+2
   flutter_native_splash: ^2.4.1
+  csv: ^6.0.0
 #  flutter_time_picker_spinner: ^2.0.0
 #  fluttertoast: ^8.2.8
 #  avs_svg_provider: ^1.0.1

@@ -17,6 +17,7 @@ import 'package:tradule/common/color.dart';
 import 'package:tradule/common/context_menu.dart';
 import 'package:tradule/common/my_text_style.dart';
 import 'package:tradule/common/single_child_scroll_fade_view.dart';
+import 'package:tradule/features/itinerary/congestion.dart';
 import 'package:tradule/google_map_routes/google_map_routes.dart';
 import 'package:tradule/server_wrapper/data/daily_itinerary_data.dart';
 import 'package:tradule/server_wrapper/data/itinerary_data.dart';
@@ -28,6 +29,7 @@ import 'package:latlong2/latlong.dart' as latlng2;
 import 'package:tradule/server_wrapper/tsp.dart';
 // import 'package:wheel_picker/wheel_picker.dart';
 
+import 'BMEC.dart';
 import 'bloc.dart';
 import 'map_style.dart';
 import 'time_dial.dart';
@@ -103,7 +105,7 @@ class GoogleMapData {
     this.expectedLocationIcon = BitmapDescriptor.defaultMarker,
     this.expectedLocationList = const [],
     DateTime? mapTime,
-    this.congestionToggle = false,
+    this.congestionToggle = true,
   }) : mapTime = mapTime ?? DateTime.now();
 
   //copyWith
@@ -129,6 +131,8 @@ class GoogleMapData {
     );
   }
 }
+
+double googleMapZoom = 12;
 
 class GoogleMapCubit extends Cubit<GoogleMapData> {
   GoogleMapCubit(super.state);
@@ -176,6 +180,7 @@ class _ItineraryEditorState extends State<ItineraryEditor>
   GlobalKey _mapKey = GlobalKey();
   String _cloudMapId = lightMapId; // 기본 스타일
   String? _style = aubergine;
+  double _lastZoom = 0;
 
   // DateTime _mapTime = DateTime.now();
   // TabController? _tabController;
@@ -316,36 +321,28 @@ class _ItineraryEditorState extends State<ItineraryEditor>
                       left: 0,
                       right: 0,
                       height: mapHeight,
-                      child: Builder(builder: (context) {
-                        // var index = _tabController!.index;
-                        // if (index > 0) {
-                        //   var dailyItineraryCubit =
-                        //       itinerary!.dailyItineraryCubitList[index - 1];
-                        //   dailyItineraryCubit.
-                        //   // context.watch<DailyItineraryCubit>().state;
-                        // }
-                        return GoogleMap(
-                          // onLongPress: (LatLng latLng) {
-                          //   print('Map long pressed: $latLng');
-                          // },
-                          key: _mapKey,
-                          webGestureHandling: WebGestureHandling.greedy,
-                          onMapCreated: (GoogleMapController controller) {
-                            _mapController = controller;
-                          },
-                          // padding: EdgeInsets.only(bottom: _bottomSheetHeight),
-                          initialCameraPosition: CameraPosition(
-                            target: LatLng(37.5662952, 126.9779451),
-                            zoom: 12,
-                          ),
-                          cloudMapId: _cloudMapId,
-                          // style: _style,
-                          // mapToolbarEnabled: true,
-                          markers: markers,
-                          polylines: polylines,
-                          circles: circles,
-                        );
-                      }),
+                      child: GoogleMap(
+                        // onLongPress: (LatLng latLng) {
+                        //   print('Map long pressed: $latLng');
+                        // },
+                        key: _mapKey,
+                        webGestureHandling: WebGestureHandling.greedy,
+                        onMapCreated: (GoogleMapController controller) {
+                          _mapController = controller;
+                        },
+                        onCameraMove: onCameraMove,
+                        // padding: EdgeInsets.only(bottom: _bottomSheetHeight),
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(37.5662952, 126.9779451),
+                          zoom: 12,
+                        ),
+                        cloudMapId: _cloudMapId,
+                        // style: _style,
+                        // mapToolbarEnabled: true,
+                        markers: markers,
+                        polylines: polylines,
+                        circles: circles,
+                      ),
                     ),
                     Positioned(
                       left: 0,
@@ -519,6 +516,57 @@ class _ItineraryEditorState extends State<ItineraryEditor>
     _tabControllerCubit?.state.tabController.dispose();
     super.dispose();
   }
+
+  /// Called when the camera moves to update all the [PolygonMarker]s and
+  /// [CircleMarker]s.
+  @nonVirtual
+  Future<void> onCameraMove(CameraPosition cameraPosition) async {
+    // Return if not web.
+    if (!kIsWeb) {
+      return;
+    }
+
+    // Do nothing if the zoom level has not changed.
+    if (_lastZoom == cameraPosition.zoom) {
+      return;
+    }
+
+    // Save the zoom level.
+    _lastZoom = cameraPosition.zoom;
+    googleMapZoom = cameraPosition.zoom;
+    // print('zoom: $googleMapZoom');
+
+    // Rebuild all CircleMarkers.
+    var circles = _globalGoogleMapCubit.state.circles;
+    Set<CircleMarker> circleMarkers = circles.whereType<CircleMarker>().toSet();
+
+    print(circles.isNotEmpty ? circles.first.radius : 'no circle');
+    print(circleMarkers.isNotEmpty ? circleMarkers.first.size : 'no circle');
+    circles
+      ..removeAll(circleMarkers)
+      ..addAll(circleMarkers.map((circleMarker) => circleMarker.copyWithZoom(
+            mapZoom: cameraPosition.zoom,
+          )));
+    _globalGoogleMapCubit.update(
+      _globalGoogleMapCubit.state.copyWith(circles: circles),
+    );
+    print(_globalGoogleMapCubit.state.circles.isNotEmpty
+        ? circles.first.radius
+        : 'no circle');
+
+    //   // Rebuild all PolygonMarkers.
+    //   var polygons = _globalGoogleMapCubit.state.polygons;
+    //   Set<PolygonMarker> polygonMarkers =
+    //       polygons.whereType<PolygonMarker>().toSet();
+    //
+    //   polygons
+    //     ..removeAll(polygonMarkers)
+    //     ..addAll(
+    //         polygonMarkers.map((polygonMarker) => polygonMarker.copyWithTransform(
+    //               mapZoom: cameraPosition.zoom,
+    //             )));
+    //   notifyListeners();
+  }
 }
 
 class MapTimeButton extends StatefulWidget {
@@ -531,6 +579,9 @@ class MapTimeButton extends StatefulWidget {
 }
 
 class _MapTimeButtonState extends State<MapTimeButton> {
+  Offset _dragStartOffset = Offset.zero;
+  DateTime _dragStartTime = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
     var itinerary = context.read<ItineraryCubit>().state;
@@ -544,6 +595,8 @@ class _MapTimeButtonState extends State<MapTimeButton> {
               congestionToggle: !_globalGoogleMapCubit.state.congestionToggle,
             ),
           );
+          _refreshRoute(_globalGoogleMapCubit, itinerary,
+              tabControllerCubit.state.tabController.index);
         });
       },
       style: ButtonStyle(
@@ -590,11 +643,18 @@ class _MapTimeButtonState extends State<MapTimeButton> {
                   fontWeight: FontWeight.w500,
                 );
                 return GestureDetector(
+                  onVerticalDragStart: (details) {
+                    _dragStartOffset = details.globalPosition;
+                    _dragStartTime = mapTime;
+                  },
                   onVerticalDragUpdate: (details) {
+                    // print('details: ${details.delta.dy}');
+                    var position = details.globalPosition;
+                    var dy = position.dy - _dragStartOffset.dy;
                     setState(() {
                       _globalGoogleMapCubit.copyWith(
-                        mapTime: _globalGoogleMapCubit.state.mapTime.subtract(
-                          Duration(minutes: details.delta.dy.toInt()),
+                        mapTime: _dragStartTime.subtract(
+                          Duration(minutes: dy.toInt()),
                         ),
                       );
                       _refreshRoute(_globalGoogleMapCubit, itinerary,
@@ -668,7 +728,7 @@ class _MapTimeButtonState extends State<MapTimeButton> {
                               ),
                             );
                             _refreshRoute(_globalGoogleMapCubit, itinerary,
-                                tabControllerCubit!.state.tabController.index);
+                                tabControllerCubit.state.tabController.index);
                             setState(() {});
                           },
                           style: ButtonStyle(
@@ -706,7 +766,7 @@ class _MapTimeButtonState extends State<MapTimeButton> {
                               ),
                             );
                             _refreshRoute(_globalGoogleMapCubit, itinerary,
-                                tabControllerCubit!.state.tabController.index);
+                                tabControllerCubit.state.tabController.index);
                             setState(() {});
                           },
                           style: ButtonStyle(
@@ -790,6 +850,7 @@ void _refreshRoute(
       if (startTime.isBefore(targetTime) && endTime.isAfter(targetTime)) {
         drawExpectedLocation(
           markers,
+          circle,
           LatLng(
             placeCubit.state.latitude,
             placeCubit.state.longitude,
@@ -842,10 +903,40 @@ void _refreshRoute(
           targetTime,
         );
         if (expectedLocation != null) {
-          drawExpectedLocation(markers, expectedLocation);
+          drawExpectedLocation(markers, circle, expectedLocation);
         }
         currentTime = nextTime;
       }
+    }
+  }
+
+  //getAllCongestionData
+  if (googleMapCubit.state.congestionToggle) {
+    //현재 날짜 가져오기
+    var newIndex = index == 0 ? 0 : index - 1;
+    var targetDate = itinerary.dailyItineraryCubitList[newIndex].state.date;
+    var congestionDataList = getAllCongestionData(DateTime(
+      targetDate.year,
+      targetDate.month,
+      targetDate.day,
+      targetTime.hour,
+      targetTime.minute,
+    ));
+    for (var congestionData in congestionDataList) {
+      circle.add(
+        Circle(
+          circleId: CircleId('congestion-${Random().nextInt(100000)}'),
+          center: LatLng(
+            congestionData.latitude,
+            congestionData.longitude,
+          ),
+          radius: pow(congestionData.minCongestion, 0.6).toDouble(),
+          fillColor: congestionData.fillColor,
+          strokeColor: congestionData.strokeColor,
+          strokeWidth: 2,
+          zIndex: 3,
+        ),
+      );
     }
   }
 
@@ -858,17 +949,47 @@ void _refreshRoute(
   );
 }
 
-void drawExpectedLocation(Set<Marker> markers, LatLng expectedLocation) {
-  markers.add(
-    Marker(
-      markerId: MarkerId('expectedLocation-${Random().nextInt(100000)}'),
-      icon: _globalGoogleMapCubit.state.expectedLocationIcon,
-      position: expectedLocation,
-      draggable: false,
-      anchor: const Offset(0.5, 0.5),
-      zIndex: 3,
-    ),
-  );
+void drawExpectedLocation(
+    Set<Marker> markers, Set<Circle> circles, LatLng expectedLocation) {
+  if (!kIsWeb) {
+    markers.add(
+      Marker(
+        markerId: MarkerId('expectedLocation-${Random().nextInt(100000)}'),
+        icon: _globalGoogleMapCubit.state.expectedLocationIcon,
+        position: expectedLocation,
+        draggable: false,
+        anchor: const Offset(0.5, 0.5),
+        zIndex: 3,
+      ),
+    );
+  } else {
+    circles.add(
+      CircleMarker(
+        circleId: CircleId('expectedLocation-${Random().nextInt(100000)}'),
+        center: expectedLocation,
+        // radius: 10000,
+        size: 15000000,
+        mapZoom: googleMapZoom,
+        fillColor: cPrimary.withAlpha(20),
+        strokeColor: cPrimary,
+        strokeWidth: 2,
+        zIndex: 3,
+      ),
+    );
+    circles.add(
+      CircleMarker(
+        circleId: CircleId('expectedLocation-${Random().nextInt(100000)}'),
+        center: expectedLocation,
+        // radius: 10,
+        size: 4000000,
+        mapZoom: googleMapZoom,
+        fillColor: Colors.white,
+        strokeColor: cPrimary,
+        strokeWidth: 6,
+        zIndex: 4,
+      ),
+    );
+  }
 }
 
 void _refreshRouteWithServer(
